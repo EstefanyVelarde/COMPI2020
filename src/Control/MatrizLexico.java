@@ -7,16 +7,16 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class Matriz {
+public class MatrizLexico {
 
     XSSFSheet matriz;
     
-    public Matriz() {
+    public MatrizLexico() {
         matriz = this.getMatriz();
     }
 
     private XSSFSheet getMatriz() {
-        String fileName = "Matriz.xlsx";
+        String fileName = "MatrizLexico.xlsx";
         String route = fileName;
 
         try (FileInputStream file = new FileInputStream(new File(route))) {

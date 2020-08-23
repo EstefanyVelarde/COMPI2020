@@ -9,7 +9,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class AnalizadorLexico {
 
-    Matriz matriz;
+    MatrizLexico matriz;
 
     LinkedList<Token> tokens;
 
@@ -25,7 +25,7 @@ public class AnalizadorLexico {
 
     public AnalizadorLexico() {
 
-        matriz = new Matriz();
+        matriz = new MatrizLexico();
 
         tokens = new LinkedList();
 
