@@ -2,7 +2,6 @@ package Control;
 
 import Model.Token;
 import Model.Error;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class AnalizadorSintactico {
@@ -85,7 +84,29 @@ public class AnalizadorSintactico {
         prodStack.removeLast();
     }
     
+    // TERMINALES
+    public boolean terminales(int PS, int LT) {
+        return matriz.terminales(PS, LT);
+    }
+    
+    public void setTerminales() {
+        tokens.removeFirst();
+        
+        prodStack.removeLast();
+    }
+    
+    
     // ERROR
+    public boolean error(int valor) {
+        return valor >= 600;
+    }
+    
+    public void setError(int error) {
+        Token token = tokens.removeFirst();
+        
+        errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 600], "Sintaxis"));
+    }
+    
     String desc[] = { 
         "Está de más",
         "Se esperaba un def id {",
@@ -121,28 +142,6 @@ public class AnalizadorSintactico {
         "Se esperaba un Sort Reverse insert Count index Append Extend pop remove",
         "Se esperaba un findall replace sample len choice randrange mean median variance sum random"
     };
-    
-    public boolean error(int valor) {
-        return valor >= 600;
-    }
-    
-    public void setError(int error) {
-        Token token = tokens.removeFirst();
-        
-        errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 600], "Sintaxis"));
-    }
-    
-    // TERMINALES
-    public boolean terminales(int PS, int LT) {
-        return matriz.terminales(PS, LT);
-    }
-    
-    public void setTerminales() {
-        tokens.removeFirst();
-        
-        prodStack.removeLast();
-    }
-    
     
     // PRODUCCIONES
     int prod[][] = {

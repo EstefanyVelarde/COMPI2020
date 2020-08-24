@@ -2,6 +2,7 @@ package Control;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Hashtable;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -11,8 +12,12 @@ public class MatrizLexico {
 
     XSSFSheet matriz;
     
+    Hashtable<Integer, Integer> columnas;
+    
     public MatrizLexico() {
         matriz = this.getMatriz();
+        
+        initColumnas();
     }
 
     private XSSFSheet getMatriz() {
@@ -68,18 +73,8 @@ public class MatrizLexico {
                     return 28;
             } 
         }
-            
-        return buscar(caracter);
-    }
-    
-    public int buscar(int c) {
         
-        for(int i = 0; i < columnas.length; i++) {
-            if(columnas[i][0] == c)
-                return columnas[i][1];
-        }
-        
-        return 46; 
+        return columnas.containsKey(caracter) ? columnas.get(caracter) : 46;
     }
     
     public boolean OC(int e) {
@@ -93,56 +88,40 @@ public class MatrizLexico {
         
     }
     
-
-    // ARREGLO DE CARACTERES Y COLUMNAS
-    public int[][] columnas = {
-    // ASCII   COL
-        {9   , 44}, // \t
-        {10  , 42}, // \n
-        {32  , 43}, // \s
-        {33  , 14}, // !
-        {34  , 21}, // "
-        {35  , 23}, // #
-        {37  , 11}, // %
-        {38  , 12}, // &
-        {39  , 22}, // '
-        {40  , 1},  // (
-        {41  , 2},  // )
-        {42  , 9},  // *
-        {43  , 7},  // +
-        {44  , 20}, // ,
-        {45  , 8},  // -
-        {46  , 41}, // .
-        {47  , 10}, // /
+    public void initColumnas() {
+        columnas =  new Hashtable<Integer, Integer>(); 
+        int col = 1;
         
-        {48  , 31}, // 0
-        {49  , 32}, // 1
-        {50  , 33}, // 2
-        {51  , 34}, // 3
-        {52  , 35}, // 4
-        {53  , 36}, // 5
-        {54  , 37}, // 6
-        {55  , 38}, // 7
-        {56  , 39}, // 8
-        {57  , 40}, // 9
+        Row row = matriz.getRow(0);
         
-        {58  , 45}, // :
-        {59  , 19}, // ;
-        {60  , 15}, // <
-        {61  , 17}, // =
-        {62  , 16}, // >
+        Cell cell = row.getCell(col);
         
-        {91  , 3},  // [
-        {93  , 4},  // ]
-        {94  , 18}, // ^
-        {95  , 30}, // _
+        String val = cell.getStringCellValue();
         
-        {123 , 5},  // {
-        {124 , 13}, // |
-        {125 , 6}   // }
-    
-    };
-    
+        while(!val.equals("OC")) {
+            if(val.length() > 1) {
+                switch(val) {
+                    case "\\t": columnas.put(9, 44); break;
+                    case "\\n": columnas.put(10, 42); break;
+                    case "\\s": columnas.put(32, 43); break;
+                }
+                
+                cell = row.getCell(++col);
+                
+                try { val = cell.getStringCellValue(); } 
+                catch(Exception e) { val = (int) cell.getNumericCellValue()+ ""; }
+                
+                continue;
+            }
+            
+            columnas.put((int) val.charAt(0), col);
+            
+            cell = row.getCell(++col);
+            
+            try { val = cell.getStringCellValue();} 
+            catch(Exception e) { val = (int) cell.getNumericCellValue() + ""; }
+        }
+    }
     
     int[] tokenOC = {
         -7, -8, -9, -10, -11, 
