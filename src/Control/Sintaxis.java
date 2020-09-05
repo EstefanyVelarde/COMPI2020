@@ -4,10 +4,12 @@ import Model.Token;
 import Model.Error;
 import java.util.LinkedList;
 
-public class AnalizadorSintactico {
+public class Sintaxis {
     
     MatrizSintaxis matriz;
     
+    Ambito ambito;
+
     LinkedList<Integer> prodStack;
     
     LinkedList<Token> tokens;
@@ -15,8 +17,11 @@ public class AnalizadorSintactico {
     LinkedList<Error> errores;
     
     
-    public AnalizadorSintactico(LinkedList<Token> tokens, LinkedList<Error> errores) {
+    public Sintaxis(LinkedList<Token> tokens, LinkedList<Error> errores, 
+            Ambito ambito) {
         matriz = new MatrizSintaxis();
+        
+        this.ambito = ambito;
         
         this.tokens = tokens;
         
@@ -36,7 +41,14 @@ public class AnalizadorSintactico {
             
             int LT = tokens.peekFirst().getToken();
             
+            if(PS > 799) { // Si es una zona
+                ambito.checar(PS, LT);
+                prodStack.removeLast();
+                continue;
+            }
+            
             if(PS >= 0 && LT >= -97 ) { // Si PS es NT y token esta en matriz
+                
                 int valor = matriz.getValor(PS, LT);
                 
                 if(produccion(valor)) 
@@ -51,7 +63,10 @@ public class AnalizadorSintactico {
                 if(terminales(PS, LT)) { 
                     setTerminales();
                 } else {
-                    setError(600);
+                    setError(633);
+                    System.out.println("-- FINAL INESPERADO "
+                            + "\n\tPS: " + prodStack.toString() 
+                            + "\n\tLT: " + LT);
                     break;
                 }
             }
@@ -140,14 +155,15 @@ public class AnalizadorSintactico {
         "Se esperaba un |",
         "Se esperaba un && ##",
         "Se esperaba un Sort Reverse insert Count index Append Extend pop remove",
-        "Se esperaba un findall replace sample len choice randrange mean median variance sum random"
+        "Se esperaba un findall replace sample len choice randrange mean median variance sum random",
+        "Final inesperado"
     };
     
     // PRODUCCIONES
     int prod[][] = {
         {0, 1, -96}, // S0 -> PROGRAM $
-        {1, 2, -46, 36, 5, -47}, // PROGRAM -> A0 { EST A3 }
-        {2, -95, -2, -44, 3, -45, 1, -51, 2}, // A0 -> def id ( A1 ) PROGRAM ; A0
+        {1, 2, 800, -46, 36, 5, -47, 801}, // PROGRAM -> A0 @ { EST A3 } @
+        {2, -95, -2, -44, 802, 3, -45, 1, 803, -51, 2}, // A0 -> def id ( @ A1 ) PROGRAM @ ; A0
         {2, -2, -36, 6, -51, 2}, // A0 -> id = CONSTANTE ; A0
         {3, -2, 4}, // A1 -> id A2
         {4, -53, -2, 4}, // A2 -> , id A2
@@ -221,7 +237,7 @@ public class AnalizadorSintactico {
         {36, -81, -44, 20, 9, -45}, // EST -> print ( OR B0 )
         {36, -82, -44, 35, -45}, // EST -> println ( J5 )
         {36, -83, 20, -50, 36, 5, 37}, // EST -> if OR : EST A3 K0
-        {36, -88, 20, -89, 20, -50, 36, 5, -86}, // EST -> for OR to OR : EST A3 End
+        {36, -88, 802, 801, 20, 800, -89, 20, -50, 36, 5, -86, 803}, // EST -> for @ @ OR @ to OR : EST A3 End @
         {36, -90, 20, -50, 36, 5, -87}, // EST -> while OR : EST A3 wend
         {36, -91}, // EST -> Break
         {36, -92}, // EST -> Continue

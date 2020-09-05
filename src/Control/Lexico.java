@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-public class AnalizadorLexico {
+public class Lexico {
 
     MatrizLexico matriz;
 
@@ -23,7 +23,7 @@ public class AnalizadorLexico {
 
     int estado = 0, columna = 0, linea = 1, caracter = 0, ind = 0;
 
-    public AnalizadorLexico() {
+    public Lexico() {
 
         matriz = new MatrizLexico();
 

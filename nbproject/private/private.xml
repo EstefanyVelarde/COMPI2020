@@ -5,7 +5,10 @@
         <group>
             <file>file:/D:/Usuario/Documents/NetBeansProjects/Compilador/src/Control/MatrizLexico.java</file>
             <file>file:/D:/Usuario/Documents/NetBeansProjects/Compilador/src/Control/AnalizadorLexico.java</file>
+            <file>file:/D:/Usuario/Documents/NetBeansProjects/Compilador/src/Control/AnalizadorSintactico.java</file>
+            <file>file:/D:/Usuario/Documents/NetBeansProjects/Compilador/src/Control/MatrizSintaxis.java</file>
             <file>file:/D:/Usuario/Documents/NetBeansProjects/Compilador/src/View/Interface.java</file>
+            <file>file:/D:/Usuario/Documents/NetBeansProjects/Compilador/src/Control/Pruebas.java</file>
         </group>
     </open-files>
 </project-private>
