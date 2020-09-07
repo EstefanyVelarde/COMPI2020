@@ -21,8 +21,6 @@ public class Sintaxis {
             Ambito ambito) {
         matriz = new MatrizSintaxis();
         
-        this.ambito = ambito;
-        
         this.tokens = tokens;
         
         this.tokens.addLast(new Token(-97, tokens.getLast().getLinea(), "$"));
@@ -32,6 +30,11 @@ public class Sintaxis {
         prodStack = new LinkedList();
         
         addProdStack(0);
+        
+        // INIT AMBITO
+        this.ambito = ambito;
+        
+        this.ambito.initAmbito(prodStack, tokens, errores);
     }
     
     public void analizarTokens() {
@@ -41,9 +44,11 @@ public class Sintaxis {
             
             int LT = tokens.peekFirst().getToken();
             
+            // SOLO PARA PRUEBAS
+            String lex = tokens.peekFirst().getLexema();
+            
             if(PS > 799) { // Si es una zona
-                ambito.checar(PS, LT);
-                prodStack.removeLast();
+                ambito.cambiarZona(PS, LT);
                 continue;
             }
             
@@ -61,6 +66,8 @@ public class Sintaxis {
                             setError(valor);
             } else {
                 if(terminales(PS, LT)) { 
+                    ambito.checar(PS, LT); // CHECAR AMBITO
+                    
                     setTerminales();
                 } else {
                     setError(633);
@@ -163,7 +170,7 @@ public class Sintaxis {
     int prod[][] = {
         {0, 1, -96}, // S0 -> PROGRAM $
         {1, 2, 800, -46, 36, 5, -47, 801}, // PROGRAM -> A0 @ { EST A3 } @
-        {2, -95, -2, -44, 802, 3, -45, 1, 803, -51, 2}, // A0 -> def id ( @ A1 ) PROGRAM @ ; A0
+        {2, -95, -2, 804, -44, 802, 3, -45, 1, 803, -51, 2}, // A0 -> def id @ ( @ A1 ) PROGRAM @ ; A0
         {2, -2, -36, 6, -51, 2}, // A0 -> id = CONSTANTE ; A0
         {3, -2, 4}, // A1 -> id A2
         {4, -53, -2, 4}, // A2 -> , id A2

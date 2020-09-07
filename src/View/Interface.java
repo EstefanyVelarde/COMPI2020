@@ -34,14 +34,10 @@ public class Interface extends javax.swing.JFrame {
     public Lexico lexico;
     public Sintaxis sintaxis;
     public Ambito ambito;
-    
-    public Conexion con;
 
     public Interface() {
         initComponents();
         createAndShowGUI();
-        
-        con = new Conexion();
     }
     
     Color bg = new Color(7,38, 59);
@@ -531,7 +527,7 @@ public class Interface extends javax.swing.JFrame {
         lexico.leer(codigo.getText());
         
         if(!lexico.getTokens().isEmpty()) {
-            ambito = new Ambito(con);
+            ambito = new Ambito();
             
             sintaxis = new Sintaxis(lexico.getTokensCopy(), lexico.getErrores(),
                                     ambito);
