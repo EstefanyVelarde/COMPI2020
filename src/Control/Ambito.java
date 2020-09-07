@@ -20,9 +20,11 @@ public class Ambito {
     
     LinkedList<Integer> ambStack; // Pila de ambitos
     
-    boolean declaracion;
+    boolean declaracion, constante;
     
     int contAmb, flag;
+    
+    String clase, tipo;
     
     public Ambito() {
         this.con = (new Conexion()).Conectar();
@@ -44,7 +46,7 @@ public class Ambito {
         
         this.crear();
     }
-        
+    
     public void checar(int PS, int LT) {
         if(LT == -44) { // Si es ID
             if(declaracion) {
@@ -58,7 +60,9 @@ public class Ambito {
                     setError(701);
                 }
             }
-        }
+        } else 
+            if(constante)
+                checarConst(LT);
     }
     
     public void cambiarZona(int PS, int LT) {
@@ -67,7 +71,10 @@ public class Ambito {
             case 801: declaracion = true;  break;
             case 802: crear();  break;
             case 803: cerrar(); break;
-            case 804: addSimbolos(PS); break;
+            case 804: tipo = "real"; clase = "fun"; break;
+            case 805: clase = "var"; break;
+            case 806: tipo = "none"; clase = "par"; break;
+            case 807: constante = true; break;
         }
         
         prodStack.removeLast();
@@ -82,6 +89,23 @@ public class Ambito {
     public void cerrar() {
         ambStack.removeLast();
         System.out.println("-- AMBITO \n\t" + ambStack.toString());
+    }
+    
+    // CONSTANTES
+    public void checarConst(int LT) {
+        switch(LT) {
+            case -40: tipo = "cad"; addSimbolos(807); break;
+            case -41: tipo = "char"; addSimbolos(807); break;
+            case -45: tipo = "int"; addSimbolos(807); break;
+            case -46: tipo = "float"; addSimbolos(807); break;
+            case -47: tipo = "complex"; addSimbolos(807); break;
+            case -48: tipo = "bin"; addSimbolos(807); break;
+            case -49: tipo = "hexa"; addSimbolos(807); break;
+            case -50: tipo = "oct"; addSimbolos(807); break;
+            case -56: tipo = "none"; addSimbolos(807); break;
+            case -54: case -55: tipo = "boolean"; addSimbolos(807); break;
+            default: tipo = "LIST-TUP-RANGOS";
+        }
     }
     
     // ERROR
@@ -104,12 +128,12 @@ public class Ambito {
             Iterator it = ambStack.iterator();
             
             while(it.hasNext()) {
-                rs = stmt.executeQuery(existeID + id + "' AND ambito =" + ambStack.peekLast());
+                int amb = (int) it.next();
+                rs = stmt.executeQuery(existeID + id + "' AND ambito =" + amb);
 
                 if(rs.next() && !declaracion)
                     return true;
                 
-                it.next();
             }
         } catch (SQLException ex) {
             Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
@@ -123,8 +147,8 @@ public class Ambito {
         switch(LT) {
             case -44: // GUARDA ID
                 try {
-                    String sql = "INSERT INTO simbolos (id, ambito) values ('"
-                            + token.getLexema() + "', "+ ambStack.peekLast() + ");";
+                    String sql = "INSERT INTO simbolos (id, tipo, clase, ambito) values ('"
+                            + token.getLexema() + "', '"+ tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ");";
                     System.out.println(sql);
                     stmt.executeUpdate(sql);
                 } catch (SQLException ex) {
@@ -135,16 +159,17 @@ public class Ambito {
         }
     }
     
-    public void addSimbolos(int PS) {
-        switch(PS) {
-            case 804: // ES FUNCION
+    public void addSimbolos(int key) {
+        switch(key) {
+            case 807: // UPDATE TIPO DE CONST
                 
                 try {
-                    stmt.executeUpdate(update + "fun" + last);
+                    stmt.executeUpdate(update + tipo + last);
                 } catch (SQLException ex) {
                     Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 
+                constante = false;
             break;
         }
     }
@@ -163,7 +188,7 @@ public class Ambito {
     
     String addSimbolos = "INSERT INTO simbolos (id) values ('x');";
     
-    String update = "UPDATE simbolos SET clase = '";
+    String update = "UPDATE simbolos SET tipo = '";
     
     String last = "' ORDER by idsimbolos desc limit 1";
     
