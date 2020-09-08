@@ -93,13 +93,26 @@ public class Ambito {
             case 801: declaracion = true;   break;  // Zona de declaracion
             case 802: ambStack.add(++contAmb);  break;  // Crear ambito
             case 803: ambStack.removeLast();    break;  // Cerrar ambito
-            case 804: tipo = "real"; clase = "fun"; key = PS;   break;  // Funcion
-            case 805: clase = "var"; key = PS;                  break;  // Variable
-            case 806: tipo = "none"; clase = "par"; noPar++;  key = PS;   break;  // Parametro
-            case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(807); break;  // Fin parametros
-            case 808: case 809: case 810:
-            case 811: tipo = "struct"; key = PS; break;   // LIST-TUP-RANGOS
+            case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(PS); break;  // Fin parametros
+            case 876: tipo = "int"; clase = "var"; break; // para FOR id 
         }
+        
+        if(declaracion) {
+            switch(PS) {
+                case 804: tipo = "real"; clase = "fun"; key = PS;   break;  // Funcion
+                case 805: clase = "var"; key = PS;   break;  // Variable
+                case 806: tipo = "none"; clase = "par"; noPar++;  key = PS;   break;  // Parametro
+                case 808: tipo = "struct"; clase = "tupla"; key = PS; addSimbolos(808); break; // Tupla
+                case 809: key = -1; break; // Fin tupla
+                case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); break; // Lista
+                case 811: key = -1; ambStack.removeLast(); addSimbolos(811); break; // Fin lista
+                case 812: tipo = "struct"; clase = "rango"; key = PS; addSimbolos(808); break; // Rango
+                case 813: key = -1; break; // Fin rango
+                case 814: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); break; // Diccionario
+                case 815: key = -1; break; // Fin diccionario
+            }
+        }
+        
         
         prodStack.removeLast();
     }
@@ -108,13 +121,11 @@ public class Ambito {
         switch(key) {
             case 805: var(LT);          break;
             case 808: tupla(LT);        break;
-            case 809: lista(LT);        break;
-            case 810: rango(LT);        break;
-            case 811: diccionario(LT);  break;
+            case 810: lista(LT);        break;
+            case 812: rango(LT);        break;
+            case 814: diccionario(LT);  break;
         }
     }
-    
-    
     
     // VARIABLE
     public void var(int LT) {
@@ -140,7 +151,27 @@ public class Ambito {
     
     // LISTA
     public void lista(int LT) {
-        
+        switch(LT) {
+            case -54: 
+            case -55: 
+                tArr++; 
+                clase = "datoLista"; 
+                
+                tipo = "boolean"; 
+                
+                addSimbolos(810); 
+                
+                break;
+            case -40: tArr++; clase = "datoLista"; tipo = "cad";     addSimbolos(810); break;
+            case -41: tArr++; clase = "datoLista"; tipo = "char";    addSimbolos(810); break;
+            case -45: tArr++; clase = "datoLista"; tipo = "int";     addSimbolos(810); break;
+            case -46: tArr++; clase = "datoLista"; tipo = "float";   addSimbolos(810); break;
+            case -47: tArr++; clase = "datoLista"; tipo = "complex"; addSimbolos(810); break;
+            case -48: tArr++; clase = "datoLista"; tipo = "bin";     addSimbolos(810); break;
+            case -49: tArr++; clase = "datoLista"; tipo = "hexa";    addSimbolos(810); break;
+            case -50: tArr++; clase = "datoLista"; tipo = "oct";     addSimbolos(810); break;
+            case -56: tArr++; clase = "datoLista"; tipo = "none";    addSimbolos(810); break;
+        }
     }
     
     // RANGO
@@ -181,8 +212,11 @@ public class Ambito {
             break;
             
             default:
-                sql = "INSERT INTO simbolos (id, clase, amb) VALUES ('" 
-                    + token.getLexema() + "', '"+ clase + "', "+ ambStack.peekLast() + ");";
+                sql = "INSERT INTO simbolos (id, tipo, clase, amb) VALUES ('" 
+                    + token.getLexema() + "', '"+ tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ");";
+                
+                
+                tpArr = token.getLexema(); // Guarda tpArr para datos
         }
         System.out.println(sql);
         try {
@@ -204,7 +238,22 @@ public class Ambito {
                 sql = update + "noPar = '" + noPar + "', tpArr = '" + tpArr +"' WHERE clase = 'fun' "+ last;
                 noPar = 0;
             break;
+            
+            case 808: // UPDATE LAST: tipo, clase
+                sql = update + "tipo = '" + tipo + "', clase = '" + clase + "' " + last;
+            break;
+            
+            case 810: // INSERT DATO
+                sql = "INSERT INTO simbolos (tipo, clase, amb, noPar, tpArr) VALUES ('" 
+                    + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", " + tArr + ", '" + tpArr + "');";
+            break;
+            
+            case 811: // UPDATE LAST LISTA: tArr
+                sql = update + "tArr = '" + tArr + "' WHERE clase = 'lista' "+ last;
+                noPar = 0;
+            break;
         }
+        System.out.println(sql);
         
         try {
             stmt.executeUpdate(sql);
