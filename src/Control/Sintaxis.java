@@ -48,7 +48,7 @@ public class Sintaxis {
             String lex = tokens.peekFirst().getLexema();
             
             if(PS > 799) { // Si es una zona
-                ambito.cambiarZona(PS, LT);
+                ambito.zona(PS, LT);
                 continue;
             }
             

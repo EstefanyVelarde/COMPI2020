@@ -20,13 +20,9 @@ public class Ambito {
     
     LinkedList<Integer> ambStack; // Pila de ambitos
     
-    Integer noPar;
+    boolean declaracion;
     
-    String clase, tipo, tpArr;
-    
-    boolean declaracion, constante;
-    
-    int contAmb;
+    int contAmb, key;
     
     public Ambito() {
         this.con = (new Conexion()).Conectar();
@@ -40,13 +36,15 @@ public class Ambito {
             Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        declaracion = true;
+        declaracion = true; 
+        
+        contAmb = 0; 
+        
+        key = -1;
         
         ambStack = new LinkedList();
         
-        contAmb = -1;
-        
-        this.crear();
+        ambStack.add(contAmb); // Crea ambito 0
     }
     
     public void checar(int PS, int LT) {
@@ -55,7 +53,7 @@ public class Ambito {
                 if(existeID()) {
                     setError(700);
                 } else {
-                    addSimbolos(tokens.peekFirst(), LT);
+                    addSimbolos(tokens.peekFirst());
                 }
             } else { // Esta en ejecucion
                 if(!existeID()) {
@@ -63,66 +61,10 @@ public class Ambito {
                 }
             }
         } else 
-            if(constante)
-                checarConst(LT);
+            if(key != -1)
+                key(LT);
     }
     
-    public void cambiarZona(int PS, int LT) {
-        switch(PS) {
-            case 800: declaracion = false;  break;
-            case 801: declaracion = true;   break;
-            case 802: crear();  break;
-            case 803: cerrar(); break;
-            case 804: tipo = "real"; clase = "fun"; noPar = 0;  break;
-            case 805: clase = "var"; constante = true;          break;
-            case 806: tipo = "none"; clase = "par"; noPar++;    break;
-            case 807: addSimbolos(807); break; 
-        }
-        
-        prodStack.removeLast();
-    }
-    
-    public void crear() {
-        ambStack.add(++contAmb);
-        
-        System.out.println("++ AMBITO \n\t" + ambStack.toString());
-    }
-    
-    public void cerrar() {
-        ambStack.removeLast();
-        System.out.println("-- AMBITO \n\t" + ambStack.toString());
-    }
-    
-    // CONSTANTES
-    public void checarConst(int LT) {
-        switch(LT) {
-            case -40: tipo = "cad";     addSimbolos(805); break;
-            case -41: tipo = "char";    addSimbolos(805); break;
-            case -45: tipo = "int";     addSimbolos(805); break;
-            case -46: tipo = "float";   addSimbolos(805); break;
-            case -47: tipo = "complex"; addSimbolos(805); break;
-            case -48: tipo = "bin";     addSimbolos(805); break;
-            case -49: tipo = "hexa";    addSimbolos(805); break;
-            case -50: tipo = "oct";     addSimbolos(805); break;
-            case -56: tipo = "none";    addSimbolos(805); break;
-            case -54: case -55: tipo = "boolean";   addSimbolos(805); break;
-            default: tipo = "LIST-TUP-RANGOS";
-        }
-    }
-    
-    // ERROR
-    public void setError(int error) {
-        Token token = tokens.peekFirst();
-        
-        errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 700], "Ámbito"));
-    }
-    
-    String desc[] = { 
-        "Variable duplicada",
-        "Variable no declarada"
-    };
-  
-    // BASE DE DATOS
     public boolean existeID() {
         String id = tokens.peekFirst().getLexema();
         
@@ -131,7 +73,7 @@ public class Ambito {
             
             while(it.hasNext()) {
                 int amb = (int) it.next();
-                rs = stmt.executeQuery(existeID + id + "' AND ambito =" + amb);
+                rs = stmt.executeQuery(existeID + id + "' AND amb =" + amb);
 
                 if(rs.next() && !declaracion)
                     return true;
@@ -145,42 +87,129 @@ public class Ambito {
         return false;
     }
     
-    public void addSimbolos(Token token, int LT) {
-        switch(LT) {
-            case -44: // GUARDA ID
-                try {
-                    String sql = "INSERT INTO simbolos (id, tipo, clase, ambito, noPar) values ('"
-                            + token.getLexema() + "', '"+ tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", " + noPar +");";
-                    System.out.println(sql);
-                    stmt.executeUpdate(sql);
-                } catch (SQLException ex) {
-                    Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            break;
+    public void zona(int PS, int LT) {
+        switch(PS) {
+            case 800: declaracion = false;  break;  // Zona de ejecucion
+            case 801: declaracion = true;   break;  // Zona de declaracion
+            case 802: ambStack.add(++contAmb);  break;  // Crear ambito
+            case 803: ambStack.removeLast();    break;  // Cerrar ambito
+            case 804: tipo = "real"; clase = "fun"; key = PS;   break;  // Funcion
+            case 805: clase = "var"; key = PS;                  break;  // Variable
+            case 806: tipo = "none"; clase = "par"; noPar++;  key = PS;   break;  // Parametro
+            case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(807); break;  // Fin parametros
+            case 808: case 809: case 810:
+            case 811: tipo = "struct"; key = PS; break;   // LIST-TUP-RANGOS
+        }
+        
+        prodStack.removeLast();
+    }
+    
+    public void key(int LT) {
+        switch(key) {
+            case 805: var(LT);          break;
+            case 808: tupla(LT);        break;
+            case 809: lista(LT);        break;
+            case 810: rango(LT);        break;
+            case 811: diccionario(LT);  break;
         }
     }
     
-    public void addSimbolos(int key) {
+    
+    
+    // VARIABLE
+    public void var(int LT) {
+        switch(LT) {
+            case -54: 
+            case -55: tipo = "boolean"; addSimbolos(805); break;
+            case -40: tipo = "cad";     addSimbolos(805); break;
+            case -41: tipo = "char";    addSimbolos(805); break;
+            case -45: tipo = "int";     addSimbolos(805); break;
+            case -46: tipo = "float";   addSimbolos(805); break;
+            case -47: tipo = "complex"; addSimbolos(805); break;
+            case -48: tipo = "bin";     addSimbolos(805); break;
+            case -49: tipo = "hexa";    addSimbolos(805); break;
+            case -50: tipo = "oct";     addSimbolos(805); break;
+            case -56: tipo = "none";    addSimbolos(805); break;
+        }
+    }
+    
+    // TUPLA
+    public void tupla(int LT) {
+        
+    }
+    
+    // LISTA
+    public void lista(int LT) {
+        
+    }
+    
+    // RANGO
+    public void rango(int LT) {
+        
+    }
+    
+    // DICCIONARIO
+    public void diccionario(int LT) {
+        
+    }
+    
+    // COLUMNAS SIMBOLOS
+    String id, tipo, clase, tipoLista, valor, tpArr;
+    
+    int amb, tArr, dimArr, noPar, llave;
+    
+    public void addSimbolos(Token token) {
+        String sql = "";
+        
         switch(key) {
-            case 805: // UPDATE TIPO DE CONST
-                try {
-                    stmt.executeUpdate(update + "tipo = '" + tipo + last);
-                } catch (SQLException ex) {
-                    Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            case 804: // Funcion
+                tpArr = (ambStack.peekLast() + 1) + ""; // Define el ambito que creara
                 
-                constante = false;
+                sql = "INSERT INTO simbolos (id, tipo, clase, amb, tpArr) VALUES ('" 
+                    + token.getLexema() + "', '" + tipo + "', '" + clase + "', " + ambStack.peekLast() + ", '" + tpArr + "');";
+                
+                tpArr = token.getLexema(); // Guarda tpArr para parametros
+                
+                key = -1;
+            break; 
+            
+            case 806: // Parametro
+                sql = "INSERT INTO simbolos (id, tipo, clase, amb, noPar, tpArr) VALUES ('" 
+                    + token.getLexema() + "', '"+ tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", "+ noPar + ", '"+ tpArr + "');";
+                
+                key = -1;
             break;
             
-            case 807: // UPDATE NOPAR DE FUN
-                try {
-                    stmt.executeUpdate(update + "noPar = '" + noPar + "' WHERE clase = 'fun"+ last);
-                } catch (SQLException ex) {
-                    Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-                noPar = null;
+            default:
+                sql = "INSERT INTO simbolos (id, clase, amb) VALUES ('" 
+                    + token.getLexema() + "', '"+ clase + "', "+ ambStack.peekLast() + ");";
+        }
+        System.out.println(sql);
+        try {
+            stmt.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void addSimbolos(int PS) {
+        String sql = "";
+        
+        switch(PS) {
+            case 805: // UPDATE LAST: tipo
+                sql = update + "tipo = '" + tipo + "' " + last;
             break;
+            
+            case 807: // UPDATE LAST FUN: noPar
+                sql = update + "noPar = '" + noPar + "', tpArr = '" + tpArr +"' WHERE clase = 'fun' "+ last;
+                noPar = 0;
+            break;
+        }
+        
+        try {
+            stmt.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -196,13 +225,24 @@ public class Ambito {
     
     String existeID = "SELECT id FROM simbolos WHERE id = '";
     
-    String addSimbolos = "INSERT INTO simbolos (id) values ('x');";
-    
     String update = "UPDATE simbolos SET ";
     
-    String last = "' ORDER by idsimbolos desc limit 1";
+    String last = "ORDER by idsimbolos desc limit 1";
     
-    // PILAS
+    
+    // ERROR
+    public void setError(int error) {
+        Token token = tokens.peekFirst();
+        
+        errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 700], "Ámbito"));
+    }
+    
+    String desc[] = { 
+        "Variable duplicada",
+        "Variable no declarada"
+    };
+    
+    // PASAR PILAS
     public void initAmbito(LinkedList<Integer> prodStack, LinkedList<Token> tokens, 
             LinkedList<Error> errores) {
         
