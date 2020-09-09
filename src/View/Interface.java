@@ -521,7 +521,6 @@ public class Interface extends javax.swing.JFrame {
     }//GEN-LAST:event_jbOpenActionPerformed
 
     private void jbCompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbCompileActionPerformed
-        System.out.println("\n\n~~~~~~~~ COMPILAR ~~~~~~~~~ ");
         lexico = new Lexico();
         
         lexico.leer(codigo.getText());

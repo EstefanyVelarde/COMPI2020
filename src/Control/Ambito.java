@@ -465,7 +465,6 @@ public class Ambito {
     
     public void setContador() {
         contAmbito = new ContAmbito(this.con, this.stmt);
-        System.out.println(" COTTTN " + contAmb);
         contAmbito.setContador(contAmb);
     }
     
