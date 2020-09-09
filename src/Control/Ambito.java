@@ -107,8 +107,6 @@ public class Ambito {
             
             case 802: ambStack.add(++contAmb);  break;  // Crear ambito
             case 803: ambStack.removeLast();    break;  // Cerrar ambito
-            
-            case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(PS); break;  // Fin parametros
         }
         
         if(declaracion) {
@@ -118,18 +116,20 @@ public class Ambito {
                 case 805: clase = "var"; key = PS;   break;  // Variable
                 
                 case 806: tipo = "none"; clase = "par"; noPar++;  key = PS;   break;  // Parametro
-               
-                case 808: tipo = "struct"; clase = "tupla"; key = PS; addSimbolos(808); break; // Tupla
-                case 809: key = -1; break; // Fin tupla
+                case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(PS); break;  // Fin parametros
+
+                case 808: tipo = "struct"; clase = "tupla"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoTupla"; break; // Tupla
+                case 809: key = -1; ambStack.removeLast(); addSimbolos(809); break; // Fin tupla
                 
-                case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); break; // Lista
+                case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoLista"; break; // Lista
                 case 811: key = -1; ambStack.removeLast(); if(tipoLista != null) delSimbolos(811); addSimbolos(811); break; // Fin lista
                 
-                case 812: tipo = "struct"; clase = "rango"; key = PS; addSimbolos(808); break; // Rango
-                case 813: key = -1; break; // Fin rango
+                case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; key = PS; addSimbolos(808); break; // Rango
+                case 813: case 814: case 815: key = PS; break;
+                case 816: key = -1; break; // Fin rango
                 
-                case 814: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); break; // Diccionario
-                case 815: key = -1; break; // Fin diccionario
+                case 817: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoDic"; break; // Diccionario
+                case 818: key = -1; ambStack.removeLast(); break; // Fin diccionario
                 
                 case 876: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
                 case 877: key = -1; break; // Fin FOR id
@@ -142,11 +142,12 @@ public class Ambito {
     
     public void key(int LT) {
         switch(key) {
+            case 813: case 814: 
+            case 815: rango(LT);        break;
             case 805: var(LT);          break;
             case 808: tupla(LT);        break;
             case 810: lista(LT);        break;
-            case 812: rango(LT);        break;
-            case 814: diccionario(LT);  break;
+            case 817: diccionario(LT);  break;
         }
     }
     
@@ -180,7 +181,15 @@ public class Ambito {
     
     // TUPLA
     public void tupla(int LT) {
+        String tipo = getTipo(LT);
         
+        if(tipo != null) {
+            tArr++;
+            
+            this.tipo = tipo;
+
+            addSimbolos(810);
+        }
     }
     
     // LISTA
@@ -200,7 +209,6 @@ public class Ambito {
         if(tArr == 1) { // Si es el primer datoLista se guarda
             this.tipo = tipo;
             tipoLista = tipo;
-            clase = "datoLista"; 
         } else {
             if(!tipo.equals(this.tipo)) {// Checar si no son iguales para marcar sacarlos
                 tipoLista = null;
@@ -211,8 +219,21 @@ public class Ambito {
     
     // RANGO
     public void rango(int LT) {
-        
+        switch(key) {
+            case 813: 
+                if(LT == -8) {
+                    tArrRango = tokens.peekFirst().getLexema();
+                } else {
+                    tArrRango += tokens.peekFirst().getLexema() + ", ";
+                    key = -1;
+                }
+            break;
+            case 814: tArrRango += tokens.peekFirst().getLexema(); if(LT != -8) { key = -1; addSimbolos(814); }break;
+            case 815: dimArrRango += tokens.peekFirst().getLexema(); if(LT != -8) { key = -1; addSimbolos(815); } break;
+        }
     }
+    
+    
     
     // DICCIONARIO
     public void diccionario(int LT) {
@@ -220,9 +241,9 @@ public class Ambito {
     }
     
     // COLUMNAS SIMBOLOS
-    String id, tipo, clase, tipoLista, valor, tpArr;
+    String id, tipo, clase, tipoLista, valor, tpArr, tArrRango, dimArrRango;
     
-    int amb, tArr, dimArr, noPar, llave;
+    int amb, tArr, noPar, llave, dimArr;
     
     public void addSimbolos(Token token) {
         String sql = "";
@@ -283,6 +304,11 @@ public class Ambito {
                 sql = update + "tipo = '" + tipo + "', clase = '" + clase + "' " + last;
             break;
             
+            case 809: // UPDATE LAST TUPLA: tArr
+                sql = update + "tArr = '" + tArr + "' WHERE clase = 'tupla' "+ last;
+                tArr = 0;
+            break;
+            
             case 810: // INSERT DATO
                 sql = "INSERT INTO simbolos (tipo, clase, amb, noPar, tpArr) VALUES ('" 
                     + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", " + tArr + ", '" + tpArr + "');";
@@ -290,7 +316,18 @@ public class Ambito {
             
             case 811: // UPDATE LAST LISTA: tipoLista, tArr
                 sql = update + "tipoLista = '" + tipoLista + "', tArr = '" + tArr + "' WHERE clase = 'lista' "+ last;
+                tipoLista = null;
                 tArr = 0;
+            break;
+            
+            case 814: // UPDATE LAST RANGO: tArr
+                sql = update + "tArr = '" + tArrRango + "' WHERE clase = 'rango' "+ last;
+                tArrRango = null;
+            break;
+            
+            case 815: // UPDATE LAST RANGO: dimArr
+                sql = update + "dimArr = '" + dimArrRango + "' WHERE clase = 'rango' "+ last;
+                dimArrRango = null;
             break;
         }
         System.out.println(sql);
@@ -308,6 +345,7 @@ public class Ambito {
         switch(PS) {
             case 811: // DELETE WHERE clase LAST LIMIT tArr
                 sql = delete + "clase = '" + clase + "' " + lastLimit + tArr + ";";
+                contAmb--;
             break;
         }
         System.out.println(sql);
@@ -346,6 +384,9 @@ public class Ambito {
         
         if(key == 804 && !clase.equals("fun")) // Agregamos #funcion
             addSimbolos(tokens.peekLast());
+        else 
+            if(key == 806)
+                noPar--;
         
         errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 700], "Ámbito"));
         

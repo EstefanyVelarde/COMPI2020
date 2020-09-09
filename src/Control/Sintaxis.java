@@ -188,10 +188,10 @@ public class Sintaxis {
         {7, -8}, // CONSTENTERO -> Binario
         {7, -9}, // CONSTENTERO -> Hexadecimal
         {7, -7}, // CONSTENTERO -> Decimal
-        {8, -44, 20, 9, -45}, // LIST-TUP-RANGOS -> ( OR B0 )
+        {8, 808, -44, 20, 9, -45, 809}, // LIST-TUP-RANGOS -> @ ( OR B0 ) @
         {8, 810, 24, 811}, // LIST-TUP-RANGOS -> @ ARR @
-        {8, -76, -44, 7, -53, 7, -53, 7, -45}, // LIST-TUP-RANGOS -> range ( CONSTENTERO ,  CONSTENTERO ,  CONSTENTERO ) 
-        {8, -46, 6, 10, 11, -47}, // LIST-TUP-RANGOS -> { CONSTANTE B1 B2 }
+        {8, 812, -76, -44, 813, 7, -53, 814, 7, -53, 815, 7, -45, 816}, // LIST-TUP-RANGOS -> @ range ( @ CONSTENTERO , @ CONSTENTERO , @ CONSTENTERO ) @
+        {8, 817, -46, 6, 10, 11, -47, 818}, // LIST-TUP-RANGOS -> @ { CONSTANTE B1 B2 } @
         {9, -53, 20, 9}, // B0 -> , OR B0
         {10, -50, 6, 11}, // B1 -> : CONSTANTE B2
         {11, -53, 6, 10, 11}, // B2 -> , CONSTANTE B1 B2
