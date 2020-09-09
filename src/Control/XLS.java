@@ -46,7 +46,7 @@ public class XLS {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");  
         LocalDateTime now = LocalDateTime.now();  
         
-        String nombreArchivo="Estefany-Velarde-Sintaxis-"+ dtf.format(now) +".xls";
+        String nombreArchivo="Estefany-Velarde-Ambito-"+ dtf.format(now) +".xls";
         String rutaArchivo= nombreArchivo;
         String nombreHoja1="Lista de Tokens";
         String nombreHoja2="Lista de Errores";

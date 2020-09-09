@@ -66,19 +66,32 @@ public class Ambito {
     }
     
     public boolean existeID() {
-        String id = tokens.peekFirst().getLexema();
+        id = tokens.peekFirst().getLexema();
+        String sql;
         
         try {
-            Iterator it = ambStack.iterator();
+            if(key == 806 || key == 876) { // Si es parametro, for id: solo se busca en ese ambito
+                sql = existeID + id + "' AND amb =" + ambStack.peekLast();
+                System.out.println("\n ++++ KEY : "+ key + "  SQL: "+ sql);
+                return (rs = stmt.executeQuery(sql)).next();
+            } else {
+                Iterator it = ambStack.iterator();
             
-            while(it.hasNext()) {
-                int amb = (int) it.next();
-                rs = stmt.executeQuery(existeID + id + "' AND amb =" + amb);
+                while(it.hasNext()) {
+                    int amb = (int) it.next();   
+                    
+                    sql = existeID + id + "' AND amb =" + amb;
+                    
+                    System.out.println("\n ++++ KEY : "+ key + "  SQL: "+ sql);
 
-                if(rs.next() && !declaracion)
-                    return true;
-                
+                    if((rs = stmt.executeQuery(sql)).next()) {
+                        if(key == 804) // Si es fun guardar clase para marcar error
+                            clase = rs.getString(4);
+                        return true;
+                    }
+                }
             }
+            
         } catch (SQLException ex) {
             Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -91,25 +104,35 @@ public class Ambito {
         switch(PS) {
             case 800: declaracion = false;  break;  // Zona de ejecucion
             case 801: declaracion = true;   break;  // Zona de declaracion
+            
             case 802: ambStack.add(++contAmb);  break;  // Crear ambito
             case 803: ambStack.removeLast();    break;  // Cerrar ambito
+            
             case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(PS); break;  // Fin parametros
-            case 876: tipo = "int"; clase = "var"; break; // para FOR id 
         }
         
         if(declaracion) {
             switch(PS) {
                 case 804: tipo = "real"; clase = "fun"; key = PS;   break;  // Funcion
+                
                 case 805: clase = "var"; key = PS;   break;  // Variable
+                
                 case 806: tipo = "none"; clase = "par"; noPar++;  key = PS;   break;  // Parametro
+               
                 case 808: tipo = "struct"; clase = "tupla"; key = PS; addSimbolos(808); break; // Tupla
                 case 809: key = -1; break; // Fin tupla
+                
                 case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); break; // Lista
                 case 811: key = -1; ambStack.removeLast(); if(tipoLista != null) delSimbolos(811); addSimbolos(811); break; // Fin lista
+                
                 case 812: tipo = "struct"; clase = "rango"; key = PS; addSimbolos(808); break; // Rango
                 case 813: key = -1; break; // Fin rango
+                
                 case 814: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); break; // Diccionario
                 case 815: key = -1; break; // Fin diccionario
+                
+                case 876: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
+                case 877: key = -1; break; // Fin FOR id
             }
         }
         
@@ -208,10 +231,15 @@ public class Ambito {
             case 804: // Funcion
                 tpArr = (ambStack.peekLast() + 1) + ""; // Define el ambito que creara
                 
-                sql = "INSERT INTO simbolos (id, tipo, clase, amb, tpArr) VALUES ('" 
-                    + token.getLexema() + "', '" + tipo + "', '" + clase + "', " + ambStack.peekLast() + ", '" + tpArr + "');";
+                if(!clase.equals("fun")) {
+                    id = "#"+id;
+                    clase = "fun";
+                }
                 
-                tpArr = token.getLexema(); // Guarda tpArr para parametros
+                sql = "INSERT INTO simbolos (id, tipo, clase, amb, tpArr) VALUES ('" 
+                    + id + "', '" + tipo + "', '" + clase + "', " + ambStack.peekLast() + ", '" + tpArr + "');";
+                
+                tpArr = id; // Guarda tpArr para parametros
                 
                 key = -1;
             break; 
@@ -301,7 +329,7 @@ public class Ambito {
     
     String resetAI = "ALTER TABLE simbolos AUTO_INCREMENT = 1;";
     
-    String existeID = "SELECT id FROM simbolos WHERE id = '";
+    String existeID = "SELECT * FROM simbolos WHERE id = '";
     
     String update = "UPDATE simbolos SET ";
     
@@ -316,7 +344,12 @@ public class Ambito {
     public void setError(int error) {
         Token token = tokens.peekFirst();
         
+        if(key == 804 && !clase.equals("fun")) // Agregamos #funcion
+            addSimbolos(tokens.peekLast());
+        
         errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 700], "Ámbito"));
+        
+        key = -1;
     }
     
     String desc[] = { 

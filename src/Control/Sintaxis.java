@@ -244,7 +244,7 @@ public class Sintaxis {
         {36, -81, -44, 20, 9, -45}, // EST -> print ( OR B0 )
         {36, -82, -44, 35, -45}, // EST -> println ( J5 )
         {36, -83, 20, -50, 36, 5, 37}, // EST -> if OR : EST A3 K0
-        {36, -88, 876, 802, 801, 20, 800, -89, 20, -50, 36, 5, -86, 803}, // EST -> for @ @ @ OR @ to OR : EST A3 End @
+        {36, -88, 802, 801, 876, 20, 877, 800, -89, 20, -50, 36, 5, -86, 803}, // EST -> for @ @ @ OR @ to OR : EST A3 End @
         {36, -90, 20, -50, 36, 5, -87}, // EST -> while OR : EST A3 wend
         {36, -91}, // EST -> Break
         {36, -92}, // EST -> Continue
