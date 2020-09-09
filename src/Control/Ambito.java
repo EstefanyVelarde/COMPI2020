@@ -122,7 +122,7 @@ public class Ambito {
                 case 809: key = -1; ambStack.removeLast(); addSimbolos(809); break; // Fin tupla
                 
                 case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoLista"; break; // Lista
-                case 811: key = -1; ambStack.removeLast(); if(tipoLista != null) delSimbolos(811); addSimbolos(811); break; // Fin lista
+                case 811: key = -1; ambStack.removeLast(); if(tipoLista != null) { delSimbolos(811); addSimbolos(812); } addSimbolos(811); break; // Fin lista
                 
                 case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; key = PS; addSimbolos(808); break; // Rango
                 case 813: case 814: case 815: key = PS; break;
@@ -318,6 +318,10 @@ public class Ambito {
                 sql = update + "tipoLista = '" + tipoLista + "', tArr = '" + tArr + "' WHERE clase = 'lista' "+ last;
                 tipoLista = null;
                 tArr = 0;
+            break;
+            
+            case 812: // UPDATE LAST LISTA: clase arreglo
+                sql = update + "clase = 'arreglo' WHERE clase = 'lista' "+ last;
             break;
             
             case 814: // UPDATE LAST RANGO: tArr
