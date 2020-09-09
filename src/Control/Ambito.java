@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,23 +69,20 @@ public class Ambito {
         String sql;
         
         try {
-            if(key == 806 || key == 876) { // Si es parametro, for id: solo se busca en ese ambito
+            if(declaracion) {
                 sql = existeID + id + "' AND amb =" + ambStack.peekLast();
                 System.out.println("\n ++++ KEY : "+ key + "  SQL: "+ sql);
+                
                 return (rs = stmt.executeQuery(sql)).next();
             } else {
-                Iterator it = ambStack.iterator();
-            
-                while(it.hasNext()) {
-                    int amb = (int) it.next();   
+                for (int i = 0; i < ambStack.size(); i++) {
+                    int amb = ambStack.get(i);   
                     
                     sql = existeID + id + "' AND amb =" + amb;
                     
                     System.out.println("\n ++++ KEY : "+ key + "  SQL: "+ sql);
 
                     if((rs = stmt.executeQuery(sql)).next()) {
-                        if(key == 804) // Si es fun guardar clase para marcar error
-                            clase = rs.getString(4);
                         return true;
                     }
                 }
@@ -270,7 +266,7 @@ public class Ambito {
     int amb, tArr, noPar, dimArr;
     
     public void addSimbolos(Token token) {
-        String sql = "";
+        String sql;
         
         switch(key) {
             case 804: // Funcion
@@ -381,7 +377,7 @@ public class Ambito {
             
             case 819: // UPDATE LAST DICCIONARIO: tArr, dimArr
                 sql = update + "tArr = '" + tArr + "', dimArr  = '1' WHERE clase = 'diccionario' "+ last;
-                tArrRango = null;
+                tArr = 0;
                 valor = null; 
                 llave = null;
             break;
@@ -438,9 +434,10 @@ public class Ambito {
     public void setError(int error) {
         Token token = tokens.peekFirst();
         
-        if(key == 804 && !clase.equals("fun")) // Agregamos #funcion
+        if(key == 804 && error == 700) { // Agregamos #funcion
+            clase = "error";
             addSimbolos(tokens.peekLast());
-        else 
+        } else 
             if(key == 806)
                 noPar--;
         
