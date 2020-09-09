@@ -191,9 +191,9 @@ public class Sintaxis {
         {8, 808, -44, 20, 9, -45, 809}, // LIST-TUP-RANGOS -> @ ( OR B0 ) @
         {8, 810, 24, 811}, // LIST-TUP-RANGOS -> @ ARR @
         {8, 812, -76, -44, 813, 7, -53, 814, 7, -53, 815, 7, -45, 816}, // LIST-TUP-RANGOS -> @ range ( @ CONSTENTERO , @ CONSTENTERO , @ CONSTENTERO ) @
-        {8, 817, -46, 6, 10, 11, -47, 818}, // LIST-TUP-RANGOS -> @ { CONSTANTE B1 B2 } @
+        {8, 817, -46, 6, 10, 11, -47, 819}, // LIST-TUP-RANGOS -> @ { CONSTANTE B1 B2 } @
         {9, -53, 20, 9}, // B0 -> , OR B0
-        {10, -50, 6, 11}, // B1 -> : CONSTANTE B2
+        {10, -50, 818, 6, 11}, // B1 -> : CONSTANTE B2
         {11, -53, 6, 10, 11}, // B2 -> , CONSTANTE B1 B2
         {12, 14, 13}, // TERMINOPASCAL -> ELEVACION C0
         {13, -14, 14, 13}, // C0 -> * ELEVACION C0

@@ -128,8 +128,9 @@ public class Ambito {
                 case 813: case 814: case 815: key = PS; break;
                 case 816: key = -1; break; // Fin rango
                 
-                case 817: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoDic"; break; // Diccionario
-                case 818: key = -1; ambStack.removeLast(); break; // Fin diccionario
+                case 817: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoDic"; valor = ""; llave = ""; break; // Diccionario
+                case 818: key = PS; break;
+                case 819: key = -1; ambStack.removeLast(); addSimbolos(819); break; // Fin diccionario
                 
                 case 876: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
                 case 877: key = -1; break; // Fin FOR id
@@ -147,7 +148,8 @@ public class Ambito {
             case 805: var(LT);          break;
             case 808: tupla(LT);        break;
             case 810: lista(LT);        break;
-            case 817: diccionario(LT);  break;
+            case 817: 
+            case 818: diccionario(LT);  break;
         }
     }
     
@@ -237,13 +239,35 @@ public class Ambito {
     
     // DICCIONARIO
     public void diccionario(int LT) {
+        String tipo = getTipo(LT);
+        
+        if(tipo != null) {
+            tArr++;
+            
+            id = tokens.peekFirst().getLexema();
+            
+            if(LT == -40 || LT == -41)
+                id = "\\" + id.substring(0, id.length()-1) + "\\" + id.charAt(id.length() -1);
+                    
+            
+            this.tipo = tipo;
+            
+            addSimbolos(key);
+        } else
+            if(LT == -8) {
+                if(key == 817)
+                    valor = "-";
+                else 
+                    llave = "-";
+            }
+                
         
     }
     
     // COLUMNAS SIMBOLOS
-    String id, tipo, clase, tipoLista, valor, tpArr, tArrRango, dimArrRango;
+    String id, tipo, clase, tipoLista, valor, tpArr, llave, tArrRango, dimArrRango;
     
-    int amb, tArr, noPar, llave, dimArr;
+    int amb, tArr, noPar, dimArr;
     
     public void addSimbolos(Token token) {
         String sql = "";
@@ -332,6 +356,34 @@ public class Ambito {
             case 815: // UPDATE LAST RANGO: dimArr
                 sql = update + "dimArr = '" + dimArrRango + "' WHERE clase = 'rango' "+ last;
                 dimArrRango = null;
+            break;
+            
+            case 817: // INSERT DATODIC
+                valor += id;
+                
+                sql = "INSERT INTO simbolos (tipo, clase, amb, valor, noPar, tpArr) VALUES ('" 
+                    + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", '" + valor + "', " + tArr + ", '" + tpArr + "');";
+                
+                valor = "";
+            break;
+            
+            case 818: // UPDATE LAST DATODIC: llave
+                llave += id;
+                
+                sql = update + "llave = '" + llave + "' WHERE clase = 'datoDic' "+ last;
+                
+                llave = "";
+                
+                key = 817;
+                
+                tArr--;
+            break;
+            
+            case 819: // UPDATE LAST DICCIONARIO: tArr, dimArr
+                sql = update + "tArr = '" + tArr + "', dimArr  = '1' WHERE clase = 'diccionario' "+ last;
+                tArrRango = null;
+                valor = null; 
+                llave = null;
             break;
         }
         System.out.println(sql);
