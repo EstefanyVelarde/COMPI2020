@@ -44,9 +44,6 @@ public class Sintaxis {
             
             int LT = tokens.peekFirst().getToken();
             
-            // SOLO PARA PRUEBAS
-            String lex = tokens.peekFirst().getLexema();
-            
             if(PS > 799) { // Si es una zona
                 ambito.zona(PS, LT);
                 continue;
@@ -62,8 +59,9 @@ public class Sintaxis {
                     if(epsilon(valor)) 
                         setEpsilon();
                     else 
-                        if(error(valor)) 
+                        if(error(valor)) {
                             setError(valor);
+                        }
             } else {
                 if(terminales(PS, LT)) { 
                     ambito.checar(PS, LT); // CHECAR AMBITO
@@ -127,7 +125,6 @@ public class Sintaxis {
     
     public void setError(int error) {
         Token token = tokens.removeFirst();
-        
         errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 600], "Sintaxis"));
     }
     

@@ -71,7 +71,6 @@ public class Ambito {
         try {
             if(declaracion) {
                 sql = existeID + id + "' AND amb =" + ambStack.peekLast();
-                System.out.println("\n ++++ KEY : "+ key + "  SQL: "+ sql);
                 
                 return (rs = stmt.executeQuery(sql)).next();
             } else {
@@ -79,8 +78,6 @@ public class Ambito {
                     int amb = ambStack.get(i);   
                     
                     sql = existeID + id + "' AND amb =" + amb;
-                    
-                    System.out.println("\n ++++ KEY : "+ key + "  SQL: "+ sql);
 
                     if((rs = stmt.executeQuery(sql)).next()) {
                         return true;
@@ -300,7 +297,7 @@ public class Ambito {
                 
                 tpArr = token.getLexema(); // Guarda tpArr para datos
         }
-        System.out.println(sql);
+        //System.out.println(sql);
         try {
             stmt.executeUpdate(sql);
         } catch (SQLException ex) {
@@ -383,7 +380,7 @@ public class Ambito {
                 llave = null;
             break;
         }
-        System.out.println(sql);
+        //System.out.println(sql);
         
         try {
             stmt.executeUpdate(sql);
@@ -401,7 +398,7 @@ public class Ambito {
                 contAmb--;
             break;
         }
-        System.out.println(sql);
+        //System.out.println(sql);
         
         try {
             stmt.executeUpdate(sql);
