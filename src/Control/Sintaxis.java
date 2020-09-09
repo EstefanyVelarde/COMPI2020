@@ -78,6 +78,8 @@ public class Sintaxis {
                 }
             }
         }
+        
+        ambito.setContador();
     }
     
     // PRODUCCION

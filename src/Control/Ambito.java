@@ -85,6 +85,7 @@ public class Ambito {
                     if((rs = stmt.executeQuery(sql)).next()) {
                         return true;
                     }
+                    rs.close();
                 }
             }
             
@@ -107,7 +108,7 @@ public class Ambito {
         
         if(declaracion) {
             switch(PS) {
-                case 804: tipo = "real"; clase = "fun"; key = PS;   break;  // Funcion
+                case 804: tipo = "none"; clase = "fun"; key = PS;   break;  // Funcion
                 
                 case 805: clase = "var"; key = PS;   break;  // Variable
                 
@@ -334,14 +335,14 @@ public class Ambito {
                     + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", " + tArr + ", '" + tpArr + "');";
             break;
             
-            case 811: // UPDATE LAST LISTA: tipoLista, tArr
-                sql = update + "tipoLista = '" + tipoLista + "', tArr = '" + tArr + "' WHERE clase = 'lista' "+ last;
+            case 811: // UPDATE LAST LISTA: tArr
+                sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' "+ last;
                 tipoLista = null;
                 tArr = 0;
             break;
             
             case 812: // UPDATE LAST LISTA: clase arreglo
-                sql = update + "clase = 'arreglo' WHERE clase = 'lista' "+ last;
+                sql = update + "clase = 'arreglo', " + "tipoLista = '" + tipoLista + "' "  +" WHERE clase = 'lista' "+ last;
             break;
             
             case 814: // UPDATE LAST RANGO: tArr
@@ -461,4 +462,18 @@ public class Ambito {
         
         this.errores = errores;
     }
+    
+    // CONTADOR
+    ContAmbito contAmbito;
+    
+    public void setContador() {
+        contAmbito = new ContAmbito(this.con, this.stmt);
+        System.out.println(" COTTTN " + contAmb);
+        contAmbito.setContador(contAmb);
+    }
+    
+    public ContAmbito getContador() {
+        return contAmbito;
+    }
+    
 }

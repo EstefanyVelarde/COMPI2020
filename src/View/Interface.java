@@ -539,7 +539,7 @@ public class Interface extends javax.swing.JFrame {
     }//GEN-LAST:event_jbCompileActionPerformed
 
     private void jbXLSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbXLSActionPerformed
-        XLS ce = new XLS(lexico.getTokensCopy(), lexico.getErrores(), lexico.getContadores(), lexico.getLinea());
+        XLS ce = new XLS(lexico.getTokensCopy(), lexico.getErrores(), lexico.getContadores(), ambito.getContador());
         ce.crearExcel();
     }//GEN-LAST:event_jbXLSActionPerformed
 

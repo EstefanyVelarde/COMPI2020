@@ -5,7 +5,9 @@ import Model.Error;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class Contadores {
+public class ContLexico {
+    
+    // LEXICO
     int cE;
     int cId;
     int cCom;
@@ -30,28 +32,7 @@ public class Contadores {
     
     int[] lineas;
     
-    public Contadores(int len) {
-        cE=0;
-        cId=0;
-        cCom=0;
-        cPR=0;
-        cEDec=0;
-        cEBin=0;
-        cEHex=0;
-        cEOct=0;
-        cTexto=0;
-        cFloat=0;
-        cComp=0;
-        cCar=0;
-        cOArit=0;
-        cOMon=0;
-        cOLog=0;
-        cOBit=0;
-        cOId=0;
-        cSPun=0;
-        cSAgr=0;
-        cSAsig=0;
-        cORel=0;
+    public ContLexico(int len) {
         
         lineas = new int[len+1];
     }

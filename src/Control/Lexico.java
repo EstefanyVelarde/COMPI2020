@@ -15,7 +15,7 @@ public class Lexico {
 
     LinkedList<Error> errores;
     
-    Contadores contadores;
+    ContLexico contadores;
 
     String lexema = "", texto;
     
@@ -315,7 +315,7 @@ public class Lexico {
     
     // CONTADORES
     public void setContadores() {
-        contadores = new Contadores(linea);
+        contadores = new ContLexico(linea);
         
         contadores.setContadores(tokens);
         
@@ -324,7 +324,7 @@ public class Lexico {
         cont = contadores.getContadores();
     }
 
-    public Contadores getContadores() {
+    public ContLexico getContadores() {
         return contadores;
     }
     
