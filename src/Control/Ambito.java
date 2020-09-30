@@ -66,13 +66,20 @@ public class Ambito {
     
     public boolean existeID() {
         id = tokens.peekFirst().getLexema();
+        
         String sql;
         
         try {
             if(declaracion) {
-                sql = existeID + id + "' AND amb =" + ambStack.peekLast();
+                sql = existeID + id + "' AND amb =" + ambStack.peekLast() + " " + last;
                 
-                return (rs = stmt.executeQuery(sql)).next();
+                if((rs = stmt.executeQuery(sql)).next()) {
+                    error = rs.getInt("error");
+                    
+                    return true;
+                }
+                
+                return false;
             } else {
                 for (int i = 0; i < ambStack.size(); i++) {
                     int amb = ambStack.get(i);   
@@ -261,7 +268,7 @@ public class Ambito {
     // COLUMNAS SIMBOLOS
     String id, tipo, clase, tipoLista, valor, tpArr, llave, tArrRango, dimArrRango;
     
-    int amb, tArr, noPar, dimArr;
+    int amb, tArr, noPar, dimArr, error;
     
     public void addSimbolos(Token token) {
         String sql;
@@ -270,17 +277,23 @@ public class Ambito {
             case 804: // Funcion
                 tpArr = (ambStack.peekLast() + 1) + ""; // Define el ambito que creara
                 
-                if(!clase.equals("fun")) {
-                    id = "#"+id;
+                if(clase.equals("error")) { // Se define el núm. del error
                     clase = "fun";
-                }
-                
-                sql = "INSERT INTO simbolos (id, tipo, clase, amb, tpArr) VALUES ('" 
-                    + id + "', '" + tipo + "', '" + clase + "', " + ambStack.peekLast() + ", '" + tpArr + "');";
+                    
+                    error++;
+                    
+                    sql = "INSERT INTO simbolos (id, tipo, clase, amb, tpArr, error) VALUES ('" 
+                    + id + "', '" + tipo + "', '" + clase + "', " + ambStack.peekLast() + ", '" + tpArr + "', '" + error + "');";
+                    
+                } else
+                    sql = "INSERT INTO simbolos (id, tipo, clase, amb, tpArr) VALUES ('" 
+                        + id + "', '" + tipo + "', '" + clase + "', " + ambStack.peekLast() + ", '" + tpArr + "');";
                 
                 tpArr = id; // Guarda tpArr para parametros
                 
                 key = -1;
+                
+                error = 0;
             break; 
             
             case 806: // Parametro

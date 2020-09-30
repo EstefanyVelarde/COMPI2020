@@ -61,7 +61,7 @@ public class ContAmbito {
         " AND (tipo = 'caracter' AND (clase = 'var' OR clase = 'par'));",
         " AND (tipo = 'complejo' AND (clase = 'var' OR clase = 'par'));",
         " AND (tipo = 'boolean' AND (clase = 'var' OR clase = 'par'));",
-        " AND (tipo = 'none' AND (clase = 'var' OR clase = 'par'));",
+        " AND (tipo = 'none' AND (clase = 'var' OR clase = 'par' OR clase = 'fun') AND error is null);",
         " AND clase = 'arreglo';",
         " AND clase = 'tupla';",
         " AND clase = 'lista';",
@@ -86,7 +86,10 @@ public class ContAmbito {
         return 0;
     }
     
-    String simbolos = "SELECT * FROM simbolos";
+    String simbolos = "SELECT idsimbolos, "
+            + "ifnull(concat('#', error, ' ', id), id) as id, "
+            + "tipo, clase, amb, tArr, tipoLista, dimArr, valor, "
+            + "noPar, llave, tpArr FROM simbolos";
     
     public ResultSet getSimbolos() throws SQLException {
         return stmt.executeQuery(simbolos);
