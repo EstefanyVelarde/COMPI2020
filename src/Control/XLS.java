@@ -1,5 +1,7 @@
 package Control;
 
+import Control.Ambito.ContAmbito;
+import Control.Lexico.ContLexico;
 import Model.Error;
 import Model.Token;
 import java.io.File;

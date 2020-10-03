@@ -1,4 +1,4 @@
-package Control;
+package Control.Sintaxis;
 
 import java.io.File;
 import java.io.FileInputStream;

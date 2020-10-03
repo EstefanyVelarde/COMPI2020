@@ -1,5 +1,6 @@
-package Control;
+package Control.Sintaxis;
 
+import Control.Ambito.Ambito;
 import Model.Token;
 import Model.Error;
 import java.util.LinkedList;

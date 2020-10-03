@@ -1,4 +1,4 @@
-package Control;
+package Control.Lexico;
 
 import java.io.File;
 import java.io.FileInputStream;

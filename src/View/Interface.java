@@ -1,11 +1,10 @@
 package View;
 
-import Control.Ambito;
-import Control.Lexico;
-import Control.Sintaxis;
+import Control.Ambito.Ambito;
+import Control.Lexico.Lexico;
+import Control.Sintaxis.Sintaxis;
 import Control.XLS;
 import Control.Archivos;
-import Control.Conexion;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;

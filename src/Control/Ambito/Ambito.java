@@ -1,5 +1,6 @@
-package Control;
+package Control.Ambito;
 
+import Control.Conexion;
 import Model.Token;
 import Model.Error;
 import java.sql.Connection;

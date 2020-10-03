@@ -1,4 +1,4 @@
-package Control;
+package Control.Lexico;
 
 import Model.Token;
 import Model.Error;
