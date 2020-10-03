@@ -166,7 +166,6 @@ public class Interface extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(7, 38, 59));
-        setPreferredSize(null);
 
         bgScroll.setAlignmentX(0.0F);
         bgScroll.setAlignmentY(0.0F);
@@ -175,7 +174,6 @@ public class Interface extends javax.swing.JFrame {
 
         background.setBackground(new java.awt.Color(7, 38, 59));
         background.setMaximumSize(null);
-        background.setMinimumSize(null);
 
         areaTituloPanel.setBackground(new java.awt.Color(33, 133, 145));
 

@@ -345,8 +345,8 @@ public class Ambito {
                     + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", " + tArr + ", '" + tpArr + "');";
             break;
             
-            case 811: // UPDATE LAST LISTA: tArr
-                sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' "+ last;
+            case 811: // UPDATE LAST LISTA O ARREGLO: tArr
+                sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' OR clase = 'arreglo' "+ last;
                 tipoLista = null;
                 tArr = 0;
             break;
@@ -408,7 +408,8 @@ public class Ambito {
         switch(PS) {
             case 811: // DELETE WHERE clase LAST LIMIT tArr
                 sql = delete + "clase = '" + clase + "' " + lastLimit + tArr + ";";
-                contAmb--;
+                
+                contAmb--; // Como es un arreglo eliminamos ambito del contador
             break;
         }
         //System.out.println(sql);
