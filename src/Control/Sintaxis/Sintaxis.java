@@ -1,6 +1,7 @@
 package Control.Sintaxis;
 
 import Control.Ambito.Ambito;
+import Control.Semantica.Semantica;
 import Model.Token;
 import Model.Error;
 import java.util.LinkedList;
@@ -10,6 +11,8 @@ public class Sintaxis {
     MatrizSintaxis matriz;
     
     Ambito ambito;
+    
+    Semantica semantica;
 
     LinkedList<Integer> prodStack;
     
@@ -19,7 +22,7 @@ public class Sintaxis {
     
     
     public Sintaxis(LinkedList<Token> tokens, LinkedList<Error> errores, 
-            Ambito ambito) {
+            Ambito ambito, Semantica semantica) {
         matriz = new MatrizSintaxis();
         
         this.tokens = tokens;
@@ -36,6 +39,10 @@ public class Sintaxis {
         this.ambito = ambito;
         
         this.ambito.initAmbito(prodStack, tokens, errores);
+        
+        // INIT SEMANTICA
+        this.semantica = semantica;
+        
     }
     
     public void analizarTokens() {
@@ -45,8 +52,12 @@ public class Sintaxis {
             
             int LT = tokens.peekFirst().getToken();
             
-            if(PS > 799) { // Si es una zona
-                ambito.zona(PS, LT);
+            if(PS > 799) { // Zona ambito
+                ambito.zona(PS);
+                
+                if(PS > 849) // Zona semantica
+                    semantica.zona(PS);
+                
                 continue;
             }
             
@@ -65,8 +76,11 @@ public class Sintaxis {
                         }
             } else {
                 if(terminales(PS, LT)) { 
-                    ambito.checar(PS, LT); // CHECAR AMBITO
+                    ambito.checar(PS, LT); // CHECA AMBITO
                     
+                    if(!ambito.declaracion) // EJECUCION
+                        semantica.checar(PS, LT);
+                        
                     setTerminales();
                 } else {
                     setError(633);
@@ -244,7 +258,7 @@ public class Sintaxis {
         {36, -81, -44, 20, 9, -45}, // EST -> print ( OR B0 )
         {36, -82, -44, 35, -45}, // EST -> println ( J5 )
         {36, -83, 20, -50, 36, 5, 37}, // EST -> if OR : EST A3 K0
-        {36, -88, 802, 801, 876, 20, 877, 800, -89, 20, -50, 36, 5, -86, 803}, // EST -> for @ @ @ OR @ to OR : EST A3 End @
+        {36, -88, 802, 801, 820, 20, 821, 800, -89, 20, -50, 36, 5, -86, 803}, // EST -> for @ @ @ OR @ to OR : EST A3 End @
         {36, -90, 20, -50, 36, 5, -87}, // EST -> while OR : EST A3 wend
         {36, -91}, // EST -> Break
         {36, -92}, // EST -> Continue

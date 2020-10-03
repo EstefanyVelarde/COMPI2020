@@ -88,7 +88,7 @@ public class MatrizLexico {
         
     }
     
-    public void initColumnas() {
+    private void initColumnas() {
         columnas =  new Hashtable<Integer, Integer>(); 
         int col = 1;
         

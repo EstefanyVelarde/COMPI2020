@@ -20,7 +20,7 @@ public class Ambito {
     
     LinkedList<Integer> ambStack; // Pila de ambitos
     
-    boolean declaracion;
+    public boolean declaracion;
     
     int contAmb, key;
     
@@ -102,7 +102,7 @@ public class Ambito {
         return false;
     }
     
-    public void zona(int PS, int LT) {
+    public void zona(int PS) {
         switch(PS) {
             case 800: declaracion = false;  break;  // Zona de ejecucion
             case 801: declaracion = true;   break;  // Zona de declaracion
@@ -134,8 +134,8 @@ public class Ambito {
                 case 818: key = PS; break;
                 case 819: key = -1; ambStack.removeLast(); addSimbolos(819); break; // Fin diccionario
                 
-                case 876: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
-                case 877: key = -1; break; // Fin FOR id
+                case 820: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
+                case 821: key = -1; break; // Fin FOR id
             }
         }
         

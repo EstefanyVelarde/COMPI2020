@@ -5,6 +5,7 @@ import Control.Lexico.Lexico;
 import Control.Sintaxis.Sintaxis;
 import Control.XLS;
 import Control.Archivos;
+import Control.Semantica.Semantica;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -33,6 +34,7 @@ public class Interface extends javax.swing.JFrame {
     public Lexico lexico;
     public Sintaxis sintaxis;
     public Ambito ambito;
+    public Semantica semantica;
 
     public Interface() {
         initComponents();
@@ -525,8 +527,10 @@ public class Interface extends javax.swing.JFrame {
         if(!lexico.getTokens().isEmpty()) {
             ambito = new Ambito();
             
+            semantica = new Semantica(ambito);
+            
             sintaxis = new Sintaxis(lexico.getTokensCopy(), lexico.getErrores(),
-                                    ambito);
+                                    ambito, semantica);
         
             sintaxis.analizarTokens();
         }
