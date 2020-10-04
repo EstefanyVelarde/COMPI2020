@@ -18,10 +18,6 @@ public class Operando {
         this.tipo = tipo;
     }
 
-    public Operando(String tipo) {  // TEMP
-        this.tipo = tipo;
-    }
-
     public Token getToken() {
         return token;
     }

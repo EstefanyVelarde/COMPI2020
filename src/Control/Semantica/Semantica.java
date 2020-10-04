@@ -15,7 +15,7 @@ public class Semantica {
     
     LinkedList<Token> opStack;
     
-    // TEMPORAL TIPO - CONTADOR
+    // Temp tipo - cont
     Hashtable<String, Integer> contTemp; 
     
     public Semantica(Ambito ambito) {
@@ -28,6 +28,8 @@ public class Semantica {
         opStack = new LinkedList();
         
         contTemp = new Hashtable();
+        
+        lexemaAsign = "";
     }
     
     Token token;
@@ -43,13 +45,21 @@ public class Semantica {
             if(idsimbolos != null)
                 operStack.offer(new Operando(token, getTipo(idsimbolos[0]), Integer.parseInt(idsimbolos[2])));
             else
-                operStack.offer(new Operando("V")); // Guardamos temp variant
-        } else 
-            if(operando(LT))
+                operStack.offer(new Operando(token, "V")); // Guardamos temp variant
+            
+            lexemaAsign += " " + token.getLexema();
+        } else {
+            if(operando(LT)) {
                 operStack.offer(new Operando(token, getTipo(LT)));
-            else 
-                if(operador(LT)) 
+                
+                lexemaAsign += " " + token.getLexema();
+            } else 
+                if(operador(LT)) {
                     opStack.offer(token);
+                    
+                    lexemaAsign += " " + token.getLexema();
+                }
+        }
     }
     
     // @ ZONA
@@ -58,7 +68,7 @@ public class Semantica {
 
     String tipoOper1, tipoOper2;
 
-    String tempTipo;
+    String tempTipo, lexOp;
 
     Token op;
 
@@ -75,10 +85,14 @@ public class Semantica {
                 
                 tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
                 
-                operStack.offer(new Operando(tempTipo)); // Guardamos temp
+                if (tempTipo.equals("error")) {
+                    
+                    setError(800, tipoOper1, tipoOper2, lexemaOper);
+                    
+                    tempTipo = "V"; // Marcamos Variant
+                }
                 
-                if (tempTipo == "V")
-                    setError(tipoOper1, tipoOper2);
+                operStack.offer(new Operando(new Token(lexemaOper), tempTipo)); // Guardamos temp
                    
                 System.out.println("\nSE CREO TEMP"); printStacks();
             break;
@@ -90,18 +104,21 @@ public class Semantica {
                 
                 tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
                 
-                if (tempTipo == "V")
-                    setError(tipoOper1, tipoOper2);
+                if (tempTipo.equals("error"))
+                    setError(801, tipoOper1, tipoOper2, lexemaAsign);
                 
-                System.out.println("\nASIGN VERIFICADA"); printStacks();
+                System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
+                
+                
+                lexemaAsign = "";
             break;
         }
         
     }
     
     public void saveLast() {
-        oper1 = operStack.removeLast();
-        oper2 = operStack.removeLast(); 
+        oper2 = operStack.removeLast();
+        oper1 = operStack.removeLast(); 
         
         op = opStack.removeLast();
         
@@ -109,6 +126,11 @@ public class Semantica {
         tipoOper2 = oper2.getTipo();
         
         opToken = op.getToken();
+        
+        lexOp = op.getLexema();
+        
+        lexemaOper = oper1.getToken().getLexema() + " " + op.getLexema()
+                + " " + oper2.getToken().getLexema();
     }
     
     public void printStacks() {
@@ -133,14 +155,15 @@ public class Semantica {
         
         switch(tipoSimbolos) {
             case "boolean":     tipo = "B";  break;
-            case "caracter":    tipo = "C";  break;
-            case "cadena":      tipo = "CH"; break;
+            case "caracter":    tipo = "CH";  break;
+            case "cadena":      tipo = "C"; break;
             case "decimal":     tipo = "D";  break;
-            case "flotante":    tipo = "DF"; break;
+            case "flotante":    tipo = "F"; break;
             case "complejo":    tipo = "CM"; break;
             case "binario":     tipo = "DB"; break;
             case "hexadecimal": tipo = "DH"; break;
             case "octal":       tipo = "DO"; break;
+            case "none":        tipo = "V";  break;
             case "struct": 
                 switch(idsimbolos[1]) {
                     case "tupla":       tipo = "T";   break;
@@ -163,7 +186,7 @@ public class Semantica {
             case -40: tipo = "C";  break;   // Cadena
             case -41: tipo = "CH"; break;   // Caracter
             case -45: tipo = "D";  break;   // Decimal
-            case -46: tipo = "DF"; break;   // Float
+            case -46: tipo = "F"; break;   // Float
             case -47: tipo = "CM"; break;   // Complejo
             case -48: tipo = "DB"; break;   // Binario
             case -49: tipo = "DH"; break;   // Hexadecimal
@@ -189,19 +212,23 @@ public class Semantica {
     }
     
     public boolean operador(int LT) {
-        if(LT >= -37 && LT <= -7)
+        if(LT >= -37 && LT <= -7) 
             return true;
         
         return false;
     }
     
     // ERRORES
-    String desc = "Incompatibilidad de tipos ";
+    String desc[] = { 
+        "Incompatibilidad de tipos",
+        "Incompatibilidad de asignación"
+    };
     
-    public void setError(String tipo1, String tipo2) {
-        Token token = amb.tokens.peekFirst();
+    String lexemaAsign, lexemaOper;
+    
+    public void setError(int error, String tipo1, String tipo2, String lexema) {
         
-        amb.errores.add(new Model.Error(750, token.getLinea(), token.getLexema(), desc + tipo1 + " - " + tipo2, "Semántica"));
+        amb.errores.add(new Model.Error(error, token.getLinea(), lexema, desc[error - 800], "Semántica 1"));
     }
     
 }

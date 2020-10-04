@@ -23,6 +23,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.swing.text.Element;
 
 public class Interface extends javax.swing.JFrame {
@@ -110,7 +111,6 @@ public class Interface extends javax.swing.JFrame {
         errores.setFont(new Font("Lucida Console", Font.PLAIN, 18));
         
         errores.setRowHeight(30);
-        
         
         tokens.setOpaque(true);
         tokens.setFillsViewportHeight(true);
@@ -298,7 +298,13 @@ public class Interface extends javax.swing.JFrame {
                 "Linea", "Token", "Lexema"
             }
         ));
+        tokens.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         tokensScroll.setViewportView(tokens);
+        if (tokens.getColumnModel().getColumnCount() > 0) {
+            tokens.getColumnModel().getColumn(0).setPreferredWidth(60);
+            tokens.getColumnModel().getColumn(1).setPreferredWidth(70);
+            tokens.getColumnModel().getColumn(2).setPreferredWidth(235);
+        }
 
         contadores.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -328,7 +334,11 @@ public class Interface extends javax.swing.JFrame {
                 "", ""
             }
         ));
+        contadores.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         contadoresScroll.setViewportView(contadores);
+        if (contadores.getColumnModel().getColumnCount() > 0) {
+            contadores.getColumnModel().getColumn(0).setPreferredWidth(175);
+        }
 
         contadoresPanel.setBackground(new java.awt.Color(117, 83, 215));
 
@@ -415,8 +425,26 @@ public class Interface extends javax.swing.JFrame {
                 "Linea", "Numero", "Descripcion", "Lexema", "Tipo"
             }
         ));
+        errores.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         errores.getTableHeader().setBackground(bg);
         erroresScroll.setViewportView(errores);
+        if (errores.getColumnModel().getColumnCount() > 0) {
+            errores.getColumnModel().getColumn(0).setMinWidth(55);
+            errores.getColumnModel().getColumn(0).setPreferredWidth(55);
+            errores.getColumnModel().getColumn(0).setMaxWidth(55);
+            errores.getColumnModel().getColumn(1).setMinWidth(80);
+            errores.getColumnModel().getColumn(1).setPreferredWidth(80);
+            errores.getColumnModel().getColumn(1).setMaxWidth(80);
+            errores.getColumnModel().getColumn(2).setMinWidth(385);
+            errores.getColumnModel().getColumn(2).setPreferredWidth(385);
+            errores.getColumnModel().getColumn(2).setMaxWidth(385);
+            errores.getColumnModel().getColumn(3).setMinWidth(375);
+            errores.getColumnModel().getColumn(3).setPreferredWidth(375);
+            errores.getColumnModel().getColumn(3).setMaxWidth(375);
+            errores.getColumnModel().getColumn(4).setMinWidth(115);
+            errores.getColumnModel().getColumn(4).setPreferredWidth(120);
+            errores.getColumnModel().getColumn(4).setMaxWidth(120);
+        }
 
         javax.swing.GroupLayout downPanelLayout = new javax.swing.GroupLayout(downPanel);
         downPanel.setLayout(downPanelLayout);

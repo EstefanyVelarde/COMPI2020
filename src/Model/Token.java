@@ -11,6 +11,10 @@ public class Token {
         this.linea = linea;
         this.lexema = lexema;
     }
+    
+    public Token(String lexema) {
+        this.lexema = lexema;
+    }
 
     public int getToken() {
         return token;

@@ -326,10 +326,13 @@ public class Ambito {
         switch(PS) {
             case 805: // UPDATE LAST: tipo
                 sql = update + "tipo = '" + tipo + "' " + last;
+                
+                key = 0;
             break;
             
             case 807: // UPDATE LAST FUN: noPar
                 sql = update + "noPar = '" + noPar + "', tpArr = '" + tpArr +"' WHERE clase = 'fun' "+ last;
+                
                 noPar = 0;
             break;
             
@@ -339,6 +342,7 @@ public class Ambito {
             
             case 809: // UPDATE LAST TUPLA: tArr
                 sql = update + "tArr = '" + tArr + "' WHERE clase = 'tupla' "+ last;
+                
                 tArr = 0;
             break;
             
@@ -349,7 +353,9 @@ public class Ambito {
             
             case 811: // UPDATE LAST LISTA O ARREGLO: tArr
                 sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' OR clase = 'arreglo' "+ last;
+                
                 tipoLista = null;
+                
                 tArr = 0;
             break;
             
@@ -359,11 +365,13 @@ public class Ambito {
             
             case 814: // UPDATE LAST RANGO: tArr
                 sql = update + "tArr = '" + tArrRango + "' WHERE clase = 'rango' "+ last;
+                
                 tArrRango = null;
             break;
             
             case 815: // UPDATE LAST RANGO: dimArr
                 sql = update + "dimArr = '" + dimArrRango + "' WHERE clase = 'rango' "+ last;
+                
                 dimArrRango = null;
             break;
             
@@ -506,6 +514,7 @@ public class Ambito {
                     idsimbolos = new String[3];
                 
                     idsimbolos[0] = rs.getString(1); // Tipo
+                    
                     System.out.println("\nLASTIDSIMBOLOS");
                     System.out.println("TIPO = " + idsimbolos[0]);
                     
