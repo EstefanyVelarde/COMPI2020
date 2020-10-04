@@ -3,11 +3,12 @@ package Control.Semantica;
 import Control.Ambito.Ambito;
 import Model.Operando;
 import Model.Token;
-import java.util.Hashtable;
 import java.util.LinkedList;
 
 public class Semantica {
     MatrizSemantica matriz;
+    
+    ContSemantica contador;
     
     Ambito amb; // Para acceder a conexion, tokens y errores
     
@@ -15,19 +16,16 @@ public class Semantica {
     
     LinkedList<Token> opStack;
     
-    // Temp tipo - cont
-    Hashtable<String, Integer> contTemp; 
-    
     public Semantica(Ambito ambito) {
         this.amb = ambito;
         
         matriz = new MatrizSemantica();
         
+        contador = new ContSemantica();
+        
         operStack =  new LinkedList();
         
         opStack = new LinkedList();
-        
-        contTemp = new Hashtable();
         
         lexemaAsign = "";
     }
@@ -44,7 +42,7 @@ public class Semantica {
             
             if(idsimbolos != null)
                 operStack.offer(new Operando(token, getTipo(idsimbolos[0]), Integer.parseInt(idsimbolos[2])));
-            else
+            else 
                 operStack.offer(new Operando(token, "V")); // Guardamos temp variant
             
             lexemaAsign += " " + token.getLexema();
@@ -66,13 +64,13 @@ public class Semantica {
 
     Operando oper1, oper2; 
 
-    String tipoOper1, tipoOper2;
+    String tipoOper1, tipoOper2, asign;
 
     String tempTipo, lexOp;
 
     Token op;
 
-    int opToken;    
+    int opToken, line;    
     
     public void zona(int PS) {
         
@@ -95,6 +93,8 @@ public class Semantica {
                 operStack.offer(new Operando(new Token(lexemaOper), tempTipo)); // Guardamos temp
                    
                 System.out.println("\nSE CREO TEMP"); printStacks();
+                
+                contador.addTemp(tempTipo);
             break;
             
             case 851: 
@@ -109,8 +109,9 @@ public class Semantica {
                 
                 System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
                 
-                
                 lexemaAsign = "";
+                
+                contador.addAsing(asign, line);
             break;
         }
         
@@ -131,6 +132,12 @@ public class Semantica {
         
         lexemaOper = oper1.getToken().getLexema() + " " + op.getLexema()
                 + " " + oper2.getToken().getLexema();
+        
+        
+        // Contador
+        asign = oper1.getToken().getLexema() + " " + op.getLexema() + " T" + oper2.getTipo();
+        
+        line = oper1.getToken().getLinea();
     }
     
     public void printStacks() {
@@ -213,7 +220,7 @@ public class Semantica {
     
     public boolean operador(int LT) {
         if(LT >= -37 && LT <= -7) 
-            return true;
+                return true;
         
         return false;
     }
@@ -227,8 +234,9 @@ public class Semantica {
     String lexemaAsign, lexemaOper;
     
     public void setError(int error, String tipo1, String tipo2, String lexema) {
-        
         amb.errores.add(new Model.Error(error, token.getLinea(), lexema, desc[error - 800], "Semántica 1"));
+        
+        contador.addError();
     }
     
 }

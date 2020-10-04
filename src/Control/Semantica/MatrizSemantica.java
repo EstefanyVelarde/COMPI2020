@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 public class MatrizSemantica {
     Hashtable<String, String> suma, resta, multi, div, 
-            res, opRel, opIdent, opBool, opMono, opBits, opExp, asign;
+            res, opRel, opIdent, opBool, opBits, opExp, asign;
     
     String error;
     
@@ -21,6 +21,7 @@ public class MatrizSemantica {
         initOpIdent();
         initOpBool();
         initOpBits();
+        initOpExp();
                 
         initAsign();
     }
