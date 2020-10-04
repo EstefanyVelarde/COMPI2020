@@ -1,23 +1,25 @@
 package Model;
 
 public class Operando {
-    private Token token;
+    Token token;
     
-    private String temp;
+    String tipo;
     
-    private int idsimbolos;
+    int idsimbolos = -1;
 
-    public Operando(Token token) {
+    public Operando(Token token, String tipo, int idsimbolos) {  // ID
         this.token = token;
-    }
-
-    public Operando(Token token, int idsimbolos) {
-        this.token = token;
+        this.tipo = tipo;
         this.idsimbolos = idsimbolos;
     }
+    
+    public Operando(Token token, String tipo) {  // OPER
+        this.token = token;
+        this.tipo = tipo;
+    }
 
-    public Operando(String temp) {
-        this.temp = temp;
+    public Operando(String tipo) {  // TEMP
+        this.tipo = tipo;
     }
 
     public Token getToken() {
@@ -28,12 +30,12 @@ public class Operando {
         this.token = token;
     }
 
-    public String getTemp() {
-        return temp;
+    public String getTipo() {
+        return tipo;
     }
 
-    public void setTemp(String temp) {
-        this.temp = temp;
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     public int getIdsimbolos() {

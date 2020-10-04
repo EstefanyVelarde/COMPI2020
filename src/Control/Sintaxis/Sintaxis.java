@@ -78,8 +78,8 @@ public class Sintaxis {
                 if(terminales(PS, LT)) { 
                     ambito.checar(PS, LT); // CHECA AMBITO
                     
-                    if(!ambito.declaracion) // EJECUCION
-                        semantica.checar(PS, LT);
+                    if(!ambito.declaracion) // SI ESTA EN ZONA DE EJECUCION
+                        semantica.checar(LT); // CHECA SEMANTICA
                         
                     setTerminales();
                 } else {
@@ -210,15 +210,15 @@ public class Sintaxis {
         {10, -50, 818, 6, 11}, // B1 -> : CONSTANTE B2
         {11, -53, 6, 10, 11}, // B2 -> , CONSTANTE B1 B2
         {12, 14, 13}, // TERMINOPASCAL -> ELEVACION C0
-        {13, -14, 14, 13}, // C0 -> * ELEVACION C0
-        {13, -16, 14, 13}, // C0 -> / ELEVACION C0
-        {13, -17, 14, 13}, // C0 -> // ELEVACION C0
-        {13, -18, 14, 13}, // C0 -> % ELEVACION C0
+        {13, -14, 14, 850, 13}, // C0 -> * ELEVACION @ C0
+        {13, -16, 14, 850, 13}, // C0 -> / ELEVACION @ C0
+        {13, -17, 14, 850, 13}, // C0 -> // ELEVACION @ C0
+        {13, -18, 14, 850, 13}, // C0 -> % ELEVACION @ C0
         {14, 29, 15}, // ELEVACION -> FACTOR D0
         {15, -15, 29, 15}, // D0 -> ** FACTOR D0
         {16, 12, 17}, // SIMPLEEXP-PAS -> TERMINOPASCAL E0
-        {17, -35, 12, 17}, // E0 -> - TERMINOPASCAL E0
-        {17, -34, 12, 17}, // E0 -> + TERMINOPASCAL E0
+        {17, -35, 12, 850, 17}, // E0 -> - TERMINOPASCAL @ E0
+        {17, -34, 12, 850, 17}, // E0 -> + TERMINOPASCAL @ E0
         {18, 38, 19}, // NOT -> EXP-PAS F0
         {19, -33, 38, 19}, // F0 -> ! EXP-PAS F0
         {20, 46, 21}, // OR -> AND G0
@@ -251,7 +251,7 @@ public class Sintaxis {
         {31, -55}, // J1 -> --
         {31, -52, 48}, // J1 -> . FUNLIST
         {32, 28, 33}, // J2 -> ASIGN J3
-        {33, 20}, // J3 -> OR
+        {33, 20, 851}, // J3 -> OR @
         {33, -94, -44, 34, -45}, // J3 -> input ( J4 )
         {34, -4}, // J4 -> ConstCadena
         {35, 20, 9}, // J5 -> OR B0

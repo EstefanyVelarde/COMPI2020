@@ -3,19 +3,50 @@ package Control.Semantica;
 import java.util.Hashtable;
 
 public class MatrizSemantica {
-    private Hashtable<String, String> suma, resta, multi, div, 
+    Hashtable<String, String> suma, resta, multi, div, 
             res, opRel, opIdent, opBits;
     
+    String error;
+    
     public MatrizSemantica() {
+        error = "V";
+        
         initSuma();
     }
+    
+    public String getType(String type1, String type2, int op) {
+        if(asignacion(op)) {
+            if(type1.equals(type2))
+                return type1;
+            else
+                return error;
+        }
+        
+        Hashtable<String, String> matriz = null;
+        
+        switch(op) {
+            case -7: matriz = suma; break;
+        }
+        
+        String type = getType(matriz, type1, type2);
+        
+        return type == null ? error : type;
+    }
 
-    public String getType(String type1, String type2) {
+    public String getType(Hashtable<String, String> matriz, String type1, String type2) {
         String keyType1 = type1 + "-" + type2;
         String keyType2 = type2 + "-" + type1;
         
-        return suma.containsKey(keyType1) ? suma.get(keyType1) : suma.get(keyType2);
+        return matriz.containsKey(keyType1) ? matriz.get(keyType1) : matriz.get(keyType2);
     }
+    
+    public boolean asignacion(int LT) {
+        if(LT >= -37 && LT <= -30)
+            return true;
+        
+        return false;
+    }
+    
     
     private void initSuma() {
         suma = new Hashtable();

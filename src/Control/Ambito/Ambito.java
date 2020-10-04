@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 public class Ambito {
     LinkedList<Integer> prodStack; // Sintaxis prodStack
     
-    LinkedList<Token> tokens;
+    public LinkedList<Token> tokens;
     
-    LinkedList<Error> errores;
+    public LinkedList<Error> errores;
     
     LinkedList<Integer> ambStack; // Pila de ambitos
     
@@ -48,18 +48,15 @@ public class Ambito {
     }
     
     public void checar(int PS, int LT) {
-        if(LT == -44) { // Si es ID
+        if(identificador(LT)) {
             if(declaracion) {
-                if(existeID()) {
+                if(existeID()) 
                     setError(700);
-                } else {
+                else 
                     addSimbolos(tokens.peekFirst());
-                }
-            } else { // Esta en ejecucion
-                if(!existeID()) {
+            } else  // Esta en ejecucion
+                if(!existeID()) 
                     setError(701);
-                }
-            }
         } else 
             if(key != -1)
                 key(LT);
@@ -153,6 +150,10 @@ public class Ambito {
             case 817: 
             case 818: diccionario(LT);  break;
         }
+    }
+    
+    public boolean identificador(int LT) {
+        return LT == -44;
     }
     
     public String getTipo(int LT) {
@@ -487,4 +488,41 @@ public class Ambito {
         return contAmbito;
     }
     
+    // PARA SEMANTICA
+    String getIdSimbolos = "SELECT tipo, clase, idsimbolos FROM simbolos where (clase = 'var' OR clase = 'par') && id = '";
+    
+    public String[] getIdSimbolos(String id){
+        String[] idsimbolos = null;
+        String sql;
+        
+        try {
+            
+            for (int i = 0; i < ambStack.size(); i++) {
+                int amb = ambStack.get(i);   
+
+                sql = getIdSimbolos + id + "' AND amb =" + amb;
+
+                if((rs = stmt.executeQuery(sql)).next()) {
+                    idsimbolos = new String[3];
+                
+                    idsimbolos[0] = rs.getString(1); // Tipo
+                    System.out.println("\nLASTIDSIMBOLOS");
+                    System.out.println("TIPO = " + idsimbolos[0]);
+                    
+                    idsimbolos[1] = rs.getString(2); // Clase
+                    System.out.println("CLASE = " + idsimbolos[1]);
+
+                    idsimbolos[2] = rs.getInt(3) + ""; // Idsimbolos
+                    System.out.println("ID = " + idsimbolos[2]);
+                }
+                
+                rs.close();
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return idsimbolos;
+    }
 }
