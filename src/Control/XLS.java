@@ -2,6 +2,8 @@ package Control;
 
 import Control.Ambito.ContAmbito;
 import Control.Lexico.ContLexico;
+import Control.Semantica.ContSemantica;
+import Model.Asign;
 import Model.Error;
 import Model.Token;
 import java.io.File;
@@ -27,17 +29,18 @@ public class XLS {
     
     ContLexico contLexico;
     ContAmbito contAmbito;
+    ContSemantica contSemantica;
 
     LinkedList<Token> tokens;
     LinkedList<Model.Error> errores;
     
-    public XLS(LinkedList<Token> tokens, LinkedList<Error> errores, ContLexico contLexico, ContAmbito contAmbito) {
+    public XLS(LinkedList<Token> tokens, LinkedList<Error> errores, ContLexico contLexico, ContAmbito contAmbito, ContSemantica contSemantica) {
         
         this.tokens = tokens;
         this.errores = errores;
         this.contLexico = contLexico;
         this.contAmbito = contAmbito;
-        
+        this.contSemantica = contSemantica;
     }
 
     public void crearExcel() {
@@ -45,13 +48,15 @@ public class XLS {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");  
         LocalDateTime now = LocalDateTime.now();  
         
-        String nombreArchivo="Estefany-Velarde-Ambito-"+ dtf.format(now) +".xls";
+        String nombreArchivo="Estefany-Velarde-Semantica1-"+ dtf.format(now) +".xls";
         String rutaArchivo= nombreArchivo;
+        
         String nombreHoja1="Lista de Tokens";
         String nombreHoja2="Lista de Errores";
         String nombreHoja3="Contadores";
         String nombreHoja4="Ámbito";
         String nombreHoja5="Tabla de simbolos";
+        String nombreHoja6="Semántica 1";
 
         Workbook libro= new HSSFWorkbook();
         Sheet hoja1 = libro.createSheet(nombreHoja1);
@@ -59,6 +64,7 @@ public class XLS {
         Sheet hoja3 = libro.createSheet(nombreHoja3);
         Sheet hoja4 = libro.createSheet(nombreHoja4);
         Sheet hoja5 = libro.createSheet(nombreHoja5);
+        Sheet hoja6 = libro.createSheet(nombreHoja6);
 
         //cabecera de la hoja de excel
         String [] Cabecera1= new String[]{"Linea", "Token","Lexema"};
@@ -71,7 +77,7 @@ public class XLS {
                                             "Compleja","Booleana","None","Arreglo","Tuplas","Listas","Rango",
                                             "Diccionarios","Datos de Estructuras","Total/Ámbito"};
         String [] Cabecera5= new String[]{"id", "tipo", "clase", "amb", "tArr", "tipoLista", "dimArr", "valor", "noPar", "llave", "tpArr"};
-        
+        String [] Cabecera6= new String[]{"Línea", "TD", "TDO", "TDB", "TDH", "TF", "TC", "TCH", "TCM", "TB", "TT", "TL", "TA", "TDIC", "TV", "Asignación", "Errores"};
         
 
         //poner negrita a la cabecera
@@ -240,6 +246,56 @@ public class XLS {
         } catch (SQLException ex) {
             Logger.getLogger(XLS.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        // SEMANTICA 1
+        row=hoja6.createRow(0);
+        for (int j = 0; j <Cabecera6.length; j++) {
+            
+            Cell cell= row.createCell(j);
+            cell.setCellStyle(style); 
+            cell.setCellValue(Cabecera6[j]);
+           
+        }
+        
+        for (int i = 0; i < contSemantica.asigns.size(); i++) {
+            row=hoja6.createRow(i+1);
+            
+            Asign asign = contSemantica.asigns.get(i);
+            
+            Cell cell = row.createCell(0); //Linea
+            cell.setCellValue(asign.getLine());
+            
+            int[] temp = asign.getTemp();
+            
+            for (int j = 0; j < temp.length; j++) { // Temps
+                cell = row.createCell(j + 1);
+                cell.setCellValue(temp[j]);
+            }
+            
+            cell = row.createCell(temp.length + 1); // Asign
+            cell.setCellValue(asign.getAsign());
+            
+            cell = row.createCell(temp.length + 2); // Error
+            cell.setCellValue(asign.getErrors());
+        }
+        
+        int[] tempTotal = contSemantica.getTempTotal();
+        
+        int errorsTotal = contSemantica.getErrorsTotal();
+        
+        row=hoja6.createRow(contSemantica.asigns.size() + 1);
+        
+        for (int j = 0; j < tempTotal.length + 1; j++) { // Temp total
+            Cell cell= row.createCell(j);
+            
+            if(j == 0)
+                cell.setCellValue("Total");
+            else
+                cell.setCellValue(tempTotal[j - 1]);
+        }
+        
+        Cell cell = row.createCell(tempTotal.length + 2); // Error total
+        cell.setCellValue(errorsTotal);
         
         
         

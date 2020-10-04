@@ -238,5 +238,8 @@ public class Semantica {
         
         contador.addError();
     }
-    
+
+    public ContSemantica getContador() {
+        return contador;
+    }
 }

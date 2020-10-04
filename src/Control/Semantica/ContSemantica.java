@@ -1,24 +1,31 @@
 package Control.Semantica;
 
+import Model.Asign;
 import java.util.LinkedList;
 
 public class ContSemantica {
-    LinkedList<Asign> asigns;
+    public LinkedList<Asign> asigns;
     
     int[] temp;
     
-    int errors;
+    int[] tempTotal;
+    
+    int errors, errorsTotal;
     
     public ContSemantica() {
         asigns =  new LinkedList();
         
         resetValues();
+        
+        tempTotal = new int[14];
+        errorsTotal = 0;
     }
     
     public void addTemp(String temp) {
         int pos = getPos(temp);
         
         this.temp[pos]++;
+        tempTotal[pos]++;
     }
     
     public int getPos(String temp) {
@@ -62,58 +69,26 @@ public class ContSemantica {
     
     public void addError() {
         errors++;
+        errorsTotal++;
     }
     
     void resetValues() {
         temp = new int[14];
         errors = 0;
     }
-    
+
+    public LinkedList<Asign> getAsigns() {
+        return asigns;
+    }
+
+    public int[] getTempTotal() {
+        return tempTotal;
+    }
+
+    public int getErrorsTotal() {
+        return errorsTotal;
+    }
+
 }
 
-class Asign {
-    String asign;
-    int[] temp;
-    int line, errors;
 
-    public Asign(String asign, int[] temp, int line, int errors) {
-        this.asign = asign;
-        this.temp = temp;
-        this.line = line;
-        this.errors = errors;
-    }
-    
-    public String getAsign() {
-        return asign;
-    }
-
-    public void setAsign(String asign) {
-        this.asign = asign;
-    }
-
-    public int[] getTemp() {
-        return temp;
-    }
-
-    public void setTemp(int[] temp) {
-        this.temp = temp;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public void setLine(int line) {
-        this.line = line;
-    }
-
-    public int getErrors() {
-        return errors;
-    }
-
-    public void setErrors(int errors) {
-        this.errors = errors;
-    }
-    
-    
-}
