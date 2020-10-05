@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Ambito {
-    LinkedList<Integer> prodStack; // Sintaxis prodStack
+    public LinkedList<Integer> prodStack; // Sintaxis prodStack
     
     public LinkedList<Token> tokens;
     
@@ -312,12 +312,8 @@ public class Ambito {
                 
                 tpArr = token.getLexema(); // Guarda tpArr para datos
         }
-        //System.out.println(sql);
-        try {
-            stmt.executeUpdate(sql);
-        } catch (SQLException ex) {
-            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        executeUpdate(sql);
     }
     
     public void addSimbolos(int PS) {
@@ -403,13 +399,8 @@ public class Ambito {
                 llave = null;
             break;
         }
-        //System.out.println(sql);
         
-        try {
-            stmt.executeUpdate(sql);
-        } catch (SQLException ex) {
-            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        executeUpdate(sql);
     }
     
     public void delSimbolos(int PS) {
@@ -422,13 +413,8 @@ public class Ambito {
                 contAmb--; // Como es un arreglo eliminamos ambito del contador
             break;
         }
-        //System.out.println(sql);
         
-        try {
-            stmt.executeUpdate(sql);
-        } catch (SQLException ex) {
-            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        executeUpdate(sql);
     }
     
     Connection con;
@@ -450,6 +436,14 @@ public class Ambito {
     String delete = "DELETE FROM simbolos WHERE ";
     
     String lastLimit = "ORDER by idsimbolos desc limit ";
+    
+    public void executeUpdate(String sql) {
+        try {
+            stmt.executeUpdate(sql);
+        } catch (SQLException ex) {
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     
     // ERROR
@@ -497,12 +491,12 @@ public class Ambito {
     }
     
     // PARA SEMANTICA
-    String getIdSimbolos = "SELECT tipo, clase, idsimbolos FROM simbolos where (clase = 'var' OR clase = 'par') && id = '";
+    String getIdSimbolos = "SELECT tipo, clase, idsimbolos FROM simbolos where (clase = 'var' OR clase = 'par' OR tipo = 'struct') && id = '";
     
     public String[] getIdSimbolos(String id){
         String[] idsimbolos = null;
         String sql;
-        
+        System.out.println("BUSCANDO ID " + id);
         try {
             
             for (int i = 0; i < ambStack.size(); i++) {

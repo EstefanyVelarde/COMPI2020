@@ -570,6 +570,8 @@ public class Interface extends javax.swing.JFrame {
         XLS ce = new XLS(lexico.getTokensCopy(), lexico.getErrores(), 
                 lexico.getContadores(), ambito.getContador(), semantica.getContador());
         ce.crearExcel();
+        
+        System.out.println("\n++ Se creo excel");
     }//GEN-LAST:event_jbXLSActionPerformed
 
     private void jbClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbClearActionPerformed

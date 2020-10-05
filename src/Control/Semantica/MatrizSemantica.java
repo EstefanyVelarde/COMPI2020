@@ -29,13 +29,13 @@ public class MatrizSemantica {
     public String getType(String type1, String type2, int op) {
         
         if(asignacion(op)) { // Asignaciones
-            if(type1.equals("V"))
-                return "V";
-            
             if(type1.equals(type2))
                 return type1;
-            else 
-                return isValid(type1, type2);
+            
+            if(type1.equals("V") || type2.equals("V"))
+                return type1;
+            
+            return isValid(type1, type2);
         }
        
         if(type1.equals("V")) // Variant toma el tipo de dato con el que se compara
@@ -47,13 +47,18 @@ public class MatrizSemantica {
         Hashtable<String, String> matriz = null;
         
         switch(op) {
-            case -7: matriz = suma;  break;
-            case -8: matriz = resta; break;
-            case -9: matriz = multi; break;
-            case -11: matriz = div;  break;
-            case -12: case -13: matriz = res;  break;
+            case -7:    matriz = suma;      break;
+            case -8:    matriz = resta;     break;
+            case -9:    matriz = multi;     break;
+            case -10:   matriz = opExp;     break;
+            case -11:   matriz = div;       break;
+            case -12: case -13: 
+                        matriz = res;       break;
             case -16: case -17: case -18: case -25: 
-            case -26: case -27: case -51: matriz = opBool; break;
+            case -26: case -27: case -51: 
+                        matriz = opBool;    break;
+            case -28: case -29: 
+                        matriz = opBits;    break;
             
             default:
                 if(op >= -24 && op <= -19)
@@ -157,6 +162,7 @@ public class MatrizSemantica {
         // COMPLEJA
         suma.put("CM-D", "CM");
         suma.put("CM-F", "CM");
+        suma.put("CM-C", "C");
         suma.put("CM-CM", "CM");
         
         // BOOL

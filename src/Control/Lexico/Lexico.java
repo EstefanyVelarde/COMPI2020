@@ -288,7 +288,7 @@ public class Lexico {
         "Se esperaba un \\d o  -",
         "Se esperaba un [0-1]",
         "Se esperaba un [\\da-fA-F]",
-        "Se esperaba \\w, (, ), [, ], {, }, “, ‘, #, +, -, *, /, %, &, |, ^, <, >, =, !, ;, o ,"
+        "Caracter invalido"
     };
     
     public boolean error(int estado) {

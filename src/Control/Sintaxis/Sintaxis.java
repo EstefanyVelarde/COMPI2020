@@ -90,7 +90,9 @@ public class Sintaxis {
                     break;
                 }
             }
+            
         }
+        
         
         ambito.setContador();
     }
@@ -215,7 +217,7 @@ public class Sintaxis {
         {13, -17, 14, 850, 13}, // C0 -> // ELEVACION @ C0
         {13, -18, 14, 850, 13}, // C0 -> % ELEVACION @ C0
         {14, 29, 15}, // ELEVACION -> FACTOR D0
-        {15, -15, 29, 15}, // D0 -> ** FACTOR D0
+        {15, -15, 29, 850, 15}, // D0 -> ** FACTOR @ D0
         {16, 12, 17}, // SIMPLEEXP-PAS -> TERMINOPASCAL E0
         {17, -35, 12, 850, 17}, // E0 -> - TERMINOPASCAL @ E0
         {17, -34, 12, 850, 17}, // E0 -> + TERMINOPASCAL @ E0
@@ -224,8 +226,8 @@ public class Sintaxis {
         {20, 46, 21}, // OR -> AND G0
         {21, -20, 46, 21}, // G0 -> || AND G0
         {22, 16, 23}, // OPBIT -> SIMPLEEXP-PAS H0
-        {23, -24, 16, 23}, // H0 -> << SIMPLEEXP-PAS H0
-        {23, -25, 16, 23}, // H0 -> >> SIMPLEEXP-PAS H0
+        {23, -24, 16, 850, 23}, // H0 -> << SIMPLEEXP-PAS @ H0
+        {23, -25, 16, 850, 23}, // H0 -> >> SIMPLEEXP-PAS @ H0
         {24, -48, 25, -49}, // ARR -> [ I0 ]
         {25, 20, 26, 27}, // I0 -> OR I1 I2 
         {26, -51, 25}, // I1 -> ; I0
@@ -245,13 +247,13 @@ public class Sintaxis {
         {30, -54}, // J0 -> ++
         {30, -55}, // J0 -> --
         {31, 24, 32}, // J1 -> ARR J2
-        {31, 28, 33}, // J1 -> ASIGN J3
+        {31, 851, 28, 33}, // J1 -> @ ASIGN J3
         {31, -44, 35, -45}, // J1 -> ( J5 )
         {31, -54}, // J1 -> ++
         {31, -55}, // J1 -> --
         {31, -52, 48}, // J1 -> . FUNLIST
         {32, 28, 33}, // J2 -> ASIGN J3
-        {33, 20, 851}, // J3 -> OR @
+        {33, 20, 852}, // J3 -> OR @
         {33, -94, -44, 34, -45}, // J3 -> input ( J4 )
         {34, -4}, // J4 -> ConstCadena
         {35, 20, 9}, // J5 -> OR B0
@@ -268,25 +270,25 @@ public class Sintaxis {
         {37, -84, 20, -50, 36, 5, 37}, // K0 -> elif OR : EST A3 K0
         {37, -86}, // K0 -> End
         {38, 44, 39}, // EXP-PAS -> ORLOG L0
-        {39, -27, 44, 39}, // L0 -> < ORLOG L0
-        {39, -28, 44, 39}, // L0 -> <= ORLOG L0
-        {39, -30, 44, 39}, // L0 -> == ORLOG L0
-        {39, -29, 44, 39}, // L0 -> != ORLOG L0
-        {39, -31, 44, 39}, // L0 -> >= ORLOG L0
-        {39, -32, 44, 39}, // L0 -> > ORLOG L0
-        {39, -56, 44, 39}, // L0 -> IS ORLOG L0
-        {39, -57, 44, 39}, // L0 -> ISNOT ORLOG L0
-        {39, -58, 44, 39}, // L0 -> IN ORLOG L0
-        {39, -59, 44, 39}, // L0 -> INNOT ORLOG L0
+        {39, -27, 44, 850, 39}, // L0 -> < ORLOG @ L0
+        {39, -28, 44, 850, 39}, // L0 -> <= ORLOG @ L0
+        {39, -30, 44, 850, 39}, // L0 -> == ORLOG @ L0
+        {39, -29, 44, 850, 39}, // L0 -> != ORLOG @ L0
+        {39, -31, 44, 850, 39}, // L0 -> >= ORLOG @ L0
+        {39, -32, 44, 850, 39}, // L0 -> > ORLOG @ L0
+        {39, -56, 44, 850, 39}, // L0 -> IS ORLOG @ L0
+        {39, -57, 44, 850, 39}, // L0 -> ISNOT ORLOG @ L0
+        {39, -58, 44, 850, 39}, // L0 -> IN ORLOG @ L0
+        {39, -59, 44, 850, 39}, // L0 -> INNOT ORLOG @ L0
         {40, 22, 41}, // ANDLOG -> OPBIT M0
-        {41, -21, 22, 41}, // M0 -> & OPBIT M0
+        {41, -21, 22, 850, 41}, // M0 -> & OPBIT @ M0
         {42, 40, 43}, // XORLOG -> ANDLOG O0
-        {43, -26, 40, 43}, // O0 -> ^ ANDLOG O0
+        {43, -26, 40, 850, 43}, // O0 -> ^ ANDLOG @ O0
         {44, 42, 45}, // ORLOG -> XORLOG P0
-        {45, -19, 42, 45}, // P0 -> | XORLOG P0
+        {45, -19, 42, 850, 45}, // P0 -> | XORLOG @ P0
         {46, 18, 47}, // AND -> NOT Q0
-        {47, -22, 18, 47}, // Q0 -> && NOT Q0
-        {47, -23, 18, 47}, // Q0 -> ## NOT Q0
+        {47, -22, 18, 850, 47}, // Q0 -> && NOT @ Q0
+        {47, -23, 18, 850, 47}, // Q0 -> ## NOT @ Q0
         {48, -60, -44, 35, -45}, // FUNLIST -> Sort ( J5 )
         {48, -61, -44, 35, -45}, // FUNLIST -> Reverse ( J5 )
         {48, -63, -44, 35, -45}, // FUNLIST -> Count ( J5 )
@@ -307,6 +309,6 @@ public class Sintaxis {
         {49, -78, -44, 35, -45}, // FUNCIONES -> median ( J5 )
         {49, -79, -44, 35, -45}, // FUNCIONES -> variance ( J5 )
         {49, -80, -44, 35, -45},  // FUNCIONES -> sum ( J5 )
-        {7, -35, -7} // CONSTENTERO -> - Decimal
+        {7, 853, -35, -7} // CONSTENTERO -> - Decimal
     };
 }
