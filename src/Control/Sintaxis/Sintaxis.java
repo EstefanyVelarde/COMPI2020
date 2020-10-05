@@ -223,9 +223,9 @@ public class Sintaxis {
         {17, -35, 12, 850, 17}, // E0 -> - TERMINOPASCAL @ E0
         {17, -34, 12, 850, 17}, // E0 -> + TERMINOPASCAL @ E0
         {18, 38, 19}, // NOT -> EXP-PAS F0
-        {19, -33, 38, 19}, // F0 -> ! EXP-PAS F0
+        {19, -33, 38, 850, 19}, // F0 -> ! EXP-PAS @ F0
         {20, 46, 21}, // OR -> AND G0
-        {21, -20, 46, 21}, // G0 -> || AND G0
+        {21, -20, 46, 850, 21}, // G0 -> || AND @ G0
         {22, 16, 23}, // OPBIT -> SIMPLEEXP-PAS H0
         {23, -24, 16, 850, 23}, // H0 -> << SIMPLEEXP-PAS @ H0
         {23, -25, 16, 850, 23}, // H0 -> >> SIMPLEEXP-PAS @ H0
