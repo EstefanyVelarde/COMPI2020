@@ -275,6 +275,9 @@ public class Semantica {
         if(LT >= -60 && LT <= -57) // is, isnot, in, innot
                 return true;
         
+        if(LT == -51) // ##
+            return true;
+        
         return false;
     }
     

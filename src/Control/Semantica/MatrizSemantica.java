@@ -39,7 +39,10 @@ public class MatrizSemantica {
         }
        
         if(type1.equals("V")) // Variant toma el tipo de dato con el que se compara
-            return type2;
+            if(type2.equals("N")) 
+                return error;
+            else
+                return type2;
         else 
             if(type2.equals("V"))
                 return type1;
@@ -248,7 +251,7 @@ public class MatrizSemantica {
         multi.put("F-CM", "CM");
         
         // CADENA
-        multi.put("c-D", "C");
+        multi.put("C-D", "C");
         multi.put("C-DO", "C");
         multi.put("C-DB", "C");
         multi.put("C-DH", "C");
