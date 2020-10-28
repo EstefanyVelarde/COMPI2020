@@ -5,7 +5,8 @@ import Control.Lexico.Lexico;
 import Control.Sintaxis.Sintaxis;
 import Control.XLS;
 import Control.Archivos;
-import Control.Semantica.Semantica;
+import Control.Semantica.Semantica1;
+import Control.Semantica.Semantica2;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -23,7 +24,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumnModel;
 import javax.swing.text.Element;
 
 public class Interface extends javax.swing.JFrame {
@@ -35,7 +35,8 @@ public class Interface extends javax.swing.JFrame {
     public Lexico lexico;
     public Sintaxis sintaxis;
     public Ambito ambito;
-    public Semantica semantica;
+    public Semantica1 semantica1;
+    public Semantica2 semantica2;
 
     public Interface() {
         initComponents();
@@ -555,10 +556,12 @@ public class Interface extends javax.swing.JFrame {
         if(!lexico.getTokens().isEmpty()) {
             ambito = new Ambito();
             
-            semantica = new Semantica(ambito);
+            semantica1 = new Semantica1(ambito);
+            
+            semantica2 = new Semantica2(ambito, semantica1);
             
             sintaxis = new Sintaxis(lexico.getTokensCopy(), lexico.getErrores(),
-                                    ambito, semantica);
+                                    ambito, semantica1, semantica2);
         
             sintaxis.analizarTokens();
         }
@@ -568,7 +571,7 @@ public class Interface extends javax.swing.JFrame {
 
     private void jbXLSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbXLSActionPerformed
         XLS ce = new XLS(lexico.getTokensCopy(), lexico.getErrores(), 
-                lexico.getContadores(), ambito.getContador(), semantica.getContador());
+                lexico.getContadores(), ambito.getContador(), semantica1.getContador());
         ce.crearExcel();
         
         System.out.println("\n++ Se creo excel");

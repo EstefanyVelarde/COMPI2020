@@ -1,7 +1,8 @@
 package Control.Sintaxis;
 
 import Control.Ambito.Ambito;
-import Control.Semantica.Semantica;
+import Control.Semantica.Semantica1;
+import Control.Semantica.Semantica2;
 import Model.Token;
 import Model.Error;
 import java.util.LinkedList;
@@ -12,7 +13,9 @@ public class Sintaxis {
     
     Ambito ambito;
     
-    Semantica semantica;
+    Semantica1 semantica1;
+    
+    Semantica2  semantica2;
 
     LinkedList<Integer> prodStack;
     
@@ -22,7 +25,7 @@ public class Sintaxis {
     
     
     public Sintaxis(LinkedList<Token> tokens, LinkedList<Error> errores, 
-            Ambito ambito, Semantica semantica) {
+            Ambito ambito, Semantica1 semantica1, Semantica2 semantica2) {
         matriz = new MatrizSintaxis();
         
         this.tokens = tokens;
@@ -41,7 +44,9 @@ public class Sintaxis {
         this.ambito.initAmbito(prodStack, tokens, errores);
         
         // INIT SEMANTICA
-        this.semantica = semantica;
+        this.semantica1 = semantica1;
+        
+        this.semantica2 = semantica2;
         
     }
     
@@ -52,12 +57,16 @@ public class Sintaxis {
             
             int LT = tokens.peekFirst().getToken();
             
-            if(PS > 799) { // Zona ambito
-                ambito.zona(PS);
+            if(PS > 799) { 
+                if(PS < 849) // Zona ambito
+                    ambito.zona(PS);
+                else
+                    if(PS < 1000) // Zona semantica
+                        semantica1.zona(PS);
+                    else
+                        semantica2.zona(PS);
                 
-                if(PS > 849) // Zona semantica
-                    semantica.zona(PS);
-                
+                prodStack.removeLast();
                 continue;
             }
             
@@ -76,11 +85,13 @@ public class Sintaxis {
                         }
             } else {
                 if(terminales(PS, LT)) { 
-                    ambito.checar(PS, LT); // CHECA AMBITO
+                    ambito.checar(LT); // CHECA AMBITO
                     
                     if(!ambito.declaracion) // SI ESTA EN ZONA DE EJECUCION
-                        semantica.checar(LT); // CHECA SEMANTICA
-                        
+                        semantica1.checar(LT); // CHECA SEMANTICA
+                    
+                    semantica2.checar(PS);
+                    
                     setTerminales();
                 } else {
                     setError(633);
@@ -260,7 +271,7 @@ public class Sintaxis {
         {35, 20, 9}, // J5 -> OR B0
         {36, -81, -44, 20, 9, -45}, // EST -> print ( OR B0 )
         {36, -82, -44, 35, -45}, // EST -> println ( J5 )
-        {36, -83, 20, -50, 36, 5, 37}, // EST -> if OR : EST A3 K0
+        {36, -83, 20, 1010, -50, 36, 5, 37}, // EST -> if OR @ : EST A3 K0
         {36, -88, 802, 801, 820, 20, 821, 800, -89, 20, -50, 36, 5, -86, 803}, // EST -> for @ @ @ OR @ to OR : EST A3 End @
         {36, -90, 20, -50, 36, 5, -87}, // EST -> while OR : EST A3 wend
         {36, -91}, // EST -> Break

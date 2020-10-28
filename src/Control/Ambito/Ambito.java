@@ -18,7 +18,7 @@ public class Ambito {
     
     public LinkedList<Error> errores;
     
-    LinkedList<Integer> ambStack; // Pila de ambitos
+    public LinkedList<Integer> ambStack; // Pila de ambitos
     
     public boolean declaracion;
     
@@ -47,7 +47,7 @@ public class Ambito {
         ambStack.add(contAmb); // Crea ambito 0
     }
     
-    public void checar(int PS, int LT) {
+    public void checar(int LT) {
         if(identificador(LT)) {
             if(declaracion) {
                 if(existeID()) 
@@ -136,8 +136,6 @@ public class Ambito {
             }
         }
         
-        
-        prodStack.removeLast();
     }
     
     public void key(int LT) {
@@ -496,7 +494,7 @@ public class Ambito {
     public String[] getIdSimbolos(String id){
         String[] idsimbolos = null;
         String sql;
-        System.out.println("BUSCANDO ID " + id);
+        System.out.println("\n** BUSCANDO ID " + id);
         try {
             
             for (int i = 0; i < ambStack.size(); i++) {

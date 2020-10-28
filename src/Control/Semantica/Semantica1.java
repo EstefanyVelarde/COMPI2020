@@ -5,7 +5,7 @@ import Model.Operando;
 import Model.Token;
 import java.util.LinkedList;
 
-public class Semantica {
+public class Semantica1 {
     MatrizSemantica matriz;
     
     ContSemantica contador;
@@ -16,7 +16,7 @@ public class Semantica {
     
     LinkedList<Token> opStack;
     
-    public Semantica(Ambito ambito) {
+    public Semantica1(Ambito ambito) {
         this.amb = ambito;
         
         matriz = new MatrizSemantica();
@@ -35,19 +35,17 @@ public class Semantica {
     String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos
     
     public void checar(int LT) {
-        
-        
         if(identificador(LT)) {
             token = amb.tokens.peekFirst();
             
-            if(asignacion) {
-                setIdentificador();
-                
+            setIdentificador();
+            
+            if(asignacion) 
                 lexemaAsign += " " + token.getLexema();
-            }
+            
             
         } else {
-            if(asignacion) {
+            //if(asignacion) {
                 token = amb.tokens.peekFirst();
                 
                 if(operando(LT)) {
@@ -66,7 +64,8 @@ public class Semantica {
 
                         lexemaAsign += " " + token.getLexema();
                     }
-            }
+                        
+           // }
         }
     }
     
@@ -86,9 +85,9 @@ public class Semantica {
     
     public void zona(int PS) {
         if(!amb.declaracion) {// SI ESTA EN EJECUCION
-            if(asignacion) {
+            
                 switch(PS) {
-                    case 850: 
+                    case 850: // VERIF. OPERACIÓN
                         System.out.println("\n@ 850"); printStacks();
 
                         saveLast();
@@ -102,53 +101,54 @@ public class Semantica {
                             tempTipo = "V"; // Marcamos Variant
                         }
 
-                        operStack.offer(new Operando(new Token(lexemaOper), tempTipo)); // Guardamos temp
+                        operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo)); // Guardamos temp
 
-                        System.out.println("\nSE CREO TEMP"); printStacks();
+                        System.out.println("\n++ SE CREO TEMP\n"); printStacks();
 
                         contador.addTemp(tempTipo);
                     break;
                     
-                    case 852: 
-                        System.out.println("\n@ 852"); printStacks();
+                    case 851: 
+                        asignacion = true;
 
-                        saveLast();
+                        lexemaAsign = token.getLexema();
+                    break;
+                  
+                    case 852: // VERIF. ASIGNACIÓN
+                        if(asignacion) {
+                            System.out.println("\n@ 852"); printStacks();
 
-                        tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
+                            saveLast();
 
-                        if (tempTipo.equals("error"))
-                            setError(tipoOper1, tipoOper2, lexemaAsign);
+                            if(oper1.getIdsimbolos() != -1) {
 
-                        System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
+                                tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
 
+                                if (tempTipo.equals("error"))
+                                    setError(tipoOper1, tipoOper2, lexemaAsign);
+
+                                System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
+
+                                contador.addAsing(asign, line);
+                            }
+
+                            asignacion = false;
+
+                            emptyStacks();
+                        }
+                        
                         lexemaAsign = "";
-
-                        contador.addAsing(asign, line);
-
-                        asignacion = false;
                     break;
 
                     case 853:
                         negativo = true;
                     break;
                 }
-                
-                
-        
-                System.out.println("\n---------------------@"+ PS);
-            } else
-                if(PS == 851) {
-                    asignacion = true;
-
-                    setIdentificador();
                     
-                    lexemaAsign = token.getLexema();
-                    
-                    System.out.println("\n---------------------@"+ PS);
-                }
         }
     }
     
+    // Guarda datos para verif. asignacion de operacion normal
     public void saveLast() {
         oper2 = operStack.removeLast();
         oper1 = operStack.removeLast(); 
@@ -165,27 +165,10 @@ public class Semantica {
         lexemaOper = oper1.getToken().getLexema() + " " + op.getLexema()
                 + " " + oper2.getToken().getLexema();
         
-        
         // Contador
         asign = oper1.getToken().getLexema() + " -> T" + oper2.getTipo();
         
         line = oper1.getToken().getLinea();
-    }
-    
-    public void printStacks() {
-        
-        System.out.println("OPERSTACK:");
-        
-        for(Operando o : operStack) {
-            if(o.getToken() != null)
-                System.out.println(o.getToken().getLexema()+" "+o.getTipo());
-            else
-                System.out.println("T"+o.getTipo());
-        }
-        
-        System.out.println("\nOPSTACK:");
-        for(Token t : opStack) 
-            System.out.println(t.getLexema());
     }
     
     
@@ -297,5 +280,33 @@ public class Semantica {
 
     public ContSemantica getContador() {
         return contador;
+    }
+    
+    
+    // STACKS 
+    public void emptyStacks() {
+        operStack =  new LinkedList();
+        
+        opStack = new LinkedList();
+        
+        printStacks();
+    }
+    
+    public void printStacks() {
+        System.out.println("\n*------------------------\n");
+        System.out.println(" OPERSTACK:");
+        
+        for(Operando o : operStack) {
+            if(o.getToken() != null)
+                System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
+            else
+                System.out.println(" T"+o.getTipo());
+        }
+        
+        System.out.println("\n OPSTACK:");
+        for(Token t : opStack) 
+            System.out.println(" "+t.getLexema());
+        
+        System.out.println("\n------------------------*\n");
     }
 }

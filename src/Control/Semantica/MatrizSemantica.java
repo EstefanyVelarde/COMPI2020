@@ -3,12 +3,14 @@ package Control.Semantica;
 import java.util.Hashtable;
 
 public class MatrizSemantica {
-    Hashtable<String, String> suma, resta, multi, div, 
+    Hashtable<String, String> matriz, suma, resta, multi, div, 
             res, opRel, opIdent, opBool, opBits, opExp, asign;
     
     String error;
     
     public MatrizSemantica() {
+        matriz = null;
+        
         error = "error";
         
         initSuma();
@@ -47,8 +49,15 @@ public class MatrizSemantica {
             if(type2.equals("V"))
                 return type1;
         
-        Hashtable<String, String> matriz = null;
         
+        setMatriz(op); // Identifica el tipo de operador
+        
+        String type = isValid(matriz, type1, type2);
+        
+        return type == null ? error : type;
+    }
+    
+    public void setMatriz(int op) {
         switch(op) {
             case -7:    matriz = suma;      break;
             case -8:    matriz = resta;     break;
@@ -71,10 +80,6 @@ public class MatrizSemantica {
                         matriz = opIdent;
                     
         }
-        
-        String type = isValid(matriz, type1, type2);
-        
-        return type == null ? error : type;
     }
     
     // ASIGNACION

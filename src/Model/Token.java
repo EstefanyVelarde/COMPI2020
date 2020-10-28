@@ -12,8 +12,9 @@ public class Token {
         this.lexema = lexema;
     }
     
-    public Token(String lexema) {
+    public Token(String lexema, int linea) {
         this.lexema = lexema;
+        this.linea = linea;
     }
 
     public int getToken() {
