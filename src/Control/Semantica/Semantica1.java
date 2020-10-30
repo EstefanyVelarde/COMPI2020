@@ -3,6 +3,7 @@ package Control.Semantica;
 import Control.Ambito.Ambito;
 import Model.Operando;
 import Model.Token;
+import Model.Error;
 import java.util.LinkedList;
 
 public class Semantica1 {
@@ -11,6 +12,8 @@ public class Semantica1 {
     ContSemantica contador;
     
     Ambito amb; // Para acceder a conexion, tokens y errores
+    
+    Semantica2 sem2;
     
     LinkedList<Operando> operStack;
     
@@ -74,8 +77,10 @@ public class Semantica1 {
     Operando oper1, oper2; 
 
     String tipoOper1, tipoOper2, asign;
+    
+    String lexemaAsign, lexemaOper, lexOp;
 
-    String tempTipo, lexOp;
+    String tempTipo;
 
     Token op;
 
@@ -96,7 +101,7 @@ public class Semantica1 {
 
                         if (tempTipo.equals("error")) {
 
-                            setError(tipoOper1, tipoOper2, lexemaOper);
+                            setError(lexemaOper);
 
                             tempTipo = "V"; // Marcamos Variant
                         }
@@ -124,18 +129,24 @@ public class Semantica1 {
 
                                 tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
 
-                                if (tempTipo.equals("error"))
-                                    setError(tipoOper1, tipoOper2, lexemaAsign);
-
+                                if (tempTipo.equals("error")) {
+                                    setError(lexemaAsign);
+                                    
+                                    sem2.setError(761, token.getLinea(), lexemaAsign); // SEM2, REGLA 2: ID = EXP
+                                } else
+                                    sem2.edo = "Acepta";
+                                
                                 System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
 
                                 contador.addAsing(asign, line);
-                            }
+                            } else
+                                sem2.edo = null; // SEM2, PARA NO MARCAR ASIGN ARR = 5
 
                             asignacion = false;
 
                             emptyStacks();
-                        }
+                        } else
+                            sem2.edo = null; // SEM2, PARA NO MARCAR ASIGN ARR = 5
                         
                         lexemaAsign = "";
                     break;
@@ -232,7 +243,8 @@ public class Semantica1 {
         idsimbolos = amb.getIdSimbolos(token.getLexema());
 
         if(idsimbolos != null)
-            operStack.offer(new Operando(token, getTipo(idsimbolos[0]), Integer.parseInt(idsimbolos[2])));
+            operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
+                    Integer.parseInt(idsimbolos[2]), idsimbolos));
         else 
             operStack.offer(new Operando(token, "V")); // Guardamos temp variant
 
@@ -265,19 +277,13 @@ public class Semantica1 {
     }
     
     // ERRORES
-    String desc[] = { 
-        "Incompatibilidad de tipos",
-        "Incompatibilidad de asignación"
-    };
-    
-    String lexemaAsign, lexemaOper;
-    
-    public void setError(String tipo1, String tipo2, String lexema) {
-        amb.errores.add(new Model.Error(801, token.getLinea(), lexema, "Incompatibilidad de tipos", "Semántica 1"));
+    public void setError(String lexema) {
+        amb.errores.add(new Error(750, token.getLinea(), lexema, "Incompatibilidad de tipos", "Semántica 1"));
         
         contador.addError();
     }
 
+    // CONTADOR
     public ContSemantica getContador() {
         return contador;
     }
@@ -289,7 +295,6 @@ public class Semantica1 {
         
         opStack = new LinkedList();
         
-        printStacks();
     }
     
     public void printStacks() {
@@ -308,5 +313,9 @@ public class Semantica1 {
             System.out.println(" "+t.getLexema());
         
         System.out.println("\n------------------------*\n");
+    }
+    
+    public void addSem2(Semantica2 sem2) {
+        this.sem2 = sem2;
     }
 }

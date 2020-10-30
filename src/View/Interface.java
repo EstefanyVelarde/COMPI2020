@@ -426,26 +426,9 @@ public class Interface extends javax.swing.JFrame {
                 "Linea", "Numero", "Descripcion", "Lexema", "Tipo"
             }
         ));
-        errores.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        errores.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
         errores.getTableHeader().setBackground(bg);
         erroresScroll.setViewportView(errores);
-        if (errores.getColumnModel().getColumnCount() > 0) {
-            errores.getColumnModel().getColumn(0).setMinWidth(55);
-            errores.getColumnModel().getColumn(0).setPreferredWidth(55);
-            errores.getColumnModel().getColumn(0).setMaxWidth(55);
-            errores.getColumnModel().getColumn(1).setMinWidth(80);
-            errores.getColumnModel().getColumn(1).setPreferredWidth(80);
-            errores.getColumnModel().getColumn(1).setMaxWidth(80);
-            errores.getColumnModel().getColumn(2).setMinWidth(385);
-            errores.getColumnModel().getColumn(2).setPreferredWidth(385);
-            errores.getColumnModel().getColumn(2).setMaxWidth(385);
-            errores.getColumnModel().getColumn(3).setMinWidth(375);
-            errores.getColumnModel().getColumn(3).setPreferredWidth(375);
-            errores.getColumnModel().getColumn(3).setMaxWidth(375);
-            errores.getColumnModel().getColumn(4).setMinWidth(115);
-            errores.getColumnModel().getColumn(4).setPreferredWidth(120);
-            errores.getColumnModel().getColumn(4).setMaxWidth(120);
-        }
 
         javax.swing.GroupLayout downPanelLayout = new javax.swing.GroupLayout(downPanel);
         downPanel.setLayout(downPanelLayout);

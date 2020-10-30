@@ -3,7 +3,7 @@ package Control.Semantica;
 import Control.Ambito.Ambito;
 import Model.Operando;
 import Model.Regla;
-import Model.Token;
+import Model.Error;
 import java.util.LinkedList;
 
 
@@ -20,94 +20,124 @@ public class Semantica2 {
         this.sem1 = sem1;
         
         listaReglas = new LinkedList();
+        
+        this.edo = "Acepta";
     }
     
-    public void checar(int PS) {
-        if(!sem1.operStack.isEmpty()) {
-            System.out.println("\nCHECAR SEM2");
-            System.out.println("PS: " + getTope(PS));
-            sem1.printStacks();
-        }
+    public void checar(int PS, int LT) {
+//        if(!sem1.operStack.isEmpty()) {
+//            System.out.println("\nCHECAR SEM2");
+//            System.out.println("PS: " + getTope(PS));
+//            sem1.printStacks();
+//        }
     }
-        
-    public void zona(int PS) {
+    
+    String edo;
+    
+    public void zona(int PS, int LT) {
         switch(PS) {
-            case 1010: // IF    
-                System.out.println("\n@ 1010"); sem1.printStacks();
-                if(!sem1.opStack.isEmpty()) {
-                    
-                    
-                    saveRegla(PS, "ERROR");
-                    
-                    sem1.emptyStacks();
-                    
-                    return;
-                }
+            case 1010: case 1011: case 1012: // IF, ELIF, WHILE
+                System.out.println("\n@ " + PS); sem1.printStacks();
                 
-                if(sem1.operStack.isEmpty()) {
-                    
-                    saveRegla(PS, "ERROR");
-                    
-                    return;
-                }
+                saveLast(LT);
                 
-                Operando oper = sem1.operStack.peekLast();
+                if(oper.getTipo().equals("B"))
+                    edo = "Acepta";
+                else
+                    setError(760);
                 
-                if(oper.getTipo().equals("B")){
-                    
-                    saveRegla(PS, "Acepta");
-                } else
-                    saveRegla(PS, "ERROR");
+                
+                setRegla(PS);
                 
                 sem1.emptyStacks();
             break;
             
+            case 1020: // ASIGN
+                
+                System.out.println("\n@ " + PS); sem1.printStacks();
+                
+                saveLast(LT);
+                
+                if(!sem1.lexOp.equals("=")) // ASIGN COMP
+                    PS = 1021;
+                
+                if(edo != null)
+                    setRegla(PS); // El edo se manejo en @ 852 de Sem1
+            break;
+            
         }
     }
-    
-    Operando oper1, oper2; 
+      
+    Operando oper; 
 
-    String valorReal, tipoOper2;
+    String topePila, valorReal, lexOper;
     
-    Token op;
-
-    int line, amb;
+    int line, amb, tipoToken;
     
-    public void saveRegla(int id, String edo) {
+    public void saveLast(int LT) {
         
-        if(sem1.operStack.isEmpty()) {
-            System.out.println("!!!!!!!!!!!!!!!!!!!! OPERSTACK EMPTY");
+//        
+//        System.out.println("\n - SAVELAST:");
+        
+        topePila = sem1.token.getLexema();
+        
+        amb = ambito.ambStack.peekLast();
+        
+        if(sem1.operStack.isEmpty()) { // OPERSTACK EMPTY (SUCEDIO ASIGN U OPERACION)
+            valorReal = sem1.oper1.getToken().getLexema();
+            
+            line = sem1.line;
+            
         } else {
-            oper1 = sem1.operStack.removeLast(); 
-        
-            valorReal = oper1.getToken().getLexema();
+            sem1.printStacks();
 
-            line = oper1.getToken().getLinea();
+            oper = sem1.operStack.peekLast(); 
 
-            amb = ambito.ambStack.getLast();
+            valorReal = oper.getToken().getLexema();
 
-            listaReglas.add(new Regla(id, "-", valorReal, line, edo, amb));
-            
-            printReglas();
+            line = oper.getToken().getLinea();
         }
         
+//        
+//        System.out.println("\n    - TopePila:\t" + topePila);
+//        System.out.println("    - ValorReal:\t" + valorReal);
+//        System.out.println("    - Line:\t" + line);
+//        System.out.println("    - Edo:\t" + edo);
+//        System.out.println("    - Amb:\t" + amb);
     }
     
-    public String getTope(int PS) {
-        String tope = null;
-        
-        switch(PS) {
-            case -11: 
-            case -12: tope = "Boolean";  break;   // Boolean
-            default:  tope = PS + "";
+    
+    // REGLAS
+    public void setRegla(int id) {
+        listaReglas.add(new Regla(id, topePila, valorReal, line, edo, amb));
             
-        }
-        
-        return tope;
+        printReglas();
     }
     
+    // ERRORES
+    public void setError(int error) {
+        this.edo = "ERROR";
+        
+        ambito.errores.add(new Error(error, line, valorReal, desc[error-760], "Semántica 2"));
+    }
+    
+    public void setError(int error, int line, String lexema) {
+        this.edo = "ERROR";
+        
+        ambito.errores.add(new Error(error, line, lexema, desc[error-760], "Semántica 2"));
+    }
+    
+   
+    String desc[] = { 
+        "La EXP tiene que ser Booleana",
+        "ID debe ser mismo tipo que EXP",
+        "La cant. de dimensiones utilizadas debe ser igual a la declarada"
+    };
+    
+    
+    // LISTA REGLAS
     public void printReglas() {
-        System.out.println("/////////////////////////////////");
+        System.out.println("\n/////////////////////////////////");
         System.out.println("REGLA\tTOPE\tVALOR\tLINEA\tEDO\tAMB");
         
         for (Regla regla : listaReglas) {

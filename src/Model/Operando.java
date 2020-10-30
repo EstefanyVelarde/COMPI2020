@@ -6,11 +6,14 @@ public class Operando {
     String tipo;
     
     int idsimbolos = -1;
+    
+    String[] simbolos; // [0] tipo [1] clase [2] idsimbolos
 
-    public Operando(Token token, String tipo, int idsimbolos) {  // ID
+    public Operando(Token token, String tipo, int idsimbolos, String[] simbolos) {  // ID
         this.token = token;
         this.tipo = tipo;
         this.idsimbolos = idsimbolos;
+        this.simbolos = simbolos;
     }
     
     public Operando(Token token, String tipo) {  // OPER
@@ -40,6 +43,14 @@ public class Operando {
 
     public void setIdsimbolos(int idsimbolos) {
         this.idsimbolos = idsimbolos;
+    }
+
+    public String[] getSimbolos() {
+        return simbolos;
+    }
+
+    public void setSimbolos(String[] simbolos) {
+        this.simbolos = simbolos;
     }
     
     

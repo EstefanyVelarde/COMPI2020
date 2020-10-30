@@ -64,6 +64,7 @@ public class ContSemantica {
         
         System.out.print(lex + "\t" + errors);
         
+        System.out.println("");
         resetValues();
     }
     

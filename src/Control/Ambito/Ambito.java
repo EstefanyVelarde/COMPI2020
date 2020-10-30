@@ -121,6 +121,7 @@ public class Ambito {
                 case 809: key = -1; ambStack.removeLast(); addSimbolos(809); break; // Fin tupla
                 
                 case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoLista"; break; // Lista
+                case 822: case 823: case 824: key = PS; break;
                 case 811: key = -1; ambStack.removeLast(); if(tipoLista != null) { delSimbolos(811); addSimbolos(812); } addSimbolos(811); break; // Fin lista
                 
                 case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; key = PS; addSimbolos(808); break; // Rango
@@ -144,6 +145,7 @@ public class Ambito {
             case 815: rango(LT);        break;
             case 805: var(LT);          break;
             case 808: tupla(LT);        break;
+            case 824: case 822: case 823: 
             case 810: lista(LT);        break;
             case 817: 
             case 818: diccionario(LT);  break;
@@ -197,6 +199,11 @@ public class Ambito {
     
     // LISTA
     public void lista(int LT) {
+        
+        switch(key) {
+            case 810:
+        }
+        
         String tipo = getTipo(LT);
         
         if(tipo != null) {
@@ -213,8 +220,8 @@ public class Ambito {
             this.tipo = tipo;
             tipoLista = tipo;
         } else {
-            if(!tipo.equals(this.tipo)) {// Checar si no son iguales para marcar sacarlos
-                tipoLista = null;
+            if(!tipo.equals(this.tipo)) {// Checar si no son iguales para marcar sacarlos 
+                tipoLista = null;  
                 this.tipo = tipo;
             }
         }
@@ -465,7 +472,7 @@ public class Ambito {
         "Variable no declarada"
     };
     
-    // PASAR PILAS
+    // PASAR STACKS
     public void initAmbito(LinkedList<Integer> prodStack, LinkedList<Token> tokens, 
             LinkedList<Error> errores) {
         
