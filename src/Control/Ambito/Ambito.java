@@ -20,7 +20,7 @@ public class Ambito {
     
     public LinkedList<Integer> ambStack; // Pila de ambitos
     
-    public boolean declaracion;
+    public boolean declaracion, negativo;
     
     int contAmb, key;
     
@@ -122,7 +122,7 @@ public class Ambito {
                 
                 case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoLista"; break; // Lista
                 case 822: case 823: case 824: key = PS; break;
-                case 811: key = -1; ambStack.removeLast(); if(tipoLista != null) { delSimbolos(811); addSimbolos(812); } addSimbolos(811); break; // Fin lista
+                case 811: if(arreglo()) { setArreglo(); } addSimbolos(811); key = -1; break; // Fin lista
                 
                 case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; key = PS; addSimbolos(808); break; // Rango
                 case 813: case 814: case 815: key = PS; break;
@@ -134,6 +134,8 @@ public class Ambito {
                 
                 case 820: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
                 case 821: key = -1; break; // Fin FOR id
+                
+                case 853: negativo = true; break;
             }
         }
         
@@ -156,25 +158,6 @@ public class Ambito {
         return LT == -44;
     }
     
-    public String getTipo(int LT) {
-        String tipo = null;
-        
-        switch(LT) {
-            case -54: 
-            case -55: tipo = "boolean"; break;
-            case -40: tipo = "cadena"; break;
-            case -41: tipo = "caracter";  break;
-            case -45: tipo = "decimal"; break;
-            case -46: tipo = "flotante"; break;
-            case -47: tipo = "complejo";  break;
-            case -48: tipo = "binario";   break;
-            case -49: tipo = "hexadecimal";  break;
-            case -50: tipo = "octal"; break;
-            case -56: tipo = "none";  break;
-        }
-        
-        return tipo;
-    }
     
     // VARIABLE
     public void var(int LT) {
@@ -183,6 +166,7 @@ public class Ambito {
         if(tipo != null)
             addSimbolos(805);
     }
+    
     
     // TUPLA
     public void tupla(int LT) {
@@ -197,22 +181,36 @@ public class Ambito {
         }
     }
     
+    
     // LISTA
     public void lista(int LT) {
         
         switch(key) {
-            case 810:
+            case 810: 
+                
+                String tipo = getTipo(LT);
+        
+                if(tipo != null) {
+                    tArr++;
+
+                    tipoLista(tipo);
+
+                    addSimbolos(810);
+                }
+                
+            break;
+            
+            case 822: // ;
+            break;
+            
+            case 823: // ,
+            break;
+            
+            case 824: // :
+            break;
         }
         
-        String tipo = getTipo(LT);
         
-        if(tipo != null) {
-            tArr++;
-            
-            tipoLista(tipo);
-            
-            addSimbolos(810);
-        }
     }
     
     public void tipoLista(String tipo) {
@@ -220,12 +218,24 @@ public class Ambito {
             this.tipo = tipo;
             tipoLista = tipo;
         } else {
-            if(!tipo.equals(this.tipo)) {// Checar si no son iguales para marcar sacarlos 
+            if(!tipo.equals(this.tipo)) {// Checar si no son iguales para marcar que es lista
                 tipoLista = null;  
                 this.tipo = tipo;
             }
         }
     }
+    
+    // ARREGLO
+    public boolean arreglo() {
+        return tipoLista != null;
+    }
+    
+    public void setArreglo() {
+        delSimbolos(811); 
+        
+        addSimbolos(812);
+    }
+    
     
     // RANGO
     public void rango(int LT) {
@@ -271,6 +281,29 @@ public class Ambito {
                 
         
     }
+    
+    
+    
+    public String getTipo(int LT) {
+        String tipo = null;
+        
+        switch(LT) {
+            case -54: 
+            case -55: tipo = "boolean"; break;
+            case -40: tipo = "cadena"; break;
+            case -41: tipo = "caracter";  break;
+            case -45: tipo = "decimal"; break;
+            case -46: tipo = "flotante"; break;
+            case -47: tipo = "complejo";  break;
+            case -48: tipo = "binario";   break;
+            case -49: tipo = "hexadecimal";  break;
+            case -50: tipo = "octal"; break;
+            case -56: tipo = "none";  break;
+        }
+        
+        return tipo;
+    }
+    
     
     // COLUMNAS SIMBOLOS
     String id, tipo, clase, tipoLista, valor, tpArr, llave, tArrRango, dimArrRango;
@@ -360,6 +393,14 @@ public class Ambito {
                 tArr = 0;
             break;
             
+            case 822: // UPDATE LAST LISTA O ARREGLO: tArr, dimArr
+                sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' OR clase = 'arreglo' "+ last;
+                
+                tipoLista = null;
+                
+                tArr = 0;
+            break;
+            
             case 812: // UPDATE LAST LISTA: clase arreglo
                 sql = update + "clase = 'arreglo', " + "tipoLista = '" + tipoLista + "' "  +" WHERE clase = 'lista' "+ last;
             break;
@@ -412,10 +453,12 @@ public class Ambito {
         String sql = "";
         
         switch(PS) {
-            case 811: // DELETE WHERE clase LAST LIMIT tArr
+            case 811: // DELETE WHERE clase LAST LIMIT tArr (Elimina datoLista)
                 sql = delete + "clase = '" + clase + "' " + lastLimit + tArr + ";";
                 
-                contAmb--; // Como es un arreglo eliminamos ambito del contador
+                // Como es un arreglo eliminamos ambito creado para listas
+                ambStack.removeLast();
+                contAmb--; 
             break;
         }
         
