@@ -52,18 +52,18 @@ public class Semantica2 {
                 sem1.emptyStacks();
             break;
             
-            case 1020: // ASIGN
-                
-                System.out.println("\n@ " + PS); sem1.printStacks();
-                
-                saveLast(LT);
-                
-                if(!sem1.lexOp.equals("=")) // ASIGN COMP
-                    PS = 1021;
-                
-                if(edo != null)
-                    setRegla(PS); // El edo se manejo en @ 852 de Sem1
-            break;
+//            case 1020: // ASIGN
+//                
+//                System.out.println("\n@ " + PS); sem1.printStacks();
+//                
+//                saveLast(LT);
+//                
+//                if(!sem1.lexOp.equals("=")) // ASIGN COMP
+//                    PS = 1021;
+//                
+//                if(edo != null)
+//                    setRegla(PS); // El edo se manejo en @ 852 de Sem1
+//            break;
             
         }
     }
@@ -108,6 +108,35 @@ public class Semantica2 {
     
     
     // REGLAS
+    
+    public void regla1090(Operando dato) {
+        String clase = dato.getSimbolos()[1];
+        
+        switch(clase) {
+            case "var": case "par": case "lista": case "arreglo": 
+            case "diccionario": case "rango": 
+                setRegla(1090, clase, dato.getLex(), 
+                        dato.getToken().getLinea(), "Acepta"); break;
+            default: 
+                setError(1090, 773,  clase, dato.getLex(), 
+                        dato.getToken().getLinea());
+        }
+    }
+    
+    public void regla1170(Operando dato, String temp) {
+        int id = dato.getIdsimbolos();
+        String clase = dato.getSimbolos()[1];
+        String tipo = dato.getTipo();
+        
+        if(tipo.equals("N") && clase.equals("par")) {
+            dato.setTipo(temp);
+            
+            setRegla(1170, dato);
+            
+            ambito.cambioValor(id, getTipo(temp));
+        }
+    }
+    
     public void setRegla(int id) {
         listaReglas.add(new Regla(id, topePila, valorReal, line, edo, amb));
             
@@ -119,6 +148,13 @@ public class Semantica2 {
             
         printReglas();
     }
+    
+    public void setRegla(int regla, Operando dato) {
+        setRegla(regla, getTipo(dato.getTipo()), dato.getLex(), 
+                dato.getToken().getLinea(), "Acepta");
+        
+    }
+    
     
     // ERRORES
     public void setError(int error) {
@@ -133,6 +169,17 @@ public class Semantica2 {
         ambito.errores.add(new Error(error, line, lexema, desc[error-760], "Semántica 2"));
     }
     
+    public void setError(int regla, int error, Operando dato) {
+        setRegla(regla, getTipo(dato.getTipo()), dato.getLex(), 
+                dato.getToken().getLinea(), "ERROR");
+        setError(error, dato.getToken().getLinea(), dato.getLex());
+    }
+    
+    public void setError(int regla, int error, String topePila, 
+            String valorReal, int line) {
+        setRegla(regla, topePila, valorReal,  line, "ERROR");
+        setError(error, line, valorReal);
+    }
    
     String desc[] = { 
         "La EXP tiene que ser Booleana",
@@ -145,6 +192,11 @@ public class Semantica2 {
         "Los diccionarios no tienen posiciones negativas",
         "Fuera de dimension",
         "Las tuplas no tienen posiciones negativas",
+        "for",
+        "id for",
+        "Valor invalido",
+        "ID debe ser var, par, arr, list, dicc, rang para recibir valor",
+        "La cant. de parametros debe ser igual a la declarada"
         
     };
     
@@ -160,5 +212,29 @@ public class Semantica2 {
                     "\t" + regla.getAmbito());
         }
         
+    }
+    
+    public String getTipo(String tipoSimbolos) {
+        String tipo = null;
+        
+        switch(tipoSimbolos) {
+            case "B":   tipo = "boolean";       break;
+            case "CH":  tipo = "caracter";      break;
+            case "C":   tipo = "cadena";        break;
+            case "D":   tipo = "decimal";       break;
+            case "F":   tipo = "flotante";      break;
+            case "CM":  tipo = "complejo";      break;
+            case "DB":  tipo = "binario";       break;
+            case "DH":  tipo = "hexadecimal";   break;
+            case "DO":  tipo = "octal";         break;
+            case "N":   tipo = "none";          break;
+            case "T":   tipo = "tupla";         break;
+            case "L":   tipo = "lista";         break;
+            case "A":   tipo = "arreglo";       break;
+            case "DIC": tipo = "diccionario";   break;
+            default: tipo = tipoSimbolos;
+        }
+        
+        return tipo;
     }
  }

@@ -698,10 +698,10 @@ public class Ambito {
     }
     
     // PARA SEMANTICA
-    String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr FROM simbolos where (clase = 'var' OR clase = 'par' OR tipo = 'struct') && id = '";
+    String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr, tipoLista FROM simbolos where (clase = 'var' OR clase = 'fun' OR clase = 'par' OR tipo = 'struct') && id = '";
     
     public String[] getIdSimbolos(String id){
-        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr
+        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
         String sql;
         System.out.println("\n** BUSCANDO ID " + id);
         try {
@@ -712,7 +712,7 @@ public class Ambito {
                 sql = getIdSimbolos + id + "' AND amb =" + amb;
 
                 if((rs = stmt.executeQuery(sql)).next()) {
-                    idsimbolos = new String[5];
+                    idsimbolos = new String[6];
                 
                     idsimbolos[0] = rs.getString(1); // Tipo
                     
@@ -730,6 +730,9 @@ public class Ambito {
                     
                     idsimbolos[4] = rs.getInt(5) + ""; // dimArr
                     System.out.println(", dimArr = " + idsimbolos[4]);
+                    
+                    idsimbolos[5] = rs.getString(6); // tipoLista
+                    System.out.println("tipoLista = " + idsimbolos[5]);
                 }
                 
                 rs.close();
@@ -740,5 +743,13 @@ public class Ambito {
         }
         
         return idsimbolos;
+    }
+    
+    public void cambioValor(int id, String tipo) {
+        String sql = "";
+        
+        sql = update + "tipo = '" + tipo + "' WHERE idsimbolos= '"+ id +"';";
+
+        executeUpdate(sql);
     }
 }

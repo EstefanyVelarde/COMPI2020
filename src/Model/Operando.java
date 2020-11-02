@@ -7,13 +7,15 @@ public class Operando {
     
     int idsimbolos = -1;
     
-    String[] simbolos; // [0] tipo [1] clase [2] idsimbolos
+    String[] simbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
 
     public Operando(Token token, String tipo, int idsimbolos, String[] simbolos) {  // ID
         this.token = token;
         this.tipo = tipo;
         this.idsimbolos = idsimbolos;
         this.simbolos = simbolos;
+        
+        this.lex = token.getLexema();
     }
     
     public Operando(Token token, String tipo) {  // OPER

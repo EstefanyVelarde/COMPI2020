@@ -40,7 +40,7 @@ public class Semantica1 {
     
     Token token;
     
-    String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos
+    String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
     
     public void checar(int LT) {
         if(identificador(LT)) {
@@ -99,7 +99,7 @@ public class Semantica1 {
 
     int opToken, line;  
     
-    public boolean asignacion, negativo, isArr;
+    public boolean asignacion, negativo, isArr, isFun;
     
     public void zona(int PS) {
         if(!amb.declaracion) {// SI ESTA EN EJECUCION
@@ -111,6 +111,18 @@ public class Semantica1 {
                     System.out.println("\n@ " + PS); printStacks();
 
                     lexemaAsign = token.getLexema(); 
+                break;
+                
+                case 845: 
+                    System.out.println("\n@ " + PS); printStacks();
+                    
+                    isFun = true;
+                break;
+                
+                case 846: 
+                    System.out.println("\n@ " + PS); printStacks();
+                    
+                    isFun = false;
                 break;
 
                 case 850: // VERIF. OPERACIÓN
@@ -149,25 +161,41 @@ public class Semantica1 {
                         System.out.println("\n@ 852"); printStacks();
 
                         saveLast();
-
-                        tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
-
+                        
+                        sem2.regla1090(oper1); // TIPOS VALIDOS
+                        
+                        if(tipoOper1.equals("N"))
+                            tempTipo = matriz.getType("V", tipoOper2, opToken);
+                        else
+                            tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
+                        
+                        sem2.regla1170(oper1, tipoOper2); // CAMBIO DE VALOR
+                        
                         if (tempTipo.equals("error")) {
                             setError(lexemaAsign);
-
+                            
                             sem2.edo = "ERROR";
+                            
+                            if(lexOp.equals("="))
+                                sem2.setError(1020, 761, oper1);
+                            else
+                                sem2.setError(1021, 761, oper1);
+                                
                         } else
-                            sem2.edo = "Acepta";
+                            if(lexOp.equals("="))
+                                sem2.setRegla(1020, oper1);
+                            else
+                                sem2.setRegla(1021, oper1);
+                        
 
                         System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
-
+                        
                         contador.addAsing(asign, line);
 
                         asignacion = false;
 
                         emptyStacks();
-                    } else
-                        sem2.edo = null; // SEM2, PARA NO MARCAR ASIGN ARR = 5
+                    }
 
                     lexemaAsign = "";
                 break;
@@ -206,6 +234,10 @@ public class Semantica1 {
         }
         
         tipoOper1 = oper1.getTipo();
+        
+        if(tipoOper1.equals("A"))
+            tipoOper1 = getTipo(oper1.getSimbolos()[5]);
+        
         tipoOper2 = oper2.getTipo();
 
         opToken = op.getToken();
@@ -281,12 +313,12 @@ public class Semantica1 {
     }
     
     public void setIdentificador() {
-        idsimbolos = amb.getIdSimbolos(token.getLexema()); // [0] tipo [1] clase [2] idsimbolos
+        idsimbolos = amb.getIdSimbolos(token.getLexema()); // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
         
         if(isArr) {
             arr.setIdentificador(idsimbolos, token);
         } else {
-            if(idsimbolos != null) {
+            if(idsimbolos != null) { 
                 operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
                     Integer.parseInt(idsimbolos[2]), idsimbolos));
             } else {
