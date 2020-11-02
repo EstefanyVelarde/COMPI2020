@@ -20,6 +20,8 @@ public class Ambito {
     
     public LinkedList<Integer> ambStack; // Pila de ambitos
     
+    public Token token;
+    
     public boolean declaracion, negativo;
     
     int contAmb, key;
@@ -48,12 +50,14 @@ public class Ambito {
     }
     
     public void checar(int LT) {
+        token = tokens.peekFirst();
+        
         if(identificador(LT)) {
             if(declaracion) {
                 if(existeID()) 
                     setError(700);
                 else 
-                    addSimbolos(tokens.peekFirst());
+                    addSimbolos(token);
             } else  // Esta en ejecucion
                 if(!existeID()) 
                     setError(701);
@@ -112,30 +116,40 @@ public class Ambito {
             switch(PS) {
                 case 804: tipo = "none"; clase = "fun"; key = PS;   break;  // Funcion
                 
+                
                 case 805: clase = "var"; key = PS;   break;  // Variable
+                
                 
                 case 806: tipo = "none"; clase = "par"; noPar++;  key = PS;   break;  // Parametro
                 case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(PS); break;  // Fin parametros
 
+                
                 case 808: tipo = "struct"; clase = "tupla"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoTupla"; break; // Tupla
                 case 809: key = -1; ambStack.removeLast(); addSimbolos(809); break; // Fin tupla
                 
-                case 810: tipo = "struct"; clase = "lista"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoLista"; break; // Lista
-                case 822: case 823: case 824: key = PS; break;
-                case 811: if(arreglo()) { setArreglo(); } addSimbolos(811); key = -1; break; // Fin lista
+                
+                case 810: initLista(); key = PS; break; // Lista
+                case 822: checarArrIntervalo(); arrStack.add(";"); key = PS; break; // ;
+                case 823: checarArrIntervalo(); comaArr = true; key = PS; break; // ,
+                case 824: nIntervalo++; key = PS; break; // :
+                case 811: checarArrIntervalo(); if(isArreglo) { setArreglo(); } addSimbolos(822); key = -1; break; // Fin lista
+                
                 
                 case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; key = PS; addSimbolos(808); break; // Rango
                 case 813: case 814: case 815: key = PS; break;
                 case 816: key = -1; break; // Fin rango
                 
+                
                 case 817: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoDic"; valor = ""; llave = ""; break; // Diccionario
                 case 818: key = PS; break;
                 case 819: key = -1; ambStack.removeLast(); addSimbolos(819); break; // Fin diccionario
                 
+                
                 case 820: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
                 case 821: key = -1; break; // Fin FOR id
                 
-                case 853: negativo = true; break;
+                
+                case 853: negativo = true; break; // - Decimal
             }
         }
         
@@ -182,66 +196,205 @@ public class Ambito {
     }
     
     
-    // LISTA
+    // LISTA, ARREGLO
+    LinkedList<String> arrStack;
+    
+    String tArrDim;
+    
+    boolean isArreglo, comaArr;
+    
+    int nIntervalo;
+    
     public void lista(int LT) {
-        
-        switch(key) {
-            case 810: 
-                
-                String tipo = getTipo(LT);
-        
-                if(tipo != null) {
-                    tArr++;
+        String tipo = getTipo(LT);
+                    
+        if(tipo != null) {
+            tArr++;
 
-                    tipoLista(tipo);
+            tipoLista(tipo);
 
-                    addSimbolos(810);
-                }
-                
-            break;
-            
-            case 822: // ;
-            break;
-            
-            case 823: // ,
-            break;
-            
-            case 824: // :
-            break;
+            addSimbolos(810);
+
+
+            if(negativo) { 
+                arrStack.add("-" + token.getLexema());
+
+                negativo = false;
+            } else
+                arrStack.add(token.getLexema());
         }
-        
-        
     }
     
     public void tipoLista(String tipo) {
         if(tArr == 1) { // Si es el primer datoLista se guarda
             this.tipo = tipo;
+            
             tipoLista = tipo;
+            
+            isArreglo = true;
         } else {
             if(!tipo.equals(this.tipo)) {// Checar si no son iguales para marcar que es lista
                 tipoLista = null;  
+                
                 this.tipo = tipo;
+                
+                isArreglo = false;
             }
         }
     }
     
-    // ARREGLO
     public boolean arreglo() {
         return tipoLista != null;
     }
     
     public void setArreglo() {
-        delSimbolos(811); 
         
-        addSimbolos(812);
+        delSimbolos(811); // Elimina los datoLista
+        
+        String dato = null, lastDato = null;
+        
+        int cont = 0;
+        
+        if(arrStack.size() == 1) {
+            dato = arrStack.removeLast();
+            
+            if(!isInteger(dato))
+                dato = 1 + "";
+        }
+            
+        while(!arrStack.isEmpty()) {
+            dato = arrStack.removeLast();
+            
+            switch(dato) {
+                case ";": 
+                    dimArr++;
+                    
+                    if(comaArr) {
+                        setTArr(cont); // tam
+                    } else {
+                        setTArr(lastDato); // Dim
+                    }
+                    
+                    cont = 0;
+                break;
+                
+                case ":":
+                    dato = arrStack.removeLast();
+                    
+                    cont += Integer.parseInt(dato);
+                break;
+                
+                default: cont++;
+            }
+            
+            lastDato = dato;
+        }
+        
+        if(comaArr) {
+            setTArr(cont); // tam
+            
+            if(dimArr > 1)
+                tArrDim = dimArr + ";" + tArrDim;
+        } else
+            setTArr(dato); // dim
+        
+        addSimbolos(812); // Cambia clase = arreglo y tipoLista
     }
+    
+    public void setTArr(int dato) { // Se agrega tam
+        if(tArrDim.isEmpty())
+            tArrDim = dato + "";
+        else
+            tArrDim = dato + "," + tArrDim;
+    }
+
+    public void setTArr(String dato) { // Se agrega dim
+        if(tArrDim.length() > 0)
+            tArrDim = dato + ";" + tArrDim;
+        else
+            tArrDim = dato;
+    }
+    
+    public void checarArrIntervalo() {
+        if(key == 824) 
+            setArrIntervalo();
+        
+    }
+    
+    public void setArrIntervalo() {
+        int size = arrStack.size();
+
+        if(size > 1) {
+            int num1, num2, num3;
+
+            num3 = Integer.parseInt(arrStack.removeLast());
+            num2 = Integer.parseInt(arrStack.removeLast());
+
+            if(nIntervalo == 1) // x : x
+                if(num2 > num3) 
+                    num1 = num2 - num3;
+                else
+                    num1 = num3 - num2;
+            else { // x : x : x
+                num1 = Integer.parseInt(arrStack.removeLast());
+                
+                if(num1 > num2) 
+                    num1 = (num1 - num2);
+                else
+                    num1 = (num2 - num1);
+                
+                if(num3 < 0) // Si es dividendo es negativo
+                    num3 *= -1;
+                
+                if((num1 % num3) != 0) 
+                    num1 = num1 / num3 + 1;
+                else 
+                    num1 /= num3;
+            }
+            
+            arrStack.add(num1 + "");
+            arrStack.add(":");
+        }
+        
+        nIntervalo = 0;
+    }
+    
+    public void initLista() {
+        tipo = "struct"; 
+        clase = "lista"; 
+                         
+        dimArr = 1;
+        
+        addSimbolos(808); 
+        
+        // datoLista
+        ambStack.add(++contAmb); 
+        clase = "datoLista"; 
+        
+        // tArr
+        arrStack = new LinkedList(); 
+        nIntervalo = 0;
+        comaArr = false;
+        tArrDim = "";
+    }
+    
+    public boolean isInteger(String numero){
+        try{
+            Integer.parseInt(numero);
+            return true;
+        }catch(NumberFormatException e){
+            return false;
+        }
+    }
+    
+    
     
     
     // RANGO
     public void rango(int LT) {
         switch(key) {
             case 813: 
-                if(LT == -8) {
+                if(LT == -8) { // - Decimal
                     tArrRango = tokens.peekFirst().getLexema();
                 } else {
                     tArrRango += tokens.peekFirst().getLexema() + ", ";
@@ -385,8 +538,8 @@ public class Ambito {
                     + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", " + tArr + ", '" + tpArr + "');";
             break;
             
-            case 811: // UPDATE LAST LISTA O ARREGLO: tArr
-                sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' OR clase = 'arreglo' "+ last;
+            case 811: // UPDATE LAST LISTA: tArr
+                sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' "+ last;
                 
                 tipoLista = null;
                 
@@ -394,15 +547,22 @@ public class Ambito {
             break;
             
             case 822: // UPDATE LAST LISTA O ARREGLO: tArr, dimArr
-                sql = update + " tArr = '" + tArr + "' WHERE clase = 'lista' OR clase = 'arreglo' "+ last;
+                if(tArrDim.isEmpty())
+                    tArrDim = tArr + "";
                 
-                tipoLista = null;
+                sql = update + " tArr = '" + tArrDim + "', dimArr = '" + dimArr + "' WHERE clase = 'lista' OR clase = 'arreglo' "+ last;
                 
                 tArr = 0;
+                
+                dimArr = 0;
+                
+                tArrDim = null;
             break;
             
-            case 812: // UPDATE LAST LISTA: clase arreglo
-                sql = update + "clase = 'arreglo', " + "tipoLista = '" + tipoLista + "' "  +" WHERE clase = 'lista' "+ last;
+            case 812: // UPDATE LAST LISTA: clase, tipoLista
+                sql = update + "clase = 'arreglo', " + "tipoLista = '" + tipoLista + "' " + " WHERE clase = 'lista' "+ last;
+                
+                tipoLista = null;
             break;
             
             case 814: // UPDATE LAST RANGO: tArr
@@ -496,7 +656,6 @@ public class Ambito {
     
     // ERROR
     public void setError(int error) {
-        Token token = tokens.peekFirst();
         
         if(key == 804 && error == 700) { // Agregamos #funcion
             clase = "error";
@@ -539,10 +698,10 @@ public class Ambito {
     }
     
     // PARA SEMANTICA
-    String getIdSimbolos = "SELECT tipo, clase, idsimbolos FROM simbolos where (clase = 'var' OR clase = 'par' OR tipo = 'struct') && id = '";
+    String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr FROM simbolos where (clase = 'var' OR clase = 'par' OR tipo = 'struct') && id = '";
     
     public String[] getIdSimbolos(String id){
-        String[] idsimbolos = null;
+        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr
         String sql;
         System.out.println("\n** BUSCANDO ID " + id);
         try {
@@ -553,7 +712,7 @@ public class Ambito {
                 sql = getIdSimbolos + id + "' AND amb =" + amb;
 
                 if((rs = stmt.executeQuery(sql)).next()) {
-                    idsimbolos = new String[3];
+                    idsimbolos = new String[5];
                 
                     idsimbolos[0] = rs.getString(1); // Tipo
                     
@@ -565,6 +724,12 @@ public class Ambito {
 
                     idsimbolos[2] = rs.getInt(3) + ""; // Idsimbolos
                     System.out.println("ID = " + idsimbolos[2]);
+                    
+                    idsimbolos[3] = rs.getInt(4) + ""; // tArr
+                    System.out.print("tArr = " + idsimbolos[3]);
+                    
+                    idsimbolos[4] = rs.getInt(5) + ""; // dimArr
+                    System.out.println(", dimArr = " + idsimbolos[4]);
                 }
                 
                 rs.close();

@@ -60,15 +60,14 @@ public class Sintaxis {
             int LT = tokens.peekFirst().getToken();
             
             if(PS > 799) { 
-                if(PS < 849) // Zona ambito
-                    ambito.zona(PS);
-                else
-                    if(PS < 1000) // Zona semantica
-                        semantica1.zona(PS);
-                    else
-                        semantica2.zona(PS, LT);
+                ambito.zona(PS);
+                
+                semantica1.zona(PS);
+                
+                semantica2.zona(PS, LT);
                 
                 prodStack.removeLast();
+                
                 continue;
             }
             
@@ -244,9 +243,9 @@ public class Sintaxis {
         {23, -25, 16, 850, 23}, // H0 -> >> SIMPLEEXP-PAS @ H0
         {24, -48, 25, -49}, // ARR -> [ I0 ]
         {25, 20, 26, 27}, // I0 -> OR I1 I2 
-        {26, -51, 25}, // I1 -> ; I0
-        {26, -53, 25}, // I1 -> , I0
-        {27, -50, 25}, // I2 -> : OR I0
+        {26, -51, 822, 25}, // I1 -> ; @ I0
+        {26, -53, 823, 25}, // I1 -> , @ I0
+        {27, -50, 824, 25}, // I2 -> : @ I0
         {28, -36}, // ASIGN -> =
         {28, -37}, // ASIGN -> +=
         {28, -39}, // ASIGN -> /=
@@ -257,10 +256,10 @@ public class Sintaxis {
         {28, -43}, // ASIGN -> %=
         {29, 6}, // FACTOR -> CONSTANTE
         {29, 49}, // FACTOR -> FUNCION
-        {29, 30, -2, 31}, // FACTOR -> J0 id J1
+        {29, 30, -2, 844, 31}, // FACTOR -> J0 id @ J1
         {30, -54}, // J0 -> ++
         {30, -55}, // J0 -> --
-        {31, 24, 32}, // J1 -> ARR J2
+        {31, 860, 24, 861, 851, 32}, // J1 -> @ ARR @ @ J2
         {31, 851, 28, 33}, // J1 -> @ ASIGN J3
         {31, -44, 35, -45}, // J1 -> ( J5 )
         {31, -54}, // J1 -> ++

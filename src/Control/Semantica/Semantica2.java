@@ -114,6 +114,12 @@ public class Semantica2 {
         printReglas();
     }
     
+    public void setRegla(int id, String topePila, String valorReal, int line, String edo) {
+        listaReglas.add(new Regla(id, topePila, valorReal, line, edo, ambito.ambStack.peekLast()));
+            
+        printReglas();
+    }
+    
     // ERRORES
     public void setError(int error) {
         this.edo = "ERROR";
@@ -131,7 +137,15 @@ public class Semantica2 {
     String desc[] = { 
         "La EXP tiene que ser Booleana",
         "ID debe ser mismo tipo que EXP",
-        "La cant. de dimensiones utilizadas debe ser igual a la declarada"
+        "La cant. de dimensiones utilizadas debe ser igual a la declarada",
+        "La organizacion de los datos de inicializacion de una lista tipo arr deben tener un orden",
+        "La EXP debe ser entera",
+        "Fuera de limite",
+        "Los diccionarios pueden recibir el tipo de dato que crearon como llave",
+        "Los diccionarios no tienen posiciones negativas",
+        "Fuera de dimension",
+        "Las tuplas no tienen posiciones negativas",
+        
     };
     
     

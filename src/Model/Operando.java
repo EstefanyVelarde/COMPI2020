@@ -3,7 +3,7 @@ package Model;
 public class Operando {
     Token token;
     
-    String tipo;
+    String tipo, lex;
     
     int idsimbolos = -1;
     
@@ -19,8 +19,10 @@ public class Operando {
     public Operando(Token token, String tipo) {  // OPER
         this.token = token;
         this.tipo = tipo;
+        
+        this.lex = token.getLexema();
     }
-
+    
     public Token getToken() {
         return token;
     }
@@ -51,6 +53,14 @@ public class Operando {
 
     public void setSimbolos(String[] simbolos) {
         this.simbolos = simbolos;
+    }
+
+    public String getLex() {
+        return lex;
+    }
+
+    public void setLex(String lex) {
+        this.lex = lex;
     }
     
     
