@@ -75,16 +75,16 @@ public class Funciones {
     public void checarFunProc() {
         Operando oper = sem1.operStack.peekLast();
         
-        boolean funcion = idsimbolos[7] != null ? true : false;
         
         if(idsimbolos == null) {
             if(sem1.asignacion)
                 setError(1120, 776, oper);
             else
                 setError(1110, 775, oper);
-            
-            System.out.println("SIMB NULLLLL");
         } else {
+            
+            boolean funcion = idsimbolos[7] != null ? true : false;
+            
             if(sem1.asignacion) {
                 if(funcion)
                     setRegla(1120, oper);

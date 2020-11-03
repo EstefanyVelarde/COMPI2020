@@ -12,7 +12,7 @@ import java.util.LinkedList;
 public class Semantica1 {
     MatrizSemantica matriz;
     
-    ContSemantica contador;
+    ContSemantica1 contador;
     
     public Ambito amb; // Para acceder a conexion, tokens y errores
     
@@ -39,7 +39,7 @@ public class Semantica1 {
         
         matriz = new MatrizSemantica();
         
-        contador = new ContSemantica();
+        contador = new ContSemantica1();
         
         operStack =  new LinkedList();
         
@@ -283,8 +283,6 @@ public class Semantica1 {
                 case 862: 
                     System.out.println("\n@ " + PS); printStacks();
                     
-                    if(!operStack.isEmpty())
-                        sem2.regla1110(operStack.removeLast());
                     
                     sem2.printReglas();
                 break;
@@ -422,7 +420,7 @@ public class Semantica1 {
         idsimbolos = amb.getIdSimbolos(token.getLexema()); // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
         
         sem2.regla1130(idsimbolos, token);
-       
+        
         if(isArr) {
             arr.setIdentificador(idsimbolos, token);
         } else {
@@ -435,6 +433,9 @@ public class Semantica1 {
                     if(idsimbolos != null) { 
                         operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
                             Integer.parseInt(idsimbolos[2]), idsimbolos));
+                        
+                        
+                        sem2.regla1090(operStack.peekLast());
                     } else {
                         operStack.offer(new Operando(token, "V")); // Guardamos temp variant
                     }
@@ -477,7 +478,7 @@ public class Semantica1 {
     }
 
     // CONTADOR
-    public ContSemantica getContador() {
+    public ContSemantica1 getContador() {
         return contador;
     }
     

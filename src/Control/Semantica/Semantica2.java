@@ -11,6 +11,8 @@ import java.util.LinkedList;
 public class Semantica2 {
     Semantica1 sem1;
     
+    ContSemantica2 contador;
+    
     Ambito ambito; // Para acceder a conexion, tokens y errores
      
     LinkedList<Regla> listaReglas;
@@ -20,17 +22,11 @@ public class Semantica2 {
         
         this.sem1 = sem1;
         
+        contador = new ContSemantica2();
+        
         listaReglas = new LinkedList();
         
         this.edo = "Acepta";
-    }
-    
-    public void checar(int PS, int LT) {
-//        if(!sem1.operStack.isEmpty()) {
-//            System.out.println("\nCHECAR SEM2");
-//            System.out.println("PS: " + getTope(PS));
-//            sem1.printStacks();
-//        }
     }
     
     String edo;
@@ -40,15 +36,15 @@ public class Semantica2 {
             case 1010: case 1011: case 1012: // IF, ELIF, WHILE
                 System.out.println("\n@ " + PS); sem1.printStacks();
                 
-                saveLast(LT);
+                saveLast();
                 
                 if(oper.getTipo().equals("B"))
                     edo = "Acepta";
-                else
-                    setError(760);
+                else {
+                    setError(760, line, valorReal);
+                }
                 
-                
-                setRegla(PS);
+                setRegla(PS, topePila, valorReal, line, edo);
                 
                 sem1.emptyStacks();
             break;
@@ -70,18 +66,6 @@ public class Semantica2 {
                     setRegla(1150, "fun", ambito.lastFuncionId, 
                             ambito.lastFuncionToken.getLinea(), "Acepta");
             break;
-//            case 1020: // ASIGN
-//                
-//                System.out.println("\n@ " + PS); sem1.printStacks();
-//                
-//                saveLast(LT);
-//                
-//                if(!sem1.lexOp.equals("=")) // ASIGN COMP
-//                    PS = 1021;
-//                
-//                if(edo != null)
-//                    setRegla(PS); // El edo se manejo en @ 852 de Sem1
-//            break;
             
         }
     }
@@ -92,17 +76,14 @@ public class Semantica2 {
     
     int line, amb, tipoToken;
     
-    public void saveLast(int LT) {
-        
-//        
-//        System.out.println("\n - SAVELAST:");
-        
-        topePila = sem1.token.getLexema();
+    public void saveLast() {
         
         amb = ambito.ambStack.peekLast();
         
         if(sem1.operStack.isEmpty()) { // OPERSTACK EMPTY (SUCEDIO ASIGN U OPERACION)
             valorReal = sem1.oper1.getToken().getLexema();
+            
+            topePila = getTipo(sem1.oper1.getTipo());
             
             line = sem1.line;
             
@@ -112,16 +93,12 @@ public class Semantica2 {
             oper = sem1.operStack.peekLast(); 
 
             valorReal = oper.getToken().getLexema();
+            
+            topePila = getTipo(oper.getTipo());
 
             line = oper.getToken().getLinea();
         }
         
-//        
-//        System.out.println("\n    - TopePila:\t" + topePila);
-//        System.out.println("    - ValorReal:\t" + valorReal);
-//        System.out.println("    - Line:\t" + line);
-//        System.out.println("    - Edo:\t" + edo);
-//        System.out.println("    - Amb:\t" + amb);
     }
     
     
@@ -173,14 +150,14 @@ public class Semantica2 {
             switch(clase) {
                 case "var": case "par": case "lista": case "arreglo": 
                 case "diccionario": case "rango": case "tupla": 
-                    setRegla(1090, clase, dato.getLex(), 
+                    setRegla(1090, "Identificador", dato.getLex(), 
                             dato.getToken().getLinea(), "Acepta"); break;
                 default: 
-                    setError(1090, 773,  clase, dato.getLex(), 
+                    setError(1090, 773,  "Identificador", dato.getLex(), 
                             dato.getToken().getLinea());
             }
         } else
-            setError(1090, 773,  "TV", dato.getLex(), 
+            setError(1090, 773,  "Identificador", dato.getLex(), 
                     dato.getToken().getLinea());
         printReglas();
     }
@@ -233,9 +210,9 @@ public class Semantica2 {
     
     public void regla1130(String[] idsimbolos, Token token) {
         if(idsimbolos == null) {
-            setError(1130, 777, "TV", token.getLexema(), token.getLinea());
+            setError(1130, 777, "Identificador", token.getLexema(), token.getLinea());
         } else
-            setRegla(1130, "TV", token.getLexema(), token.getLinea(), "Acepta");
+            setRegla(1130, "Identificador", token.getLexema(), token.getLinea(), "Acepta");
         
         printReglas();
     }
@@ -403,5 +380,18 @@ public class Semantica2 {
         }
         
         return tipo;
+    }
+    
+    // CONTADOR
+    public ContSemantica2 getContador() {
+        return contador;
+    }
+    
+    public void setContador(int contAmb) {
+        contador.listaReglas = this.listaReglas;
+        
+        contador.setAparicion();
+        
+        contador.setAmb(contAmb);
     }
  }

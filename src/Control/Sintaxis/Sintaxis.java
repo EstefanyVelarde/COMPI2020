@@ -93,8 +93,6 @@ public class Sintaxis {
                     if(!ambito.declaracion) // SI ESTA EN ZONA DE EJECUCION
                         semantica1.checar(LT); // CHECA SEMANTICA
                     
-                    semantica2.checar(PS, LT);
-                    
                     setTerminales();
                 } else {
                     setError(633);
@@ -110,6 +108,7 @@ public class Sintaxis {
         
         
         ambito.setContador();
+        semantica2.setContador(ambito.contAmb);
     }
     
     // PRODUCCION

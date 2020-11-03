@@ -27,7 +27,7 @@ public class Ambito {
     
     public boolean declaracion, negativo;
     
-    int contAmb, key;
+    public int contAmb, key;
     
     public Ambito() {
         this.con = (new Conexion()).Conectar();

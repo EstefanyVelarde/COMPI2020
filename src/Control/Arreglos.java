@@ -97,8 +97,9 @@ public class Arreglos {
             
             dim++;
         }
-            
         
+        
+        Operando tupla = sem1.operStack.peekLast();
     }
     
     public void diccionario() {

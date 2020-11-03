@@ -3,7 +3,7 @@ package Control.Semantica;
 import Model.Asign;
 import java.util.LinkedList;
 
-public class ContSemantica {
+public class ContSemantica1 {
     public LinkedList<Asign> asigns;
     
     int[] temp;
@@ -12,7 +12,7 @@ public class ContSemantica {
     
     int errors, errorsTotal;
     
-    public ContSemantica() {
+    public ContSemantica1() {
         asigns =  new LinkedList();
         
         resetValues();

@@ -2,9 +2,11 @@ package Control;
 
 import Control.Ambito.ContAmbito;
 import Control.Lexico.ContLexico;
-import Control.Semantica.ContSemantica;
+import Control.Semantica.ContSemantica1;
+import Control.Semantica.ContSemantica2;
 import Model.Asign;
 import Model.Error;
+import Model.Regla;
 import Model.Token;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,18 +31,23 @@ public class XLS {
     
     ContLexico contLexico;
     ContAmbito contAmbito;
-    ContSemantica contSemantica;
+    ContSemantica1 contSemantica1;
+    ContSemantica2 contSemantica2;
 
     LinkedList<Token> tokens;
     LinkedList<Model.Error> errores;
     
-    public XLS(LinkedList<Token> tokens, LinkedList<Error> errores, ContLexico contLexico, ContAmbito contAmbito, ContSemantica contSemantica) {
+    public XLS(LinkedList<Token> tokens, LinkedList<Error> errores, 
+            ContLexico contLexico, ContAmbito contAmbito, 
+            ContSemantica1 contSemantica1, ContSemantica2 contSemantica2) {
         
         this.tokens = tokens;
         this.errores = errores;
         this.contLexico = contLexico;
         this.contAmbito = contAmbito;
-        this.contSemantica = contSemantica;
+        this.contSemantica1 = contSemantica1;
+        
+        this.contSemantica2 = contSemantica2;
     }
 
     public void crearExcel() {
@@ -57,6 +64,9 @@ public class XLS {
         String nombreHoja4="Ámbito";
         String nombreHoja5="Tabla de simbolos";
         String nombreHoja6="Semántica 1";
+        String nombreHoja7="Semántica 2 Tabla";
+        String nombreHoja8="Semántica 2 Cont";
+        String nombreHoja9="Semántica 2 Amb";
 
         Workbook libro= new HSSFWorkbook();
         Sheet hoja1 = libro.createSheet(nombreHoja1);
@@ -65,6 +75,9 @@ public class XLS {
         Sheet hoja4 = libro.createSheet(nombreHoja4);
         Sheet hoja5 = libro.createSheet(nombreHoja5);
         Sheet hoja6 = libro.createSheet(nombreHoja6);
+        Sheet hoja7 = libro.createSheet(nombreHoja7);
+        Sheet hoja8 = libro.createSheet(nombreHoja8);
+        Sheet hoja9 = libro.createSheet(nombreHoja9);
 
         //cabecera de la hoja de excel
         String [] Cabecera1= new String[]{"Linea", "Token","Lexema"};
@@ -78,7 +91,9 @@ public class XLS {
                                             "Diccionarios","Datos de Estructuras","Total/Ámbito"};
         String [] Cabecera5= new String[]{"id", "tipo", "clase", "amb", "tArr", "tipoLista", "dimArr", "valor", "noPar", "llave", "tpArr"};
         String [] Cabecera6= new String[]{"Línea", "TD", "TDO", "TDB", "TDH", "TF", "TC", "TCH", "TCM", "TB", "TT", "TL", "TA", "TDIC", "TV", "Asignación", "Errores"};
-        
+        String [] Cabecera7= new String[]{"Regla", "Tope pila", "Valor real", "Linea", "Estado", "Ambito"};
+        String [] Cabecera8= new String[]{"Regla", "Aparece", "Aceptada", "Errores"};
+        String [] Cabecera9= new String[]{"Regla", "Totales"};
 
         //poner negrita a la cabecera
         CellStyle style = libro.createCellStyle();
@@ -247,6 +262,8 @@ public class XLS {
             Logger.getLogger(XLS.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        
+        
         // SEMANTICA 1
         row=hoja6.createRow(0);
         for (int j = 0; j <Cabecera6.length; j++) {
@@ -257,10 +274,10 @@ public class XLS {
            
         }
         
-        for (int i = 0; i < contSemantica.asigns.size(); i++) {
+        for (int i = 0; i < contSemantica1.asigns.size(); i++) {
             row=hoja6.createRow(i+1);
             
-            Asign asign = contSemantica.asigns.get(i);
+            Asign asign = contSemantica1.asigns.get(i);
             
             Cell cell = row.createCell(0); //Linea
             cell.setCellValue(asign.getLine());
@@ -279,11 +296,11 @@ public class XLS {
             cell.setCellValue(asign.getErrors());
         }
         
-        int[] tempTotal = contSemantica.getTempTotal();
+        int[] tempTotal = contSemantica1.getTempTotal();
         
-        int errorsTotal = contSemantica.getErrorsTotal();
+        int errorsTotal = contSemantica1.getErrorsTotal();
         
-        row=hoja6.createRow(contSemantica.asigns.size() + 1);
+        row=hoja6.createRow(contSemantica1.asigns.size() + 1);
         
         for (int j = 0; j < tempTotal.length + 1; j++) { // Temp total
             Cell cell= row.createCell(j);
@@ -294,9 +311,116 @@ public class XLS {
                 cell.setCellValue(tempTotal[j - 1]);
         }
         
-        Cell cell = row.createCell(tempTotal.length + 2); // Error total
-        cell.setCellValue(errorsTotal);
+        Cell cellx = row.createCell(tempTotal.length + 2); // Error total
+        cellx.setCellValue(errorsTotal);
         
+        
+        
+        
+        // SEMANTICA 2 tabla
+        row = hoja7.createRow(0);
+        
+        
+        for (int j = 0; j <Cabecera7.length; j++) {
+            Cell cell2= row.createCell(j);
+            cell2.setCellStyle(style); 
+            cell2.setCellValue(Cabecera7[j]);
+        }
+        
+        for (int i = 0; i < contSemantica2.listaReglas.size(); i++) {
+            row = hoja7.createRow(i + 1);
+            
+            Cell cell = row.createCell(0); //Regla
+            cell.setCellValue(contSemantica2.listaReglas.get(i).getId());
+            
+            
+            cell = row.createCell(1); //Tope
+            cell.setCellValue(contSemantica2.listaReglas.get(i).getTopePila());
+            
+            
+            cell = row.createCell(2); //Valor
+            cell.setCellValue(contSemantica2.listaReglas.get(i).getValorReal());
+            
+            cell = row.createCell(3); //Linea
+            cell.setCellValue(contSemantica2.listaReglas.get(i).getLinea());
+            
+            cell = row.createCell(4); //edo
+            cell.setCellValue(contSemantica2.listaReglas.get(i).getEdo());
+            
+            cell = row.createCell(5); //ambito
+            cell.setCellValue(contSemantica2.listaReglas.get(i).getAmbito());
+        }
+        
+        // SEMANTICA 2 cont
+        row = hoja8.createRow(0);
+        
+        
+        for (int j = 0; j <Cabecera8.length; j++) {
+            Cell cell2= row.createCell(j);
+            cell2.setCellStyle(style); 
+            cell2.setCellValue(Cabecera8[j]);
+        }
+        
+        for (int i = 0; i < contSemantica2.aparece.length; i++) {
+            row = hoja8.createRow(i + 1);
+            
+            Cell cell = row.createCell(0); //Regla
+            cell.setCellValue(contSemantica2.aparece[i][0]);
+            
+            
+            cell = row.createCell(1); //Aparece
+            cell.setCellValue(contSemantica2.aparece[i][1]);
+            
+            
+            cell = row.createCell(2); //Aceptada
+            cell.setCellValue(contSemantica2.aparece[i][2]);
+            
+            cell = row.createCell(3); //Errores
+            cell.setCellValue(contSemantica2.aparece[i][3]);
+            
+        }
+        
+        // SEMANTICA 2 amb
+        
+        row = hoja9.createRow(0);
+        
+        Cell cell2= row.createCell(0);
+        cell2.setCellStyle(style); 
+        cell2.setCellValue(Cabecera9[0]); 
+        
+        for (int j = 1; j <= contSemantica2.amb + 1; j++) {
+            Cell cell= row.createCell(j);
+            cell.setCellStyle(style); 
+            cell.setCellValue(j - 1);
+        }
+        
+        cell2= row.createCell(contSemantica2.amb + 2);
+        cell2.setCellStyle(style); 
+        cell2.setCellValue(Cabecera9[1]);
+        
+        
+        for (int i = 0; i < contSemantica2.aparece.length; i++) {
+            row = hoja9.createRow(i + 1);
+            
+            Cell cell = row.createCell(0); //Regla
+            cell.setCellValue(contSemantica2.aparece[i][0]);
+            
+            for (int j = 1; j <= contSemantica2.amb + 2; j++) {
+                cell = row.createCell(j);
+                cell.setCellValue(contSemantica2.contAmb[i][j - 1]);
+            }
+        }
+        
+        row = hoja9.createRow(28);
+        
+        cell2= row.createCell(0);
+        cell2.setCellStyle(style); 
+        cell2.setCellValue("Total"); 
+        
+        for (int j = 1; j <= contSemantica2.amb + 2; j++) {
+            cell2= row.createCell(j);
+            cell2.setCellValue(contSemantica2.contAmb[27][j - 1]);
+        }
         
         
         File file;
@@ -314,6 +438,8 @@ public class XLS {
         }catch (IOException e) {
                 e.printStackTrace();
         }
+        
+        
         
     }
 
