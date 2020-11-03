@@ -50,6 +50,7 @@ public class Sintaxis {
         
         this.semantica1.addSem2(this.semantica2);
         
+        this.ambito.sem1 = this.semantica1;
         this.ambito.sem2 = this.semantica2;
         
     }

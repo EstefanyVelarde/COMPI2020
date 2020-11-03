@@ -6,7 +6,6 @@ import Control.Semantica.ContSemantica1;
 import Control.Semantica.ContSemantica2;
 import Model.Asign;
 import Model.Error;
-import Model.Regla;
 import Model.Token;
 import java.io.File;
 import java.io.FileNotFoundException;

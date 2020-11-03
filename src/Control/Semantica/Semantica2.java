@@ -130,6 +130,10 @@ public class Semantica2 {
         printReglas();
     }
     
+    public void regla1060(Token token) {
+        setRegla(1060, getTipo(sem1.getTipo(token.getToken())), token.getLexema(), token.getLinea(), "Acepta");
+    }
+    
     public void regla1081(int line) {
         setRegla(1081, "id", "TV", line, "Acepta");
     }
@@ -302,7 +306,7 @@ public class Semantica2 {
         "La organizacion de los datos de inicializacion de una lista tipo arr deben tener un orden",
         "La EXP debe ser entera",
         "Fuera de limite",
-        "Los diccionarios pueden recibir el tipo de dato que crearon como llave",
+        "Diferente valor de llave",
         "Los diccionarios no tienen posiciones negativas",
         "Fuera de dimension",
         "Las tuplas no tienen posiciones negativas",

@@ -103,7 +103,7 @@ public class Arreglos {
     }
     
     public void diccionario() {
-        
+        this.printStacks();
     }
     
     public void tupla() {

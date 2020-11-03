@@ -1,6 +1,7 @@
 package Control.Ambito;
 
 import Control.Conexion;
+import Control.Semantica.Semantica1;
 import Control.Semantica.Semantica2;
 import Model.Token;
 import Model.Error;
@@ -13,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Ambito {
+    public Semantica1 sem1;
     public Semantica2 sem2;
     
     public LinkedList<Integer> prodStack; // Sintaxis prodStack
@@ -144,7 +146,7 @@ public class Ambito {
                 
                 
                 case 817: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoDic"; valor = ""; llave = ""; break; // Diccionario
-                case 818: key = PS; break;
+                case 818: checarValorDicc(); key = PS; break;
                 case 819: key = -1; ambStack.removeLast(); addSimbolos(819); break; // Fin diccionario
                 
                 
@@ -433,13 +435,21 @@ public class Ambito {
     
     
     // DICCIONARIO
+    String tipoDicc;
+    Token lastDicc;
+    
     public void diccionario(int LT) {
         String tipo = getTipo(LT);
         
         if(tipo != null) {
+            if(tipoDicc == null)
+                tipoDicc = tipo;
+            
             tArr++;
             
-            id = tokens.peekFirst().getLexema();
+            lastDicc = tokens.peekFirst();
+            
+            id = lastDicc.getLexema();
             
             if(LT == -40 || LT == -41)
                 id = "\\" + id.substring(0, id.length()-1) + "\\" + id.charAt(id.length() -1);
@@ -457,6 +467,16 @@ public class Ambito {
             }
                 
         
+    }
+    
+    public void checarValorDicc() {
+        if(tipoDicc.equals(getTipo(lastDicc.getToken())))
+            sem2.regla1060(lastDicc);
+        else
+            sem2.setError(1060, 766, sem2.getTipo(sem1.getTipo(lastDicc.getToken())), 
+                    lastDicc.getLexema(),lastDicc.getLinea() );
+        
+        sem2.printReglas();
     }
     
     
