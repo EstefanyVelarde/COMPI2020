@@ -15,7 +15,7 @@ public class Arreglos {
     
     public LinkedList<Token> opStack;
     
-    public String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr
+    public String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar [7] funcion
     
     int[] tArr;
     
@@ -50,6 +50,17 @@ public class Arreglos {
                 printStacks();
                 
                 checarArrStack();
+            break;
+            
+            case 811:
+                System.out.println("\nARR @ " + PS); printStacks();
+                checarArrIntervalo();
+                printStacks();
+                
+                Operando oper = operStack.removeLast();
+                sem1.setOper(new Operando(oper.getToken(), "D"));
+                
+                sem1.operStack.peekLast().setArr(true);
             break;
         }
     }
@@ -86,6 +97,7 @@ public class Arreglos {
             
             dim++;
         }
+            
         
     }
     
@@ -96,36 +108,112 @@ public class Arreglos {
     public void tupla() {
         int dim = 0;
         
+        dimArr = 1;
+        
         while(!operStack.isEmpty()) {
             Operando dato = operStack.removeFirst();
             
-            if(dim == 0) {
-                if(dato.getTipo().equals("D")) { // Si es decimal
-                    if(isInteger(dato.getLex())) { // Si no es temp
-                        int num = Integer.parseInt(dato.getLex());
-                        
-                        if(num < 0) { // Si es negativo da ERROR 1071
-                            setError(1071, 769, dato);
-                        } else {
-                            if(num < Integer.parseInt(idsimbolos[3]))
-                                setRegla(1070, dato);
-                            else {
-                                setError(1070, 768, dato);
-                            }
-                        }
-                    } else
-                        setRegla(1070, dato);
-                } else { // ERROR 1040 ??
-                    
+            if(regla1030(dato, dim)) { // DIM
+                if(regla1040(dato)) { // ENT
+                    if(regla1050(dato, dim)) { // LIM
+                        regla1070(dato, Integer.parseInt(dato.getLex()) + 1);
+                        regla1071(dato, dim);
+                    }
                 }
-                
-                dim++;
-                
-            } else { // ERROR 1070
-                setError(1070, 768, dato);
             }
             
+            dim++;
         }
+    }
+    
+    
+    // SEMANTICA 2
+    public boolean regla1030(Operando dato, int dim) {
+        if(dim < dimArr) {
+           setRegla(1030, dato);
+           
+           return true;
+        } else 
+            setError(1030, 762, dato);
+        
+        return false;
+    }
+    
+    public boolean regla1040(Operando dato) {
+        if(dato.getTipo().equals("D")) {
+           setRegla(1040, dato);
+           
+           return true;
+        } else 
+           setError(1040, 764, dato);
+        
+        return false;
+    }
+    
+    public boolean regla1050(Operando dato, int dim) {
+        if(tArr != null) {
+            if(isInteger(dato.getLex())) { // Si no es temp
+                int num = Integer.parseInt(dato.getLex());
+                if(dim < tArr.length) {
+                    if(num < tArr[dim]) { // Si esta dentro del limite
+                        setRegla(1050, dato);
+
+                        return true;
+                    } 
+                } else {
+                    setError(1050, 765, dato);
+
+                    return false;
+                }
+            } else {
+                setRegla(1050, dato);
+
+                return false;
+            }
+            
+        } else 
+           setError(1050, 765, dato);
+        
+        return false;
+    }
+    
+    public void regla1070(Operando dato, int noPar) {
+        Operando tupla = sem1.operStack.peekLast();
+        
+        if(tupla.getSimbolos() != null) {
+            tupla.setTipo(sem1.getTipo(sem1.amb.getTipoDato(noPar, tupla.getLex())));
+        } else
+            tupla.setTipo("V");
+        
+        setRegla(1070, tupla);
+    }
+    
+    public void regla1071(Operando dato, int dim) {
+        if(dato.getTipo().equals("D")) { // Si es decimal
+            if(isInteger(dato.getLex())) { // Si no es temp
+                int num = Integer.parseInt(dato.getLex());
+
+                if(num < 0) { // Si es negativo da ERROR 1071
+                    setError(1071, 769, dato);
+                } else {
+                    setRegla(1071, dato);
+                }
+            } else
+                setRegla(1071, dato);
+        } 
+        
+    }
+    
+    public void setRegla(int regla, Operando dato) {
+        sem2.setRegla(regla, sem2.getTipo(dato.getTipo()), dato.getLex(), 
+                dato.getToken().getLinea(), "Acepta");
+        
+    }
+    
+    public void setError(int regla, int error, Operando dato) {
+        sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
+                dato.getToken().getLinea(), "ERROR");
+        sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
     }
     
     // INTERVALOS
@@ -280,67 +368,5 @@ public class Arreglos {
         }
         
     }
-    
-    // SEMANTICA 2
-    public boolean regla1030(Operando dato, int dim) {
-        if(dim < dimArr) {
-           setRegla(1030, dato);
-           
-           return true;
-        } else 
-            setError(1030, 762, dato);
-        
-        return false;
-    }
-    
-    public boolean regla1040(Operando dato) {
-        if(dato.getTipo().equals("D")) {
-           setRegla(1040, dato);
-           
-           return true;
-        } else 
-           setError(1040, 764, dato);
-        
-        return false;
-    }
-    
-    public boolean regla1050(Operando dato, int dim) {
-        if(tArr != null) {
-            if(isInteger(dato.getLex())) { // Si no es temp
-                int num = Integer.parseInt(dato.getLex());
-                
-                if(num < tArr[dim]) { // Si esta dentro del limite
-                    setRegla(1050, dato);
-                    
-                    return true;
-                } else {
-                    setError(1050, 765, dato);
-
-                    return false;
-                }
-            } else {
-                setRegla(1050, dato);
-
-                return false;
-            }
-            
-        } else 
-           setError(1050, 765, dato);
-        
-        return false;
-    }
-    
-    public void setRegla(int regla, Operando dato) {
-        sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
-                dato.getToken().getLinea(), "Acepta");
-        
-    }
-    
-    public void setError(int regla, int error, Operando dato) {
-        sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
-                dato.getToken().getLinea(), "ERROR");
-        sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
-    }
-    
     
 }

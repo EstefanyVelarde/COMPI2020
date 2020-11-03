@@ -6,7 +6,8 @@ import Model.Operando;
 import Model.Token;
 import java.util.LinkedList;
 
-public class Funciones {
+
+public class Rangos {
     Semantica1 sem1;
     
     public Semantica2 sem2;
@@ -19,7 +20,7 @@ public class Funciones {
     
     int nIntervalo;
     
-    public Funciones(Semantica1 sem1) {
+    public Rangos(Semantica1 sem1) {
         this.sem1 = sem1;
         
         operStack =  new LinkedList();
@@ -29,75 +30,58 @@ public class Funciones {
     
     public void zona(int PS) {
         switch(PS) {
-            case 846: 
-                System.out.println("\nFUN @ " + PS); printStacks();
+            
+            case 816: 
+                System.out.println("\nRANG @ " + PS); printStacks();
                 printStacks();
                 
-                checarFunProc();
-                
-                checarFunStack();
-                
+                setArrIntervalo();
             break;
         }
     }
     
-    public void checarFunStack() {
-        if(idsimbolos == null) {
-            while(!operStack.isEmpty()) {
-                Operando dato = operStack.removeFirst();
-                
-                setError(1100, 774, dato);
-            }
-        } else {
-            Operando dato = null;
-            int par = 0, noPar = Integer.parseInt(idsimbolos[6]);
-            while(!operStack.isEmpty()) {
-                dato = operStack.removeFirst();
-                
-                if(par < Integer.parseInt(idsimbolos[6])) {
-                    par++;
-                    setRegla(1100, dato);
-                } else
-                    setError(1100, 774, dato);
-            }
-            
-            if(par < noPar){
-                setError(1100, 774, dato);
-            }
-            
-        }
-            
-        
-        printStacks();
-    }
+    // INTERVALOS
     
-    
-    public void checarFunProc() {
-        Operando oper = sem1.operStack.peekLast();
-        
-        boolean funcion = idsimbolos[7] != null ? true : false;
-        
-        if(idsimbolos == null) {
-            if(sem1.asignacion)
-                setError(1120, 776, oper);
-            else
-                setError(1110, 775, oper);
+    public void setArrIntervalo() {
+        int size = operStack.size();
+
+        if(size > 1) {
+            Operando oper1, oper2, oper3;
             
-            System.out.println("SIMB NULLLLL");
-        } else {
-            if(sem1.asignacion) {
-                if(funcion)
-                    setRegla(1120, oper);
-                else {
-                    setError(1120, 775, oper);
-                } 
-            } else {
-                if(funcion)
-                    setError(1110, 776, oper);
-                else {
-                    setRegla(1110, oper);
-                } 
+            oper3 = operStack.removeLast();
+            oper2 = operStack.removeLast();
+            
+            int num1 = 0, num2, num3;
+
+            num3 = Integer.parseInt(oper3.getLex());
+            num2 = Integer.parseInt(oper2.getLex());
+
+            if(size == 3) { // x , x , x
+                oper1 = operStack.removeLast();
+                num1 = Integer.parseInt(oper1.getLex());
+                
+                
+                sem2.regla1160(oper1.getToken(), num1, num2, num3);
+                
+                if(num1 > num2) 
+                    num1 = (num1 - num2);
+                else
+                    num1 = (num2 - num1);
+                
+                
+                if(num3 < 0) // Si es dividendo es negativo
+                    num3 *= -1;
+                
+                if((num1 % num3) != 0) 
+                    num1 = num1 / num3 + 1;
+                else 
+                    num1 /= num3;
+                
+                sem1.setOper(new Token(-45, oper3.getToken().getLinea(), num1 + ""), -45);
+                
+                sem1.operStack.peekLast().setRange(true);
             }
+            
         }
     }
     
@@ -127,7 +111,7 @@ public class Funciones {
     
     public void printStacks() {
         System.out.println("\n*------------------------\n");
-        System.out.println(" FUN - OPERSTACK:");
+        System.out.println(" RANG - OPERSTACK:");
         
         for(Operando o : operStack) {
             if(o.getToken() != null)
@@ -136,7 +120,7 @@ public class Funciones {
                 System.out.println(" T"+o.getTipo());
         }
         
-        System.out.println("\n FUN - OPSTACK:");
+        System.out.println("\n RANG - OPSTACK:");
         for(Token t : opStack) 
             System.out.println(" "+t.getLexema());
         
@@ -155,6 +139,5 @@ public class Funciones {
                 dato.getToken().getLinea(), "ERROR");
         sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
     }
-    
     
 }

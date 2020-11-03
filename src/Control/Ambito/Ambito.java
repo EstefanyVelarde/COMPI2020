@@ -149,7 +149,7 @@ public class Ambito {
                 
                 
                 case 820: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
-                case 821: key = -1; break; // Fin FOR id
+                case 821: sem2.regla1081(token.getLinea()); key = -1; break; // Fin FOR id
                 
                 
                 case 853: negativo = true; break; // - Decimal
@@ -723,10 +723,10 @@ public class Ambito {
     }
     
     // PARA SEMANTICA
-    String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr, tipoLista, noPar FROM simbolos where (clase = 'var' OR clase = 'fun' OR clase = 'par' OR tipo = 'struct') && id = '";
+    String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr, tipoLista, noPar, funcion FROM simbolos where (clase = 'var' OR clase = 'fun' OR clase = 'par' OR tipo = 'struct') && id = '";
     
     public String[] getIdSimbolos(String id){
-        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar
+        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar [7] funcion
         String sql;
         System.out.println("\n** BUSCANDO ID " + id);
         try {
@@ -737,7 +737,7 @@ public class Ambito {
                 sql = getIdSimbolos + id + "' AND amb =" + amb;
 
                 if((rs = stmt.executeQuery(sql)).next()) {
-                    idsimbolos = new String[7];
+                    idsimbolos = new String[8];
                 
                     idsimbolos[0] = rs.getString(1); // Tipo
                     
@@ -761,6 +761,9 @@ public class Ambito {
                     
                     idsimbolos[6] = rs.getInt(7) + ""; // noPar
                     System.out.println(" noPar = " + idsimbolos[6]);
+                    
+                    idsimbolos[7] = rs.getString(8); // funcion
+                    System.out.println("funcion = " + idsimbolos[7]);
                 }
                 
                 rs.close();
@@ -795,5 +798,27 @@ public class Ambito {
         
         lastFuncionToken = null;
         
+    }
+    
+    public String getTipoDato(int noPar, String tpArr) {
+        String tipo = "V";
+        
+        String sql = "SELECT tipo FROM simbolos WHERE noPar ='" + noPar + "' && tpArr = '" + tpArr + "';";
+        
+        try {
+            System.out.println(sql);
+            
+            (rs = stmt.executeQuery(sql)).next();
+            
+            tipo = rs.getString(1);
+            
+            return tipo;
+        } catch (SQLException ex) {
+            
+            System.out.println(sql);
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return tipo;
     }
 }

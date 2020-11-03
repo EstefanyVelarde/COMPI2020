@@ -3,6 +3,7 @@ package Control.Semantica;
 import Control.Ambito.Ambito;
 import Control.Arreglos;
 import Control.Funciones;
+import Control.Rangos;
 import Model.Operando;
 import Model.Token;
 import Model.Error;
@@ -21,7 +22,9 @@ public class Semantica1 {
     
     Funciones fun;
     
-    LinkedList<Operando> operStack;
+    Rangos rang;
+    
+    public LinkedList<Operando> operStack;
     
     LinkedList<Token> opStack;
     
@@ -31,6 +34,8 @@ public class Semantica1 {
         this.arr = new Arreglos(this);
         
         this.fun = new Funciones(this);
+        
+        this.rang = new Rangos(this);
         
         matriz = new MatrizSemantica();
         
@@ -66,32 +71,55 @@ public class Semantica1 {
                     if(isFun)
                         fun.setOper(token, LT);
                     else {
-                        if(negativo) {
-                            operStack.offer(new Operando(new Token(token.getToken(), 
-                                    token.getLinea(), "-"+token.getLexema()), getTipo(LT)));
-
-                            negativo = false;
-                        } else
-                            operStack.offer(new Operando(token, getTipo(LT)));
-
-                        lexemaAsign += " " + token.getLexema();
+                        if(isRang)
+                            rang.setOper(token, LT);
+                        else {
+                            setOper(token, LT);
+                        }
                     }
                 }
             } else {
-                if(operador(LT))
+                if(operador(LT)) {
                     if(isArr)
                         arr.setOp(token);
                     else {
                         if(isFun)
                             fun.setOp(token);
                         else {
-                            opStack.offer(token);
-
-                            lexemaAsign += " " + token.getLexema();
+                            if(isRang)
+                                rang.setOp(token);
+                            else {
+                                setOp(token);
+                            }
                         }
                     }
+                } 
             }
         }
+    }
+    
+    public void setOper(Token token, int LT) {
+        if(negativo) {
+            operStack.offer(new Operando(new Token(token.getToken(), 
+                    token.getLinea(), "-"+token.getLexema()), getTipo(LT)));
+
+            negativo = false;
+        } else
+            operStack.offer(new Operando(token, getTipo(LT)));
+
+        lexemaAsign += " " + token.getLexema();
+    }
+    
+    public void setOper(Operando oper) {
+        operStack.offer(oper);
+        
+        lexemaAsign += " " + oper.getLex();
+    }
+    
+    public void setOp(Token token) {
+        opStack.offer(token);
+
+        lexemaAsign += " " + token.getLexema();
     }
     
     // @ ZONA
@@ -108,7 +136,7 @@ public class Semantica1 {
 
     int opToken, line;  
     
-    public boolean asignacion, negativo, isArr, isFun;
+    public boolean asignacion, negativo, isArr, isFun, isRang, isFor;
     
     public void zona(int PS) {
         if(!amb.declaracion) {// SI ESTA EN EJECUCION
@@ -118,7 +146,22 @@ public class Semantica1 {
             if(isFun)
                 fun.zona(PS);
             
+            if(isRang)
+                rang.zona(PS);
+            
             switch(PS) {
+                case 812: // RANG
+                    System.out.println("\n@ " + PS); printStacks();
+                    
+                    isRang = true;
+                break;
+                
+                case 816:
+                    System.out.println("\n@ " + PS); printStacks();
+                    
+                    isRang = false;
+                break;
+                
                 case 844: // ID
                     System.out.println("\n@ " + PS); printStacks();
 
@@ -129,6 +172,8 @@ public class Semantica1 {
                     System.out.println("\n@ " + PS); printStacks();
                     
                     isFun = true;
+                    
+                    sem2.setFun(operStack.peekLast());
                     
                     fun.idsimbolos = idsimbolos;
                 break;
@@ -223,14 +268,14 @@ public class Semantica1 {
                     negativo = true;
                 break;
 
-                case 860: 
+                case 860: case 810:
                     System.out.println("\n@ " + PS); arr.printStacks();
                     isArr = true; 
                     
                     arr.setIdSimbolos(idsimbolos);
                 break;
 
-                case 861: 
+                case 861: case 811:
                     System.out.println("\n@ " + PS); arr.printStacks();
                     isArr = false; 
                 break;
@@ -238,7 +283,24 @@ public class Semantica1 {
                 case 862: 
                     System.out.println("\n@ " + PS); printStacks();
                     
+                    if(!operStack.isEmpty())
+                        sem2.regla1110(operStack.removeLast());
+                    
                     sem2.printReglas();
+                break;
+                
+                case 863: // FOR VALUE
+                    System.out.println("\n@ " + PS); printStacks();
+                    
+                    isFor = true;
+                break;
+                
+                case 864: 
+                    System.out.println("\n@ " + PS); printStacks();
+                    
+                    sem2.regla1082(operStack.removeLast());
+                    
+                    isFor = false;
                 break;
             }  
         }
@@ -260,10 +322,20 @@ public class Semantica1 {
                 op = fun.opStack.removeLast();
                 
             } else {
-                oper2 = operStack.removeLast();
-                oper1 = operStack.removeLast(); 
+                
+                if(isRang) {
 
-                op = opStack.removeLast();
+                    oper2 = rang.operStack.removeLast();
+                    oper1 = rang.operStack.removeLast(); 
+
+                    op = rang.opStack.removeLast();
+
+                } else {
+                    oper2 = operStack.removeLast();
+                    oper1 = operStack.removeLast(); 
+
+                    op = opStack.removeLast();
+                }
             }
         }
         
@@ -313,7 +385,7 @@ public class Semantica1 {
                 }
             break;
             
-            default: tipo = "X";
+            default: tipo = tipoSimbolos;
         }
         
         return tipo;
@@ -355,13 +427,17 @@ public class Semantica1 {
             arr.setIdentificador(idsimbolos, token);
         } else {
             if(isFun) {
-                
+                fun.setIdentificador(idsimbolos, token);
             } else {
-                if(idsimbolos != null) { 
-                    operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
-                        Integer.parseInt(idsimbolos[2]), idsimbolos));
+                if(isRang) {
+                    rang.setIdentificador(idsimbolos, token);
                 } else {
-                    operStack.offer(new Operando(token, "V")); // Guardamos temp variant
+                    if(idsimbolos != null) { 
+                        operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
+                            Integer.parseInt(idsimbolos[2]), idsimbolos));
+                    } else {
+                        operStack.offer(new Operando(token, "V")); // Guardamos temp variant
+                    }
                 }
             }
         }
@@ -437,5 +513,6 @@ public class Semantica1 {
         this.sem2 = sem2;
         arr.sem2 = sem2;
         fun.sem2 = sem2;
+        rang.sem2 = sem2;
     }
 }

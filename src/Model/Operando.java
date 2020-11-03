@@ -7,6 +7,8 @@ public class Operando {
     
     int idsimbolos = -1;
     
+    boolean Fun, arr, range;
+    
     String[] simbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
 
     public Operando(Token token, String tipo, int idsimbolos, String[] simbolos) {  // ID
@@ -64,6 +66,31 @@ public class Operando {
     public void setLex(String lex) {
         this.lex = lex;
     }
+
+    public boolean isFun() {
+        return Fun;
+    }
+
+    public void setFun(boolean Fun) {
+        this.Fun = Fun;
+    }
+
+    public boolean isArr() {
+        return arr;
+    }
+
+    public void setArr(boolean arr) {
+        this.arr = arr;
+    }
+
+    public boolean isRange() {
+        return range;
+    }
+
+    public void setRange(boolean range) {
+        this.range = range;
+    }
+
     
     
 }

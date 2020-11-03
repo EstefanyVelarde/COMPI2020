@@ -153,13 +153,26 @@ public class Semantica2 {
         printReglas();
     }
     
+    public void regla1081(int line) {
+        setRegla(1081, "id", "TV", line, "Acepta");
+    }
+    
+    public void regla1082(Operando dato) {
+        if(dato.isArr() || dato.isRange() || dato.getTipo().equals("A") 
+                || dato.getTipo().equals("T") || dato.getTipo().equals("L") 
+                || dato.getTipo().equals("DIC") || dato.getTipo().equals("C"))
+            setRegla(1082, dato.getTipo(), dato.getLex(), dato.getToken().getLinea(), "Acepta");
+        else
+            setError(1082, 772, dato.getTipo(), dato.getLex(), dato.getToken().getLinea());
+    }
+    
     public void regla1090(Operando dato) {
         if(dato.getSimbolos() != null) {
             String clase = dato.getSimbolos()[1];
         
             switch(clase) {
                 case "var": case "par": case "lista": case "arreglo": 
-                case "diccionario": case "rango": 
+                case "diccionario": case "rango": case "tupla": 
                     setRegla(1090, clase, dato.getLex(), 
                             dato.getToken().getLinea(), "Acepta"); break;
                 default: 
@@ -169,6 +182,78 @@ public class Semantica2 {
         } else
             setError(1090, 773,  "TV", dato.getLex(), 
                     dato.getToken().getLinea());
+        printReglas();
+    }
+    
+    public void regla1110(Operando dato) {
+        if(dato.getSimbolos() != null) {
+            String clase = dato.getSimbolos()[1];
+            
+            if(dato.isFun()) {
+                if(dato.getSimbolos()[7] == null)
+                    setRegla(1110, clase, dato.getLex(), 
+                            dato.getToken().getLinea(), "Acepta");
+                else
+                    setError(1110, 775,  clase, dato.getLex(), 
+                            dato.getToken().getLinea());
+            }
+        } else 
+            if(dato.isFun())
+                setError(1110, 775,  dato.getTipo(), dato.getLex(), 
+                            dato.getToken().getLinea());
+        
+            
+        printReglas();
+    }
+    
+    public void regla1120(Operando dato) {
+        if(dato.getSimbolos() != null) {
+            String clase = dato.getSimbolos()[1];
+            
+            if(dato.isFun()) {
+                if(dato.getSimbolos()[7] != null)
+                    setRegla(1120, clase, dato.getLex(), 
+                            dato.getToken().getLinea(), "Acepta");
+                else
+                    setError(1120, 776,  clase, dato.getLex(), 
+                            dato.getToken().getLinea());
+            }
+        } else 
+            if(dato.isFun())
+                setError(1120, 776,  dato.getTipo(), dato.getLex(), 
+                            dato.getToken().getLinea());
+        
+            
+        printReglas();
+    }
+    
+    public void setFun(Operando dato) {
+        dato.setFun(true);
+    }
+    
+    public void regla1130(String[] idsimbolos, Token token) {
+        if(idsimbolos == null) {
+            setError(1130, 777, "TV", token.getLexema(), token.getLinea());
+        } else
+            setRegla(1130, "TV", token.getLexema(), token.getLinea(), "Acepta");
+        
+        printReglas();
+    }
+    
+    public void regla1160(Token token, int num1, int num2, int num3) {
+        if(num1 > num2) { // Rango negativo
+            if(num3 < 0)
+                setRegla(1161, "decimal", num3 + "", token.getLinea(), "Acepta");
+            else
+                setError(1161, 778, "decimal", num3 + "", token.getLinea());
+        } else { // Rango positivo
+            if(num3 > 0)
+                setRegla(1160, "decimal", num3 + "", token.getLinea(), "Acepta");
+            else
+                setError(1160, 779, "decimal", num3 + "", token.getLinea());
+            
+        }
+        
         printReglas();
     }
     
@@ -186,15 +271,6 @@ public class Semantica2 {
                 ambito.cambioValor(id, getTipo(temp));
             }
         }  
-        
-        printReglas();
-    }
-    
-    public void regla1130(String[] idsimbolos, Token token) {
-        if(idsimbolos == null) {
-            setError(1130, 777, "TV", token.getLexema(), token.getLinea());
-        } else
-            setRegla(1130, "TV", token.getLexema(), token.getLinea(), "Acepta");
         
         printReglas();
     }
@@ -260,7 +336,9 @@ public class Semantica2 {
         "La cant. de parametros debe ser igual a la declarada",
         "ID debe ser clase procedimiento",
         "ID debe ser clase funcion",
-        "ID debe ser declarado antes de ser utilizado"
+        "ID debe ser declarado antes de ser utilizado",
+        "Se esperaba rango positivo",
+        "Se esperaba rango negativo"
         
         
     };
