@@ -50,6 +50,8 @@ public class Sintaxis {
         
         this.semantica1.addSem2(this.semantica2);
         
+        this.ambito.sem2 = this.semantica2;
+        
     }
     
     public void analizarTokens() {
@@ -199,11 +201,11 @@ public class Sintaxis {
     int prod[][] = {
         {0, 1, -96}, // S0 -> PROGRAM $
         {1, 2, 800, -46, 36, 5, -47, 801}, // PROGRAM -> A0 @ { EST A3 } @
-        {2, -95, 804, -2, -44, 802, 3, 807, -45, 1, 803, -51, 2}, // A0 -> def @ id ( @ A1 @ ) PROGRAM @ ; A0
+        {2, -95, 804, -2, -44, 802, 3, 807, -45, 1, 803, 1150, -51, 2}, // A0 -> def @ id ( @ A1 @ ) PROGRAM @ ; A0
         {2, 805, -2, -36, 6, -51, 2}, // A0 -> @ id = CONSTANTE ; A0
         {3, 806, -2, 4}, // A1 -> @ id A2
         {4, -53, 806, -2, 4}, // A2 -> , @ id A2
-        {5, -51, 36, 5}, // A3 -> ; EST A3
+        {5, -51, 862, 36, 5}, // A3 -> ; @ EST A3
         {6, -3}, // CONSTANTE -> Constflotante
         {6, -4}, // CONSTANTE -> Constcadena
         {6, -5}, // CONSTANTE -> Constcaracter
@@ -277,7 +279,7 @@ public class Sintaxis {
         {36, -90, 20, 1011, -50, 36, 5, -87}, // EST -> while OR : EST A3 wend
         {36, -91}, // EST -> Break
         {36, -92}, // EST -> Continue
-        {36, -93, 20}, // EST -> Return OR
+        {36, -93, 20, 1140}, // EST -> Return OR @
         {36, 20}, // EST -> OR
         {37, -85, 36, 5, -86}, // K0 -> else EST A3 End
         {37, -84, 20, 1012, -50, 36, 5, 37}, // K0 -> elif OR @ : EST A3 K0

@@ -82,7 +82,6 @@ public class Arreglos {
                 if(regla1040(dato)) {
                     regla1050(dato, dim);
                 }
-                
             }
             
             dim++;
@@ -149,14 +148,19 @@ public class Arreglos {
             num3 = Integer.parseInt(oper3.getLex());
             num2 = Integer.parseInt(oper2.getLex());
 
-            if(nIntervalo == 1) // x : x
+            if(nIntervalo == 1) { // x : x
                 if(num2 > num3) 
                     num1 = num2 - num3;
                 else
                     num1 = num3 - num2; // Podria ir ERROR 1031
-            else { // x : x : x
+            
+                sem2.regla1031(oper2.getToken(), num2, num3);
+            } else { // x : x : x
                 oper1 = operStack.removeLast();
                 num1 = Integer.parseInt(oper1.getLex());
+                
+                
+                sem2.regla1031(oper1.getToken(), num1, num2, num3);
                 
                 if(num1 > num2) 
                     num1 = (num1 - num2);

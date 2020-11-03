@@ -1,6 +1,7 @@
 package Control.Ambito;
 
 import Control.Conexion;
+import Control.Semantica.Semantica2;
 import Model.Token;
 import Model.Error;
 import java.sql.Connection;
@@ -12,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Ambito {
+    public Semantica2 sem2;
+    
     public LinkedList<Integer> prodStack; // Sintaxis prodStack
     
     public LinkedList<Token> tokens;
@@ -129,9 +132,9 @@ public class Ambito {
                 
                 
                 case 810: initLista(); key = PS; break; // Lista
-                case 822: checarArrIntervalo(); arrStack.add(";"); key = PS; break; // ;
+                case 822: delArrAmbito(); checarArrIntervalo(); arrStack.add(";"); key = PS; break; // ;
                 case 823: checarArrIntervalo(); comaArr = true; key = PS; break; // ,
-                case 824: nIntervalo++; key = PS; break; // :
+                case 824: delArrAmbito(); nIntervalo++; key = PS;break; // :
                 case 811: checarArrIntervalo(); if(isArreglo) { setArreglo(); } addSimbolos(822); key = -1; break; // Fin lista
                 
                 
@@ -301,6 +304,18 @@ public class Ambito {
         addSimbolos(812); // Cambia clase = arreglo y tipoLista
     }
     
+    boolean arrAmb;
+    
+    public void delArrAmbito() {
+        if(!arrAmb) {
+            // Como es un arreglo eliminamos ambito creado para listas
+            ambStack.removeLast();
+            contAmb--; 
+            
+            arrAmb = true;
+        }
+    }
+    
     public void setTArr(int dato) { // Se agrega tam
         if(tArrDim.isEmpty())
             tArrDim = dato + "";
@@ -330,13 +345,19 @@ public class Ambito {
             num3 = Integer.parseInt(arrStack.removeLast());
             num2 = Integer.parseInt(arrStack.removeLast());
 
-            if(nIntervalo == 1) // x : x
+            if(nIntervalo == 1) {// x : x
                 if(num2 > num3) 
                     num1 = num2 - num3;
                 else
-                    num1 = num3 - num2;
-            else { // x : x : x
+                    num1 = num3 - num2; // error?
+                
+                sem2.regla1031(token, num2, num3);
+            } else { // x : x : x
                 num1 = Integer.parseInt(arrStack.removeLast());
+                
+                
+                sem2.regla1031(token, num1, num2, num3);
+                
                 
                 if(num1 > num2) 
                     num1 = (num1 - num2);
@@ -345,6 +366,7 @@ public class Ambito {
                 
                 if(num3 < 0) // Si es dividendo es negativo
                     num3 *= -1;
+                
                 
                 if((num1 % num3) != 0) 
                     num1 = num1 / num3 + 1;
@@ -366,6 +388,8 @@ public class Ambito {
         dimArr = 1;
         
         addSimbolos(808); 
+        
+        arrAmb = false;
         
         // datoLista
         ambStack.add(++contAmb); 
@@ -459,9 +483,9 @@ public class Ambito {
     
     
     // COLUMNAS SIMBOLOS
-    String id, tipo, clase, tipoLista, valor, tpArr, llave, tArrRango, dimArrRango;
+    public String id, tipo, clase, tipoLista, valor, tpArr, llave, tArrRango, dimArrRango;
     
-    int amb, tArr, noPar, dimArr, error;
+    public int amb, tArr, noPar, dimArr, error;
     
     public void addSimbolos(Token token) {
         String sql;
@@ -487,6 +511,10 @@ public class Ambito {
                 key = -1;
                 
                 error = 0;
+                
+                lastFuncionId = id;
+                
+                lastFuncionToken = token;
             break; 
             
             case 806: // Parametro
@@ -615,10 +643,7 @@ public class Ambito {
         switch(PS) {
             case 811: // DELETE WHERE clase LAST LIMIT tArr (Elimina datoLista)
                 sql = delete + "clase = '" + clase + "' " + lastLimit + tArr + ";";
-                
-                // Como es un arreglo eliminamos ambito creado para listas
-                ambStack.removeLast();
-                contAmb--; 
+                delArrAmbito();
             break;
         }
         
@@ -698,10 +723,10 @@ public class Ambito {
     }
     
     // PARA SEMANTICA
-    String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr, tipoLista FROM simbolos where (clase = 'var' OR clase = 'fun' OR clase = 'par' OR tipo = 'struct') && id = '";
+    String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr, tipoLista, noPar FROM simbolos where (clase = 'var' OR clase = 'fun' OR clase = 'par' OR tipo = 'struct') && id = '";
     
     public String[] getIdSimbolos(String id){
-        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
+        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar
         String sql;
         System.out.println("\n** BUSCANDO ID " + id);
         try {
@@ -712,7 +737,7 @@ public class Ambito {
                 sql = getIdSimbolos + id + "' AND amb =" + amb;
 
                 if((rs = stmt.executeQuery(sql)).next()) {
-                    idsimbolos = new String[6];
+                    idsimbolos = new String[7];
                 
                     idsimbolos[0] = rs.getString(1); // Tipo
                     
@@ -733,6 +758,9 @@ public class Ambito {
                     
                     idsimbolos[5] = rs.getString(6); // tipoLista
                     System.out.println("tipoLista = " + idsimbolos[5]);
+                    
+                    idsimbolos[6] = rs.getInt(7) + ""; // noPar
+                    System.out.println(" noPar = " + idsimbolos[6]);
                 }
                 
                 rs.close();
@@ -751,5 +779,21 @@ public class Ambito {
         sql = update + "tipo = '" + tipo + "' WHERE idsimbolos= '"+ id +"';";
 
         executeUpdate(sql);
+    }
+    
+    public String lastFuncionId;
+    public Token lastFuncionToken;
+    
+    public void cambioReturn(String id, String tipo) {
+        String sql = "";
+        
+        sql = update + "funcion = '" + tipo + "' WHERE id= '"+ id + "' " + last + ";";
+        
+        executeUpdate(sql);
+        
+        lastFuncionId = null;
+        
+        lastFuncionToken = null;
+        
     }
 }

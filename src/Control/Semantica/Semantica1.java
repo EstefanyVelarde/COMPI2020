@@ -2,6 +2,7 @@ package Control.Semantica;
 
 import Control.Ambito.Ambito;
 import Control.Arreglos;
+import Control.Funciones;
 import Model.Operando;
 import Model.Token;
 import Model.Error;
@@ -18,6 +19,8 @@ public class Semantica1 {
     
     Arreglos arr;
     
+    Funciones fun;
+    
     LinkedList<Operando> operStack;
     
     LinkedList<Token> opStack;
@@ -26,6 +29,8 @@ public class Semantica1 {
         this.amb = ambito;
         
         this.arr = new Arreglos(this);
+        
+        this.fun = new Funciones(this);
         
         matriz = new MatrizSemantica();
         
@@ -38,7 +43,7 @@ public class Semantica1 {
         lexemaAsign = "";
     }
     
-    Token token;
+    public Token token;
     
     String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
     
@@ -52,36 +57,40 @@ public class Semantica1 {
                 lexemaAsign += " " + token.getLexema();
             
         } else {
-            if(isArr) {
-                token = amb.tokens.peekFirst();
-
-                if(operando(LT)) {
+            token = amb.tokens.peekFirst();
+            
+            if(operando(LT)) {
+                if(isArr)
                     arr.setOper(token, LT);
-                } else 
-                    if(operador(LT))
-                        arr.setOp(token);
-            } else {
-                token = amb.tokens.peekFirst();
-                
-                if(operando(LT)) {
-                    if(negativo) {
-                        operStack.offer(new Operando(new Token(token.getToken(), 
-                                token.getLinea(), "-"+token.getLexema()), getTipo(LT)));
+                else {
+                    if(isFun)
+                        fun.setOper(token, LT);
+                    else {
+                        if(negativo) {
+                            operStack.offer(new Operando(new Token(token.getToken(), 
+                                    token.getLinea(), "-"+token.getLexema()), getTipo(LT)));
 
-                        negativo = false;
-                    } else
-                        operStack.offer(new Operando(token, getTipo(LT)));
-
-                    lexemaAsign += " " + token.getLexema();
-                } else 
-                    if(operador(LT)) {
-                        opStack.offer(token);
+                            negativo = false;
+                        } else
+                            operStack.offer(new Operando(token, getTipo(LT)));
 
                         lexemaAsign += " " + token.getLexema();
                     }
-                        
-           } 
-            
+                }
+            } else {
+                if(operador(LT))
+                    if(isArr)
+                        arr.setOp(token);
+                    else {
+                        if(isFun)
+                            fun.setOp(token);
+                        else {
+                            opStack.offer(token);
+
+                            lexemaAsign += " " + token.getLexema();
+                        }
+                    }
+            }
         }
     }
     
@@ -106,17 +115,22 @@ public class Semantica1 {
             if(isArr)
                 arr.zona(PS);
             
+            if(isFun)
+                fun.zona(PS);
+            
             switch(PS) {
-                case 844: 
+                case 844: // ID
                     System.out.println("\n@ " + PS); printStacks();
 
                     lexemaAsign = token.getLexema(); 
                 break;
                 
-                case 845: 
+                case 845: // fun()
                     System.out.println("\n@ " + PS); printStacks();
                     
                     isFun = true;
+                    
+                    fun.idsimbolos = idsimbolos;
                 break;
                 
                 case 846: 
@@ -142,12 +156,17 @@ public class Semantica1 {
                     if(isArr) {
                         arr.operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo)); // Guardamos temp
 
-                        System.out.println("\n++ SE CREO TEMP\n"); arr.printStacks();
                     } else {
-                        operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo)); // Guardamos temp
+                        if(isFun) {
+                            fun.operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo)); // Guardamos temp
+                        } else {
+                            operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo)); // Guardamos temp
+                        }
+                        
 
-                        System.out.println("\n++ SE CREO TEMP\n"); printStacks();
                     }
+                    
+                    System.out.println("\n++ SE CREO TEMP\n"); printStacks();
 
                     contador.addTemp(tempTipo);
                 break;
@@ -169,7 +188,6 @@ public class Semantica1 {
                         else
                             tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
                         
-                        sem2.regla1170(oper1, tipoOper2); // CAMBIO DE VALOR
                         
                         if (tempTipo.equals("error")) {
                             setError(lexemaAsign);
@@ -187,6 +205,7 @@ public class Semantica1 {
                             else
                                 sem2.setRegla(1021, oper1);
                         
+                        sem2.regla1170(oper1, tipoOper2); // CAMBIO DE VALOR
 
                         System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
                         
@@ -215,6 +234,12 @@ public class Semantica1 {
                     System.out.println("\n@ " + PS); arr.printStacks();
                     isArr = false; 
                 break;
+                
+                case 862: 
+                    System.out.println("\n@ " + PS); printStacks();
+                    
+                    sem2.printReglas();
+                break;
             }  
         }
     }
@@ -227,10 +252,19 @@ public class Semantica1 {
 
             op = arr.opStack.removeLast();
         } else {
-            oper2 = operStack.removeLast();
-            oper1 = operStack.removeLast(); 
+            if(isFun) {
+                
+                oper2 = fun.operStack.removeLast();
+                oper1 = fun.operStack.removeLast(); 
 
-            op = opStack.removeLast();
+                op = fun.opStack.removeLast();
+                
+            } else {
+                oper2 = operStack.removeLast();
+                oper1 = operStack.removeLast(); 
+
+                op = opStack.removeLast();
+            }
         }
         
         tipoOper1 = oper1.getTipo();
@@ -315,14 +349,20 @@ public class Semantica1 {
     public void setIdentificador() {
         idsimbolos = amb.getIdSimbolos(token.getLexema()); // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
         
+        sem2.regla1130(idsimbolos, token);
+       
         if(isArr) {
             arr.setIdentificador(idsimbolos, token);
         } else {
-            if(idsimbolos != null) { 
-                operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
-                    Integer.parseInt(idsimbolos[2]), idsimbolos));
+            if(isFun) {
+                
             } else {
-                operStack.offer(new Operando(token, "V")); // Guardamos temp variant
+                if(idsimbolos != null) { 
+                    operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
+                        Integer.parseInt(idsimbolos[2]), idsimbolos));
+                } else {
+                    operStack.offer(new Operando(token, "V")); // Guardamos temp variant
+                }
             }
         }
     }
@@ -371,7 +411,8 @@ public class Semantica1 {
         operStack =  new LinkedList();
         
         opStack = new LinkedList();
-        
+
+        System.out.println("\n*--------------empty----------*\n");
     }
     
     public void printStacks() {
@@ -395,5 +436,6 @@ public class Semantica1 {
     public void addSem2(Semantica2 sem2) {
         this.sem2 = sem2;
         arr.sem2 = sem2;
+        fun.sem2 = sem2;
     }
 }
