@@ -82,22 +82,10 @@ public class Funciones {
             else
                 setError(1110, 775, oper);
         } else {
-            
-            boolean funcion = idsimbolos[7] != null ? true : false;
-            
-            if(sem1.asignacion) {
-                if(funcion)
-                    setRegla(1120, oper);
-                else {
-                    setError(1120, 775, oper);
-                } 
-            } else {
-                if(funcion)
-                    setError(1110, 776, oper);
-                else {
-                    setRegla(1110, oper);
-                } 
-            }
+            if(sem1.asignacion)
+                sem2.regla1120(oper);
+            else
+                sem2.regla1110(oper);
         }
     }
     

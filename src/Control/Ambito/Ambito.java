@@ -746,7 +746,7 @@ public class Ambito {
     String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr, tipoLista, noPar, funcion FROM simbolos where (clase = 'var' OR clase = 'fun' OR clase = 'par' OR tipo = 'struct') && id = '";
     
     public String[] getIdSimbolos(String id){
-        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar [7] funcion
+        String[] idsimbolos = null; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar
         String sql;
         System.out.println("\n** BUSCANDO ID " + id);
         try {
@@ -757,7 +757,7 @@ public class Ambito {
                 sql = getIdSimbolos + id + "' AND amb =" + amb;
 
                 if((rs = stmt.executeQuery(sql)).next()) {
-                    idsimbolos = new String[8];
+                    idsimbolos = new String[7];
                 
                     idsimbolos[0] = rs.getString(1); // Tipo
                     
@@ -781,9 +781,6 @@ public class Ambito {
                     
                     idsimbolos[6] = rs.getInt(7) + ""; // noPar
                     System.out.println(" noPar = " + idsimbolos[6]);
-                    
-                    idsimbolos[7] = rs.getString(8); // funcion
-                    System.out.println("funcion = " + idsimbolos[7]);
                 }
                 
                 rs.close();
@@ -810,7 +807,7 @@ public class Ambito {
     public void cambioReturn(String id, String tipo) {
         String sql = "";
         
-        sql = update + "funcion = '" + tipo + "' WHERE id= '"+ id + "' " + last + ";";
+        sql = update + "tipo = '" + tipo + "' WHERE id= '"+ id + "' " + last + ";";
         
         executeUpdate(sql);
         

@@ -27,47 +27,43 @@ public class Semantica2 {
         listaReglas = new LinkedList();
         
         this.edo = "Acepta";
+        
+        tempCont = new int[15];
     }
     
     String edo;
     
-    public void zona(int PS, int LT) {
+    public void zona(int PS) {
         switch(PS) {
             case 1010: case 1011: case 1012: // IF, ELIF, WHILE
-                System.out.println("\n@ " + PS); sem1.printStacks();
+                sem1.printZone(PS);
                 
-                saveLast();
+                regla1010(PS);
                 
-                if(oper.getTipo().equals("B"))
-                    edo = "Acepta";
-                else {
-                    setError(760, line, valorReal);
-                }
-                
-                setRegla(PS, topePila, valorReal, line, edo);
-                
-                sem1.emptyStacks();
+                printReglas();
             break;
             
             case 1140: // RETURN
-                System.out.println("\n@ " + PS); sem1.printStacks();
+                sem1.printZone(PS);
                 
-                Operando dato = sem1.operStack.removeLast();
+                regla1140();
                 
-                ambito.cambioReturn(ambito.lastFuncionId, dato.getTipo());
                 
-                setRegla(1140, dato);
+                printReglas();
             break;
             
             case 1150: // NO RETURN ?
-                System.out.println("\n@ " + PS); sem1.printStacks();
+                sem1.printZone(PS);
                 
                 if(ambito.lastFuncionId != null)
                     setRegla(1150, "fun", ambito.lastFuncionId, 
                             ambito.lastFuncionToken.getLinea(), "Acepta");
+                
+                printReglas();
             break;
             
         }
+        
     }
       
     Operando oper; 
@@ -91,8 +87,8 @@ public class Semantica2 {
             sem1.printStacks();
 
             oper = sem1.operStack.peekLast(); 
-
-            valorReal = oper.getToken().getLexema();
+            
+            valorReal = getValorReal(oper);
             
             topePila = getTipo(oper.getTipo());
 
@@ -101,8 +97,78 @@ public class Semantica2 {
         
     }
     
+    public String getValorReal(Operando oper) {
+        String valorReal = "";
+        
+        if(oper.isTemp())
+                valorReal = getTemp(oper.getTipo());
+            else
+                valorReal = oper.getLex();
+        
+        return valorReal;
+    }
+    
+    public String getValorReal(Operando oper, String tempTipo) {
+        String valorReal = "";
+        
+        if(oper.isTemp())
+                valorReal = valorReal = getTemp(tempTipo);
+            else
+                valorReal = oper.getLex();
+        
+        return valorReal;
+    }
+    
+    public String getTemp(String tipo) {
+        String temp =  "T" + tipo;
+        
+        return temp + getNoTemp(tipo);
+    }
+    
     
     // REGLAS
+    public void regla1010(int PS) {
+        saveLast();
+                
+        if(oper.getTipo().equals("B"))
+            edo = "Acepta";
+        else {
+            setError(760, line, valorReal);
+        }
+
+        setRegla(PS, topePila, valorReal, line, edo);
+
+        sem1.emptyStacks();
+    }
+    
+    public void regla1020(Operando oper1, Operando oper2, String lexOp, String tempTipo) { // ASIGNACION
+        int regla = 1020;
+        
+        if (tempTipo.equals("error")) {
+            if(!lexOp.equals("="))
+                regla = 1021;
+            
+            topePila = getTipo(oper1.getTipo());
+            
+            valorReal = getValorReal(oper2, tempTipo);
+            
+            line = oper1.getToken().getLinea();
+            
+            setError(regla, 761, topePila, valorReal, line);
+        } else {
+            if(!lexOp.equals("="))
+                regla = 1021;
+            
+            topePila = getTipo(oper1.getTipo());
+            
+            valorReal = getValorReal(oper2, tempTipo);
+                       
+            line = oper1.getToken().getLinea();
+            
+            setRegla(regla, topePila, valorReal, line);
+        }
+    }
+    
     public void regla1031(Token token, int num1, int num2) {
         if(num1 > num2)
             setError(1031, 763, "decimal", num2 + "", token.getLinea());
@@ -154,32 +220,32 @@ public class Semantica2 {
             switch(clase) {
                 case "var": case "par": case "lista": case "arreglo": 
                 case "diccionario": case "rango": case "tupla": 
-                    setRegla(1090, "Identificador", dato.getLex(), 
+                    setRegla(1090, clase, dato.getLex(), 
                             dato.getToken().getLinea(), "Acepta"); break;
                 default: 
-                    setError(1090, 773,  "Identificador", dato.getLex(), 
+                    setError(1090, 773,  "id", dato.getLex(), 
                             dato.getToken().getLinea());
             }
         } else
-            setError(1090, 773,  "Identificador", dato.getLex(), 
+            setError(1090, 773,  "id", dato.getLex(), 
                     dato.getToken().getLinea());
         printReglas();
     }
     
     public void regla1110(Operando dato) {
         if(dato.getSimbolos() != null) {
-            String clase = dato.getSimbolos()[1];
+            String tipo = dato.getSimbolos()[0];
             
             if(dato.isFun()) {
-                if(dato.getSimbolos()[7] == null)
-                    setRegla(1110, clase, dato.getLex(), 
+                if(tipo.equals("none")) // TIPO == NONE
+                    setRegla(1110, tipo, dato.getLex(), 
                             dato.getToken().getLinea(), "Acepta");
                 else
-                    setError(1110, 775,  clase, dato.getLex(), 
+                    setError(1110, 775,  tipo, dato.getLex(), 
                             dato.getToken().getLinea());
             }
         } else 
-            if(dato.isFun())
+            if(dato.isFun()) // SI NO ESTA DECLARADA
                 setError(1110, 775,  dato.getTipo(), dato.getLex(), 
                             dato.getToken().getLinea());
         
@@ -189,14 +255,14 @@ public class Semantica2 {
     
     public void regla1120(Operando dato) {
         if(dato.getSimbolos() != null) {
-            String clase = dato.getSimbolos()[1];
+            String tipo = dato.getSimbolos()[0];
             
             if(dato.isFun()) {
-                if(dato.getSimbolos()[7] != null)
-                    setRegla(1120, clase, dato.getLex(), 
-                            dato.getToken().getLinea(), "Acepta");
+                if(!tipo.equals("none")) // TIPO != NONE
+                    setRegla(1120, tipo, dato.getLex(), 
+                            dato.getToken().getLinea());
                 else
-                    setError(1120, 776,  clase, dato.getLex(), 
+                    setError(1120, 776,  tipo, dato.getLex(), 
                             dato.getToken().getLinea());
             }
         } else 
@@ -214,11 +280,19 @@ public class Semantica2 {
     
     public void regla1130(String[] idsimbolos, Token token) {
         if(idsimbolos == null) {
-            setError(1130, 777, "Identificador", token.getLexema(), token.getLinea());
+            setError(1130, 777, "id", token.getLexema(), token.getLinea());
         } else
-            setRegla(1130, "Identificador", token.getLexema(), token.getLinea(), "Acepta");
+            setRegla(1130, "id", token.getLexema(), token.getLinea(), "Acepta");
         
         printReglas();
+    }
+    
+    public void regla1140() {
+        Operando dato = sem1.operStack.removeLast();
+                
+        ambito.cambioReturn(ambito.lastFuncionId, getTipo(dato.getTipo()));
+
+        setRegla(1140, dato);
     }
     
     public void regla1160(Token token, int num1, int num2, int num3) {
@@ -256,6 +330,9 @@ public class Semantica2 {
         printReglas();
     }
     
+    
+    // SET REGLAS
+    
     public void setRegla(int id) {
         listaReglas.add(new Regla(id, topePila, valorReal, line, edo, amb));
             
@@ -267,6 +344,11 @@ public class Semantica2 {
             
     }
     
+    public void setRegla(int id, String topePila, String valorReal, int line) {
+        listaReglas.add(new Regla(id, topePila, valorReal, line, "Acepta", ambito.ambStack.peekLast()));
+            
+    }
+    
     public void setRegla(int regla, Operando dato) {
         setRegla(regla, getTipo(dato.getTipo()), dato.getLex(), 
                 dato.getToken().getLinea(), "Acepta");
@@ -274,28 +356,28 @@ public class Semantica2 {
     }
     
     
-    // ERRORES
+    // SET ERRORES
     public void setError(int error) {
-        this.edo = "ERROR";
+        this.edo = "Error";
         
         ambito.errores.add(new Error(error, line, valorReal, desc[error-760], "Semántica 2"));
     }
     
     public void setError(int error, int line, String lexema) {
-        this.edo = "ERROR";
+        this.edo = "Error";
         
         ambito.errores.add(new Error(error, line, lexema, desc[error-760], "Semántica 2"));
     }
     
     public void setError(int regla, int error, Operando dato) {
         setRegla(regla, getTipo(dato.getTipo()), dato.getLex(), 
-                dato.getToken().getLinea(), "ERROR");
+                dato.getToken().getLinea(), "Error");
         setError(error, dato.getToken().getLinea(), dato.getLex());
     }
     
     public void setError(int regla, int error, String topePila, 
             String valorReal, int line) {
-        setRegla(regla, topePila, valorReal,  line, "ERROR");
+        setRegla(regla, topePila, valorReal,  line, "Error");
         setError(error, line, valorReal);
     }
    
@@ -338,6 +420,8 @@ public class Semantica2 {
         
     }
     
+    
+    // TIPOS 
     public String getTipo(String tipoSimbolos) {
         String tipo = null;
         
@@ -356,35 +440,40 @@ public class Semantica2 {
             case "L":   tipo = "lista";         break;
             case "A":   tipo = "arreglo";       break;
             case "DIC": tipo = "diccionario";   break;
+                
             default: tipo = tipoSimbolos;
         }
         
         return tipo;
     }
     
-    public String getTemp(String tipoSimbolos) {
-        String tipo = null;
+    int[] tempCont;
+    
+    public int getNoTemp(String tipo) {
+        int no = 0;
         
-        switch(tipoSimbolos) {
-            case "B":   tipo = "boolean";       break;
-            case "CH":  tipo = "caracter";      break;
-            case "C":   tipo = "cadena";        break;
-            case "D":   tipo = "decimal";       break;
-            case "F":   tipo = "flotante";      break;
-            case "CM":  tipo = "complejo";      break;
-            case "DB":  tipo = "binario";       break;
-            case "DH":  tipo = "hexadecimal";   break;
-            case "DO":  tipo = "octal";         break;
-            case "N":   tipo = "none";          break;
-            case "T":   tipo = "tupla";         break;
-            case "L":   tipo = "lista";         break;
-            case "A":   tipo = "arreglo";       break;
-            case "DIC": tipo = "diccionario";   break;
-            default: tipo = tipoSimbolos;
+        switch(tipo) {
+            case "B":   no = 1 + tempCont[0]++; break;
+            case "CH":  no = 1 + tempCont[1]++; break;
+            case "C":   no = 1 + tempCont[2]++; break;
+            case "D":   no = 1 + tempCont[3]++; break;
+            case "F":   no = 1 + tempCont[4]++; break;
+            case "CM":  no = 1 + tempCont[5]++; break;
+            case "DB":  no = 1 + tempCont[6]++; break;
+            case "DH":  no = 1 + tempCont[7]++; break;
+            case "DO":  no = 1 + tempCont[8]++; break;
+            case "N":   no = 1 + tempCont[9]++; break;
+            case "T":   no = 1 + tempCont[10]++; break;
+            case "L":   no = 1 + tempCont[11]++; break;
+            case "A":   no = 1 + tempCont[12]++; break;
+            case "DIC": no = 1 + tempCont[13]++; break;
+            case "error": case "V": 
+                        no = 1 + tempCont[14]++; break;
         }
         
-        return tipo;
+        return no;
     }
+    
     
     // CONTADOR
     public ContSemantica2 getContador() {

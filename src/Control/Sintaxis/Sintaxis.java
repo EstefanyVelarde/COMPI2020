@@ -67,7 +67,7 @@ public class Sintaxis {
                 
                 semantica1.zona(PS);
                 
-                semantica2.zona(PS, LT);
+                semantica2.zona(PS);
                 
                 prodStack.removeLast();
                 
@@ -92,7 +92,7 @@ public class Sintaxis {
                     ambito.checar(LT); // CHECA AMBITO
                     
                     if(!ambito.declaracion) // SI ESTA EN ZONA DE EJECUCION
-                        semantica1.checar(LT); // CHECA SEMANTICA
+                        semantica1.checar(LT); // CHECA SEMANTICA 1
                     
                     setTerminales();
                 } else {
@@ -201,7 +201,7 @@ public class Sintaxis {
     int prod[][] = {
         {0, 1, -96}, // S0 -> PROGRAM $
         {1, 2, 800, -46, 36, 5, -47, 801}, // PROGRAM -> A0 @ { EST A3 } @
-        {2, -95, 804, -2, -44, 802, 3, 807, -45, 1, 803, 1150, -51, 2}, // A0 -> def @ id ( @ A1 @ ) PROGRAM @ ; A0
+        {2, -95, 804, -2, -44, 802, 3, 807, -45, 1, 803, 1150, -51, 2}, // A0 -> def @ id ( @ A1 @ ) PROGRAM @ @ ; A0
         {2, 805, -2, -36, 6, -51, 2}, // A0 -> @ id = CONSTANTE ; A0
         {3, 806, -2, 4}, // A1 -> @ id A2
         {4, -53, 806, -2, 4}, // A2 -> , @ id A2

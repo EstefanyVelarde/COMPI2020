@@ -29,6 +29,8 @@ public class MatrizSemantica {
     }
     
     public String getType(String type1, String type2, int op) {
+        if(type1.equals("N"))
+            type1 = "V";
         
         if(asignacion(op)) { // Asignaciones
             if(type1.equals(type2))

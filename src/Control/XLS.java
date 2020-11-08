@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -421,7 +422,6 @@ public class XLS {
             cell2.setCellValue(contSemantica2.contAmb[27][j - 1]);
         }
         
-        
         File file;
         file = new File(rutaArchivo);
         try (FileOutputStream fileOuS = new FileOutputStream(file)){						
@@ -431,15 +431,24 @@ public class XLS {
                 libro.write(fileOuS);
                 fileOuS.flush();
                 fileOuS.close();
+                
+                
+            System.out.println("\n\n++ Se creo excel");
+            
+            
+            JOptionPane.showMessageDialog( null, "Excel creado" );
 
         } catch (FileNotFoundException e) {
-                e.printStackTrace();
+            System.out.println("\n\n-- No se creo excel");
+            System.out.println("Exception: " + e);
+
+            JOptionPane.showMessageDialog(null, "No se creo excel", "Error", JOptionPane.ERROR_MESSAGE);
         }catch (IOException e) {
-                e.printStackTrace();
+            System.out.println("\n\n-- No se creo excel");
+            System.out.println("Exception: " + e);
+
+            JOptionPane.showMessageDialog(null, "No se creo excel", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        
-        
-        
     }
 
 }

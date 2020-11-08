@@ -8,9 +8,7 @@ import Control.Archivos;
 import Control.Semantica.Semantica1;
 import Control.Semantica.Semantica2;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -18,7 +16,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JScrollPane;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -48,7 +46,7 @@ public class Interface extends javax.swing.JFrame {
         
     public void createAndShowGUI(){
         // FULL SCREEN
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
         // JTEXTAREA
@@ -56,14 +54,14 @@ public class Interface extends javax.swing.JFrame {
         
         codigo.setBackground(new Color(21,61,87));
         codigo.setForeground(new Color(120,150,174));
-        codigo.setFont(new Font("Lucida Console", Font.PLAIN, 18));
+        codigo.setFont(new Font("Lucida Console", Font.PLAIN, 14));
         
         lines = new JTextArea(" 1");
 
         lines.setBackground(new Color(12,48,72));
         lines.setForeground(new Color(84,116,139));
         lines.setEditable(false);
-        lines.setFont(new Font("Lucida Console", Font.PLAIN, 18));
+        lines.setFont(new Font("Lucida Console", Font.PLAIN, 14));
 
         codigo.getDocument().addDocumentListener(new DocumentListener(){
             public String getText(){
@@ -100,7 +98,7 @@ public class Interface extends javax.swing.JFrame {
 
         codigoScroll.getViewport().add(codigo);
         codigoScroll.setRowHeaderView(lines);
-        codigoScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        //codigoScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         
         // JTABLE
         errores.setOpaque(true);
@@ -109,7 +107,7 @@ public class Interface extends javax.swing.JFrame {
         errores.setForeground(fg);
         
         
-        errores.setFont(new Font("Lucida Console", Font.PLAIN, 18));
+        errores.setFont(new Font("Lucida Console", Font.PLAIN, 14));
         
         errores.setRowHeight(30);
         
@@ -118,7 +116,7 @@ public class Interface extends javax.swing.JFrame {
         tokens.setBackground(bg);
         tokens.setForeground(fg);
         
-        tokens.setFont(new Font("Lucida Console", Font.PLAIN, 18));
+        tokens.setFont(new Font("Lucida Console", Font.PLAIN, 14));
         
         tokens.setRowHeight(30);
         
@@ -126,7 +124,7 @@ public class Interface extends javax.swing.JFrame {
         contadores.setFillsViewportHeight(true);
         contadores.setBackground(bg);
         contadores.setForeground(fg);
-        contadores.setFont(new Font("Lucida Console", Font.PLAIN, 18));
+        contadores.setFont(new Font("Lucida Console", Font.PLAIN, 14));
         
         
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -134,7 +132,7 @@ public class Interface extends javax.swing.JFrame {
         contadores.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
         
         
-        contadores.setRowHeight(35);
+        contadores.setRowHeight(23);
     }
 
     @SuppressWarnings("unchecked")
@@ -168,18 +166,21 @@ public class Interface extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(7, 38, 59));
+        setPreferredSize(new java.awt.Dimension(1280, 720));
+        setResizable(false);
+        setSize(new java.awt.Dimension(1280, 720));
 
         bgScroll.setAlignmentX(0.0F);
         bgScroll.setAlignmentY(0.0F);
         bgScroll.setAutoscrolls(true);
-        bgScroll.setPreferredSize(new java.awt.Dimension(1920, 1080));
+        bgScroll.setPreferredSize(new java.awt.Dimension(1280, 720));
 
         background.setBackground(new java.awt.Color(7, 38, 59));
-        background.setMaximumSize(null);
+        background.setPreferredSize(new java.awt.Dimension(1200, 600));
 
         areaTituloPanel.setBackground(new java.awt.Color(33, 133, 145));
 
-        areaTitulo.setFont(new java.awt.Font("Calibri", 1, 16)); // NOI18N
+        areaTitulo.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         areaTitulo.setForeground(new java.awt.Color(153, 241, 253));
         areaTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         areaTitulo.setText("ÁREA DE CODIGO");
@@ -188,19 +189,17 @@ public class Interface extends javax.swing.JFrame {
         areaTituloPanel.setLayout(areaTituloPanelLayout);
         areaTituloPanelLayout.setHorizontalGroup(
             areaTituloPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(areaTituloPanelLayout.createSequentialGroup()
-                .addComponent(areaTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(areaTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         areaTituloPanelLayout.setVerticalGroup(
             areaTituloPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(areaTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+            .addComponent(areaTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE)
         );
 
         botonesPanel.setBackground(new java.awt.Color(12, 48, 72));
 
         jbOpen.setBackground(new java.awt.Color(7, 38, 59));
-        jbOpen.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        jbOpen.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         jbOpen.setForeground(new java.awt.Color(33, 133, 145));
         jbOpen.setText("ABRIR");
         jbOpen.addActionListener(new java.awt.event.ActionListener() {
@@ -210,7 +209,7 @@ public class Interface extends javax.swing.JFrame {
         });
 
         jbCompile.setBackground(new java.awt.Color(7, 38, 59));
-        jbCompile.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        jbCompile.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         jbCompile.setForeground(new java.awt.Color(33, 133, 145));
         jbCompile.setText("COMPILAR");
         jbCompile.addActionListener(new java.awt.event.ActionListener() {
@@ -220,7 +219,7 @@ public class Interface extends javax.swing.JFrame {
         });
 
         jbXLS.setBackground(new java.awt.Color(7, 38, 59));
-        jbXLS.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        jbXLS.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         jbXLS.setForeground(new java.awt.Color(33, 133, 145));
         jbXLS.setText("XLS");
         jbXLS.addActionListener(new java.awt.event.ActionListener() {
@@ -230,7 +229,7 @@ public class Interface extends javax.swing.JFrame {
         });
 
         jbClear.setBackground(new java.awt.Color(7, 38, 59));
-        jbClear.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        jbClear.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         jbClear.setForeground(new java.awt.Color(33, 133, 145));
         jbClear.setText("LIMPIAR");
         jbClear.addActionListener(new java.awt.event.ActionListener() {
@@ -244,51 +243,48 @@ public class Interface extends javax.swing.JFrame {
         botonesPanelLayout.setHorizontalGroup(
             botonesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, botonesPanelLayout.createSequentialGroup()
-                .addGap(42, 42, 42)
-                .addComponent(jbOpen, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
-                .addComponent(jbClear, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
-                .addComponent(jbCompile, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(50, 50, 50)
-                .addComponent(jbXLS, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jbOpen, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jbClear, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jbCompile, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jbXLS, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         botonesPanelLayout.setVerticalGroup(
             botonesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(botonesPanelLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
+                .addContainerGap()
                 .addGroup(botonesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jbXLS)
-                    .addComponent(jbCompile)
                     .addComponent(jbOpen)
-                    .addComponent(jbClear))
-                .addContainerGap(16, Short.MAX_VALUE))
+                    .addComponent(jbClear)
+                    .addComponent(jbCompile)
+                    .addComponent(jbXLS))
+                .addGap(10, 10, 10))
         );
 
         sidePanel.setBackground(new java.awt.Color(12, 48, 72));
 
         tokensPanel.setBackground(new java.awt.Color(229, 217, 73));
 
-        tokensTitulo.setFont(new java.awt.Font("Calibri", 1, 16)); // NOI18N
+        tokensTitulo.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         tokensTitulo.setForeground(new java.awt.Color(255, 255, 255));
-        tokensTitulo.setText("LISTA DE TOKENS");
+        tokensTitulo.setText("TOKENS");
 
         javax.swing.GroupLayout tokensPanelLayout = new javax.swing.GroupLayout(tokensPanel);
         tokensPanel.setLayout(tokensPanelLayout);
         tokensPanelLayout.setHorizontalGroup(
             tokensPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(tokensPanelLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
+                .addContainerGap()
                 .addComponent(tokensTitulo)
-                .addContainerGap(245, Short.MAX_VALUE))
+                .addContainerGap(188, Short.MAX_VALUE))
         );
         tokensPanelLayout.setVerticalGroup(
             tokensPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, tokensPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(tokensTitulo)
-                .addContainerGap())
+            .addComponent(tokensTitulo, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
         );
 
         tokens.setModel(new javax.swing.table.DefaultTableModel(
@@ -299,14 +295,18 @@ public class Interface extends javax.swing.JFrame {
                 "Linea", "Token", "Lexema"
             }
         ));
-        tokens.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        tokens.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
         tokensScroll.setViewportView(tokens);
         if (tokens.getColumnModel().getColumnCount() > 0) {
-            tokens.getColumnModel().getColumn(0).setPreferredWidth(60);
-            tokens.getColumnModel().getColumn(1).setPreferredWidth(70);
-            tokens.getColumnModel().getColumn(2).setPreferredWidth(235);
+            tokens.getColumnModel().getColumn(0).setMinWidth(50);
+            tokens.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tokens.getColumnModel().getColumn(0).setMaxWidth(50);
+            tokens.getColumnModel().getColumn(1).setMinWidth(50);
+            tokens.getColumnModel().getColumn(1).setPreferredWidth(50);
+            tokens.getColumnModel().getColumn(1).setMaxWidth(50);
         }
 
+        contadores.setFont(new java.awt.Font("Dialog", 0, 10)); // NOI18N
         contadores.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {"Errores", ""},
@@ -335,33 +335,30 @@ public class Interface extends javax.swing.JFrame {
                 "", ""
             }
         ));
-        contadores.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        contadores.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
         contadoresScroll.setViewportView(contadores);
         if (contadores.getColumnModel().getColumnCount() > 0) {
-            contadores.getColumnModel().getColumn(0).setPreferredWidth(175);
+            contadores.getColumnModel().getColumn(1).setPreferredWidth(17);
         }
 
         contadoresPanel.setBackground(new java.awt.Color(117, 83, 215));
 
-        contadoresTitulo.setFont(new java.awt.Font("Calibri", 1, 16)); // NOI18N
+        contadoresTitulo.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         contadoresTitulo.setForeground(new java.awt.Color(255, 255, 255));
-        contadoresTitulo.setText("LISTA DE CONTADORES");
+        contadoresTitulo.setText("CONTADORES");
 
         javax.swing.GroupLayout contadoresPanelLayout = new javax.swing.GroupLayout(contadoresPanel);
         contadoresPanel.setLayout(contadoresPanelLayout);
         contadoresPanelLayout.setHorizontalGroup(
             contadoresPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(contadoresPanelLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
+                .addContainerGap()
                 .addComponent(contadoresTitulo)
-                .addContainerGap(102, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         contadoresPanelLayout.setVerticalGroup(
             contadoresPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, contadoresPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(contadoresTitulo)
-                .addContainerGap())
+            .addComponent(contadoresTitulo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout sidePanelLayout = new javax.swing.GroupLayout(sidePanel);
@@ -369,53 +366,50 @@ public class Interface extends javax.swing.JFrame {
         sidePanelLayout.setHorizontalGroup(
             sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(sidePanelLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addContainerGap()
                 .addGroup(sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tokensScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(tokensPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25)
-                .addGroup(sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(contadoresScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addComponent(contadoresPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25))
+                    .addComponent(tokensPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tokensScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(contadoresPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(contadoresScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                .addGap(10, 10, 10))
         );
         sidePanelLayout.setVerticalGroup(
             sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(sidePanelLayout.createSequentialGroup()
-                .addGap(30, 30, 30)
+                .addGap(10, 10, 10)
                 .addGroup(sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(contadoresPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(tokensPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(20, 20, 20)
+                    .addComponent(tokensPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(contadoresPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(10, 10, 10)
                 .addGroup(sidePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tokensScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 746, Short.MAX_VALUE)
+                    .addComponent(tokensScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 538, Short.MAX_VALUE)
                     .addComponent(contadoresScroll))
-                .addGap(25, 25, 25))
+                .addGap(10, 10, 10))
         );
 
         downPanel.setBackground(new java.awt.Color(12, 48, 72));
 
         erroresPanel.setBackground(new java.awt.Color(241, 78, 81));
 
-        erroresTitulo.setFont(new java.awt.Font("Calibri", 1, 16)); // NOI18N
+        erroresTitulo.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         erroresTitulo.setForeground(new java.awt.Color(255, 255, 255));
-        erroresTitulo.setText("LISTA DE ERRORES");
+        erroresTitulo.setText("ERRORES");
 
         javax.swing.GroupLayout erroresPanelLayout = new javax.swing.GroupLayout(erroresPanel);
         erroresPanel.setLayout(erroresPanelLayout);
         erroresPanelLayout.setHorizontalGroup(
             erroresPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(erroresPanelLayout.createSequentialGroup()
-                .addGap(15, 15, 15)
+                .addContainerGap()
                 .addComponent(erroresTitulo)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         erroresPanelLayout.setVerticalGroup(
             erroresPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, erroresPanelLayout.createSequentialGroup()
-                .addContainerGap(8, Short.MAX_VALUE)
-                .addComponent(erroresTitulo)
-                .addContainerGap())
+            .addComponent(erroresTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         errores.setModel(new javax.swing.table.DefaultTableModel(
@@ -429,26 +423,36 @@ public class Interface extends javax.swing.JFrame {
         errores.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
         errores.getTableHeader().setBackground(bg);
         erroresScroll.setViewportView(errores);
+        if (errores.getColumnModel().getColumnCount() > 0) {
+            errores.getColumnModel().getColumn(0).setMinWidth(50);
+            errores.getColumnModel().getColumn(0).setPreferredWidth(50);
+            errores.getColumnModel().getColumn(0).setMaxWidth(50);
+            errores.getColumnModel().getColumn(1).setMinWidth(50);
+            errores.getColumnModel().getColumn(1).setPreferredWidth(50);
+            errores.getColumnModel().getColumn(1).setMaxWidth(50);
+            errores.getColumnModel().getColumn(4).setPreferredWidth(140);
+            errores.getColumnModel().getColumn(4).setMaxWidth(140);
+        }
 
         javax.swing.GroupLayout downPanelLayout = new javax.swing.GroupLayout(downPanel);
         downPanel.setLayout(downPanelLayout);
         downPanelLayout.setHorizontalGroup(
             downPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(downPanelLayout.createSequentialGroup()
-                .addGap(23, 23, 23)
+                .addGap(13, 13, 13)
                 .addGroup(downPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(erroresScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 1026, Short.MAX_VALUE)
+                    .addComponent(erroresScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE)
                     .addComponent(erroresPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(25, 25, 25))
+                .addGap(10, 10, 10))
         );
         downPanelLayout.setVerticalGroup(
             downPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(downPanelLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(10, 10, 10)
                 .addComponent(erroresPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(erroresScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(25, 25, 25))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(erroresScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10))
         );
 
         javax.swing.GroupLayout backgroundLayout = new javax.swing.GroupLayout(background);
@@ -456,39 +460,39 @@ public class Interface extends javax.swing.JFrame {
         backgroundLayout.setHorizontalGroup(
             backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(backgroundLayout.createSequentialGroup()
-                .addGap(40, 40, 40)
-                .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGap(10, 10, 10)
+                .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(codigoScroll)
-                    .addComponent(areaTituloPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(downPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(25, 25, 25)
+                    .addComponent(downPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(areaTituloPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
                 .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(sidePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(botonesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(30, 30, 30))
+                    .addComponent(botonesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 428, Short.MAX_VALUE))
+                .addGap(10, 10, 10))
         );
         backgroundLayout.setVerticalGroup(
             backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(backgroundLayout.createSequentialGroup()
-                .addGap(25, 25, 25)
+                .addGap(10, 10, 10)
                 .addGroup(backgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(backgroundLayout.createSequentialGroup()
-                        .addComponent(areaTituloPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(codigoScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 586, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(25, 25, 25)
-                        .addComponent(downPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(backgroundLayout.createSequentialGroup()
                         .addComponent(botonesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(27, 27, 27)
-                        .addComponent(sidePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(25, 25, 25))
+                        .addGap(18, 18, 18)
+                        .addComponent(sidePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(backgroundLayout.createSequentialGroup()
+                        .addComponent(areaTituloPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(codigoScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
+                        .addComponent(downPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(0, 14, Short.MAX_VALUE))
         );
 
         bgScroll.setViewportView(background);
-        Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+        //Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        background.setSize(screensize);
+        //background.setSize(screensize);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -498,9 +502,7 @@ public class Interface extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(bgScroll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(bgScroll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -526,6 +528,8 @@ public class Interface extends javax.swing.JFrame {
                 newFile.open();
             } catch (IOException ex) {
                 Logger.getLogger(Interface.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("\n\n-- No se pudo abrir archivo");
+                System.out.println("Exception: " + ex);
             }
 
         }
@@ -553,12 +557,21 @@ public class Interface extends javax.swing.JFrame {
     }//GEN-LAST:event_jbCompileActionPerformed
 
     private void jbXLSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbXLSActionPerformed
+        try {
         XLS ce = new XLS(lexico.getTokensCopy(), lexico.getErrores(), 
                 lexico.getContadores(), ambito.getContador(), 
                 semantica1.getContador(), semantica2.getContador());
-        ce.crearExcel();
         
-        System.out.println("\n++ Se creo excel");
+            ce.crearExcel();
+             
+        } catch (Exception e) {
+            
+            System.out.println("\n\n-- No se creo excel");
+            System.out.println("Exception: " + e);
+            
+            JOptionPane.showMessageDialog(null, "No se creo excel", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        
     }//GEN-LAST:event_jbXLSActionPerformed
 
     private void jbClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbClearActionPerformed

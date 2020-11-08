@@ -13,7 +13,8 @@ public class Conexion {
             System.out.println("\n\n++ Conectado a BD");
             
         } catch (Exception e) {
-            System.out.println("\n\n-- No conectado a BD \n\tERROR: " + e);
+            System.out.println("\n\n-- No conectado a BD");
+            System.out.println("Exception: " + e);
         }
         
         return con;

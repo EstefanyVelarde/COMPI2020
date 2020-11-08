@@ -86,6 +86,22 @@ public class Arreglos {
     public void arreglo() {
         int dim = 0;
         
+        if(operStack.size() == 1) { // CASO arr[x] =
+            Operando dato = operStack.removeFirst();
+            
+            if(isInteger(dato.getLex())) { // CASO arr[1] =
+                dim = Integer.parseInt(dato.getLex());
+                
+                if(regla1030(dato, dim)) {
+                    if(regla1040(dato)) {
+                        regla1050(dato, dim);
+                    }
+                }
+                
+                return;
+            }
+        } 
+        
         while(!operStack.isEmpty()) {
             Operando dato = operStack.removeFirst();
             
@@ -97,9 +113,6 @@ public class Arreglos {
             
             dim++;
         }
-        
-        
-        Operando tupla = sem1.operStack.peekLast();
     }
     
     public void diccionario() {
@@ -233,7 +246,7 @@ public class Arreglos {
             oper2 = operStack.removeLast();
             
             int num1, num2, num3;
-
+            
             num3 = Integer.parseInt(oper3.getLex());
             num2 = Integer.parseInt(oper2.getLex());
 
@@ -272,6 +285,8 @@ public class Arreglos {
         
         nIntervalo = 0;
     }
+    
+    
     
     // ARRSTACKS
     public void setIdentificador(String[] idsimbolos, Token token) {
