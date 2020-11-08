@@ -27,7 +27,7 @@ public class Operando {
         this.lex = token.getLexema();
     }
     
-    public Operando(Token token, String tipo, boolean temp) {  // OPER
+    public Operando(Token token, String tipo, boolean temp) {  // TEMP
         this.token = token;
         this.tipo = tipo;
         

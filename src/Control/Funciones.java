@@ -30,8 +30,7 @@ public class Funciones {
     public void zona(int PS) {
         switch(PS) {
             case 846: 
-                System.out.println("\nFUN @ " + PS); printStacks();
-                printStacks();
+                printZone(PS);
                 
                 checarFunProc();
                 
@@ -39,6 +38,10 @@ public class Funciones {
                 
             break;
         }
+    }
+    
+    public void printZone(int PS) {
+        System.out.println("\n@ " + PS); printStacks();
     }
     
     public void checarFunStack() {

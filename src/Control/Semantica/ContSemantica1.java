@@ -24,7 +24,7 @@ public class ContSemantica1 {
     public void addTemp(String temp) {
         int pos = getPos(temp);
         
-        if(pos > 0) {
+        if(pos >= 0) {
             this.temp[pos]++;
             tempTotal[pos]++;
         }

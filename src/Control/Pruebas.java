@@ -33,7 +33,7 @@ public class Pruebas {
  
 int count = ( str.split(";", -1).length ) - 1;
  
-System.out.println("Total occurrences: " + count);
+System.out.println("Total occurrences: " + str.contains(";"));
           
     }
 }

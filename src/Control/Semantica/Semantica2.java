@@ -35,10 +35,15 @@ public class Semantica2 {
     
     public void zona(int PS) {
         switch(PS) {
+            case 1009: // IF, ELIF, WHILE
+                sem1.isIf = true;
+            break;
             case 1010: case 1011: case 1012: // IF, ELIF, WHILE
                 sem1.printZone(PS);
                 
                 regla1010(PS);
+                
+                sem1.isIf = false;
                 
                 printReglas();
             break;

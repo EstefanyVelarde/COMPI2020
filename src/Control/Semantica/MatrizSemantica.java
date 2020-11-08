@@ -32,6 +32,9 @@ public class MatrizSemantica {
         if(type1.equals("N"))
             type1 = "V";
         
+        if(type2.equals("N"))
+            type2 = "V";
+        
         if(asignacion(op)) { // Asignaciones
             if(type1.equals(type2))
                 return type1;

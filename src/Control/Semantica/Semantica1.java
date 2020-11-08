@@ -91,7 +91,9 @@ public class Semantica1 {
 
     int opToken, line;  
     
-    public boolean asignacion, negativo, isArr, isFun, isRang, isFor;
+    public boolean asignacion, negativo;
+    
+    public boolean isIf, isArr, isFun, isRang, isFor;
     
     public void zona(int PS) {
         if(!amb.declaracion) {// SI ESTA EN EJECUCION
@@ -160,13 +162,18 @@ public class Semantica1 {
                     
                     contador.addTemp(tempTipo);
                     
-                    contador.addAsing(asign, line); // SE AGREGO EN S2 (?)
+                    if(isIf || isArr || isFun || isRang || isFor)
+                        contador.addAsing(asign, line); // SE AGREGO EN S2 (?)
+                    
+                    System.out.println("\nOPERACION VERIFICADA " + tempTipo);
                 break;
                 
 
                 // ASIGNACION
                 case 851: 
                     asignacion = true;
+                    
+                    sem2.regla1090(operStack.peekLast()); // TIPOS VALIDOS
                 break;
                 
                 case 852: // VERIF. ASIGNACIÓN
@@ -179,8 +186,6 @@ public class Semantica1 {
                         
                         if (tempTipo.equals("error")) 
                             setError(lexemaAsign);
-                        
-                        sem2.regla1090(oper1); // TIPOS VALIDOS
                         
                         sem2.regla1020(oper1, oper2, lexOp, tempTipo); // ASIGNACION
                         
@@ -209,7 +214,7 @@ public class Semantica1 {
                 
                 // ARREGLO []
                 case 860: case 810:
-                    printZone(PS);
+                    arr.printZone(PS);
                     
                     isArr = true; 
                     
@@ -217,7 +222,7 @@ public class Semantica1 {
                 break;
 
                 case 861: case 811:
-                    printZone(PS);
+                    arr.printZone(PS);
                     
                     isArr = false; 
                 break;
@@ -257,11 +262,10 @@ public class Semantica1 {
     
     // Guarda datos para verif. asignacion de operacion normal
     public void saveLast() {
-        if(operStack.size() > 1) {
+        
             if(isArr) {
                 oper2 = arr.operStack.removeLast();
                 oper1 = arr.operStack.removeLast(); 
-
                 op = arr.opStack.removeLast();
             } else {
                 if(isFun) {
@@ -281,13 +285,28 @@ public class Semantica1 {
                         op = rang.opStack.removeLast();
 
                     } else {
-                        oper2 = operStack.removeLast();
-                        oper1 = operStack.removeLast(); 
-
-                        op = opStack.removeLast();
+                        if(operStack.size() > 1) {
+                            oper2 = operStack.removeLast();
+                            oper1 = operStack.removeLast(); 
+                            
+                            if(opStack.size() > 0)
+                                op = opStack.removeLast();
+                            else {
+                                Token tokenTemp = new Token("!", -18);
+                                
+                                op =  tokenTemp;
+                            }
+                        } else {
+                            op = getLastOp();
+                            
+                            oper2 = getLastOper(op);
+                            
+                            oper1 = getLastOper(op);
+                        }
                     }
                 }
             }
+            
 
             tipoOper1 = oper1.getTipo();
 
@@ -305,11 +324,35 @@ public class Semantica1 {
             
             if(asignacion)
                 asign = oper1.getToken().getLexema() + " -> T" + oper2.getTipo();
+            else 
+                asign = "";
 
             line = oper1.getToken().getLinea();
-        } else {
-            // CREAR VARIANTS?
+    }
+    
+    public Operando getLastOper(Token op) {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeLast();
+        else {
+            Token tokenTemp = new Token(op.getLexema(), op.getLinea());
+                                
+            oper =  new Operando(tokenTemp, "V", true);
         }
+        
+        return oper;
+    }
+    
+    public Token getLastOp() {
+        Token op;
+        
+        if(opStack.size() > 0) 
+            op = opStack.removeLast();
+        else 
+            op = new Token("!", -18);
+        
+        return op;
     }
     
     public void saveTemp() {
@@ -455,7 +498,7 @@ public class Semantica1 {
             case "binario":     tipo = "DB"; break;
             case "hexadecimal": tipo = "DH"; break;
             case "octal":       tipo = "DO"; break;
-            case "none":        tipo = "N";  break;
+            case "none":        tipo = "V"; contador.addTemp(tipo); break; // None
             case "struct": 
                 switch(idsimbolos[1]) {
                     case "tupla":       tipo = "T";   break;
@@ -477,15 +520,15 @@ public class Semantica1 {
         switch(LT) {
             case -54: 
             case -55: tipo = "B";  break;   // Boolean
-            case -56: tipo = "N";  break;   // None
             case -40: tipo = "C";  break;   // Cadena
             case -41: tipo = "CH"; break;   // Caracter
             case -45: tipo = "D";  break;   // Decimal
-            case -46: tipo = "F";  break;    // Float
+            case -46: tipo = "F";  break;   // Float
             case -47: tipo = "CM"; break;   // Complejo
             case -48: tipo = "DB"; break;   // Binario
             case -49: tipo = "DH"; break;   // Hexadecimal
             case -50: tipo = "DO"; break;   // Octal
+            case -56: tipo = "V"; contador.addTemp(tipo); break; // None
             default:  tipo = "X";
             
         }

@@ -770,7 +770,7 @@ public class Ambito {
                     idsimbolos[2] = rs.getInt(3) + ""; // Idsimbolos
                     System.out.println("ID = " + idsimbolos[2]);
                     
-                    idsimbolos[3] = rs.getInt(4) + ""; // tArr
+                    idsimbolos[3] = rs.getString(4) + ""; // tArr
                     System.out.print("tArr = " + idsimbolos[3]);
                     
                     idsimbolos[4] = rs.getInt(5) + ""; // dimArr

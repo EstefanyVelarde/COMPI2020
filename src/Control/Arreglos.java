@@ -17,7 +17,7 @@ public class Arreglos {
     
     public String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar [7] funcion
     
-    int[] tArr;
+    int[][] tArr;
     
     public boolean tupla;
     
@@ -34,18 +34,18 @@ public class Arreglos {
     public void zona(int PS) {
         switch(PS) {
             case 823: // ,
-                System.out.println("\nARR @ " + PS); printStacks();
+                printZone(PS);
                 checarArrIntervalo();
                 printStacks();
             break;
 
             case 824: // :
-                System.out.println("\nARR @ " + PS); printStacks();
+                printZone(PS);
                 nIntervalo++;
             break;
             
             case 861:
-                System.out.println("\nARR @ " + PS); printStacks();
+                printZone(PS);
                 checarArrIntervalo();
                 printStacks();
                 
@@ -53,7 +53,7 @@ public class Arreglos {
             break;
             
             case 811:
-                System.out.println("\nARR @ " + PS); printStacks();
+                printZone(PS);
                 checarArrIntervalo();
                 printStacks();
                 
@@ -63,6 +63,10 @@ public class Arreglos {
                 sem1.operStack.peekLast().setArr(true);
             break;
         }
+    }
+    
+    public void printZone(int PS) {
+        System.out.println("\n@ " + PS); printStacks();
     }
     
     public void checarArrStack() {
@@ -85,25 +89,30 @@ public class Arreglos {
     
     public void arreglo() {
         int dim = 0;
+        int pos = 0;
+        printTArr();
+        
+        Operando dato = new Operando(new Token(-18, 18, "!"), "V", true);
         
         if(operStack.size() == 1) { // CASO arr[x] =
-            Operando dato = operStack.removeFirst();
+            dato = operStack.removeFirst();
             
             if(isInteger(dato.getLex())) { // CASO arr[1] =
-                dim = Integer.parseInt(dato.getLex());
+                pos = Integer.parseInt(dato.getLex());
                 
                 if(regla1030(dato, dim)) {
                     if(regla1040(dato)) {
-                        regla1050(dato, dim);
+                        regla1050(dato, dim, pos);
+                        
                     }
                 }
                 
-                return;
+                dim++;
             }
         } 
         
         while(!operStack.isEmpty()) {
-            Operando dato = operStack.removeFirst();
+            dato = operStack.removeFirst();
             
             if(regla1030(dato, dim)) {
                 if(regla1040(dato)) {
@@ -113,6 +122,9 @@ public class Arreglos {
             
             dim++;
         }
+        
+        
+        regla1030(dato, dim, dimArr);
     }
     
     public void diccionario() {
@@ -145,12 +157,19 @@ public class Arreglos {
     public boolean regla1030(Operando dato, int dim) {
         if(dim < dimArr) {
            setRegla(1030, dato);
-           
+
            return true;
         } else 
             setError(1030, 762, dato);
         
         return false;
+    }
+    
+    public void regla1030(Operando dato, int dim, int dimArr) {
+        if(dim < dimArr) {
+           setError(1030, 762, dato);
+        } else
+            System.out.println("dim " + dim + " DIMARR " + dimArr);
     }
     
     public boolean regla1040(Operando dato) {
@@ -164,27 +183,59 @@ public class Arreglos {
         return false;
     }
     
-    public boolean regla1050(Operando dato, int dim) {
+    public boolean regla1050(Operando dato, int dim, int pos) {
         if(tArr != null) {
-            if(isInteger(dato.getLex())) { // Si no es temp
-                int num = Integer.parseInt(dato.getLex());
-                if(dim < tArr.length) {
-                    if(num < tArr[dim]) { // Si esta dentro del limite
+            for (int i = 0; i < tArr.length; i++) {
+                if(tArr[i][0] == dim) {
+                    if(pos < tArr[i][1]) {
                         setRegla(1050, dato);
 
                         return true;
-                    } 
-                } else {
-                    setError(1050, 765, dato);
+                    } else {
+                        setError(1050, 765, dato);
 
-                    return false;
+                        return false;
+                    }
                 }
-            } else {
+            }
+            
+            setError(1050, 765, dato);
+
+            return false;
+        } else 
+           setError(1050, 765, dato);
+        
+        return false;
+    }
+    
+    public boolean regla1050(Operando dato, int dim) {
+        if(tArr != null) {
+            if(isInteger(dato.getLex())) { 
+                int pos = Integer.parseInt(dato.getLex());
+                
+                for (int i = 0; i < tArr.length; i++) {
+                    if(tArr[i][0] == dim) {
+                        if(pos < tArr[i][1]) {
+                            setRegla(1050, dato);
+
+                            return true;
+                        } else {
+                            setError(1050, 765, dato);
+
+                            return false;
+                        }
+                    }
+                }
+                
+                setError(1050, 765, dato);
+
+                return false;
+                
+            } else { // Si es temp
                 setRegla(1050, dato);
 
                 return false;
             }
-            
         } else 
            setError(1050, 765, dato);
         
@@ -226,7 +277,7 @@ public class Arreglos {
     
     public void setError(int regla, int error, Operando dato) {
         sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
-                dato.getToken().getLinea(), "ERROR");
+                dato.getToken().getLinea(), "Error");
         sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
     }
     
@@ -355,34 +406,100 @@ public class Arreglos {
     // TARR
     public void checarTArr() {
         if(idsimbolos[3] != null) {
-            String tArr = idsimbolos[3];
-
-            this.tArr = new int[tArr.length()];
-
-            int i = 0;
+            String tArr = idsimbolos[3], numS = "";
+            
+            this.tArr = new int[tArr.length()][2];
+            
+            int i = 0, num;
 
             if(tArr.contains(";") && tArr.contains(",")) { // 2;3,4
-                for (int j = 2; j < tArr.length(); j++) {
-                    if(tArr.charAt(j) != ',') {
-                        this.tArr[i] = Integer.parseInt(tArr.charAt(j) + "");
+                for (int j = 0; j < tArr.length(); j++) {
+                    if(tArr.charAt(j) == ';') {
+                        numS = "";
+                    } else {
+                        if(tArr.charAt(j) == ',') {
 
-                        i++;
+                            if(isInteger(numS))
+                                num = Integer.parseInt(numS);
+                            else
+                                num = -1;
+
+                            this.tArr[i][0] = i + 1; // DIM
+                            this.tArr[i][1] = num; // TAM
+                            
+                            numS = "";
+
+                            i++;
+                        } else {
+                            numS += tArr.charAt(j);
+                        }
                     }
                 }
+                
+                if(isInteger(numS))
+                    num = Integer.parseInt(numS);
+                else
+                    num = -1;
+
+                this.tArr[i][0] = i + 1; // DIM
+                this.tArr[i][1] = num; // TAM
+
+                numS = "";
+                
             } else {
                 if(tArr.contains(";")) { // 2;3;4
                     for (int j = 0; j < tArr.length(); j++) {
-                        if(tArr.charAt(j) != ';'){
-                            this.tArr[i] = Integer.parseInt(tArr.charAt(j) + "");
+                        if(tArr.charAt(j) == ';'){
+                            if(isInteger(numS))
+                                num = Integer.parseInt(numS);
+                            else
+                                num = -1;
+                            
+                            this.tArr[i][0] = i; // DIM
+                            this.tArr[i][1] = num; // TAM
 
+                            
+                            numS = "";
+                            
                             i++;
+                        } else {
+                            numS += tArr.charAt(j);
                         }
                     }
-                } else // [1]
-                    this.tArr[0] = Integer.parseInt(idsimbolos[3]);
+                    
+                    if(isInteger(numS))
+                        num = Integer.parseInt(numS);
+                    else
+                        num = -1;
+
+                    this.tArr[i][0] = i; // DIM
+                    this.tArr[i][1] = num; // TAM
+                    
+                    
+                } else {// [1]
+                    
+                    if(isInteger(idsimbolos[3]))
+                        num = Integer.parseInt(idsimbolos[3]);
+                    else
+                        num = -1;
+
+                    this.tArr[0][0] = 0; // DIM
+                    this.tArr[0][1] = num; // TAM
+                    
+                }
             }
+            
+            printTArr();
         }
         
     }
+    
+    public void printTArr() {
+        for (int i = 0; i < tArr.length; i++) {
+            System.out.println(tArr[i][0] + " " + tArr[i][1]);
+        }
+    }
+    
+   
     
 }
