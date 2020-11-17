@@ -267,99 +267,107 @@ public class Arreglos {
     
     // SEMANTICA 2
     public boolean regla1030(Operando dato, int dim) {
-        if(dim < dimArr) {
-           setRegla(1030, dato);
+        if(dato != null) {
+            if(dim < dimArr) {
+               setRegla(1030, dato);
 
-           return true;
-        } else 
-            setError(1030, 762, dato);
-        
-        this.printStacks();
-        
+               return true;
+            } else 
+                setError(1030, 762, dato);
+
+            this.printStacks();
+        }
         return false;
     }
     
     public void regla1030(Operando dato, int dim, int dimArr) {
-        if(dim < dimArr) {
-           setError(1030, 762, dato);
-        } else
-            System.out.println("dim " + dim + " DIMARR " + dimArr);
+        if(dato != null) {
+            if(dim < dimArr) {
+               setError(1030, 762, dato);
+            } else
+                System.out.println("dim " + dim + " DIMARR " + dimArr);
+        }
     }
     
     public boolean regla1040(Operando dato) {
-        if(dato.getTipo().equals("D")) {
-           setRegla(1040, dato);
-           
-           return true;
-        } else 
-           setError(1040, 764, dato);
-        
+        if(dato != null) {
+            if(dato.getTipo().equals("D")) {
+               setRegla(1040, dato);
+
+               return true;
+            } else 
+               setError(1040, 764, dato);
+        }
         return false;
     }
     
     public boolean regla1050(Operando dato, int[][] tArr, int dim) {
-        this.printZone(1050);
-        this.printTArr();
-        
-        if(tArr != null) {
-            
-            int pos = 0;
-            
-            if(isInteger(dato.getLex())) { // CASO arr[1]
-                pos = Integer.parseInt(dato.getLex());
-                
-                for (int i = 0; i < tArr.length; i++) {
-                    if(tArr[i][0] == dim) {
-                        if(pos < tArr[i][1]) {
-                            setRegla(1050, dato);
+        if(dato != null) {
+            this.printZone(1050);
+            this.printTArr();
 
-                            return true;
-                        } else {
-                            System.out.println("ERROOOOOOOOR 1050 ------ d:" + dim + " p:" + pos);
-                            setError(1050, 765, dato);
+            if(tArr != null) {
 
-                            return false;
+                int pos = 0;
+
+                if(isInteger(dato.getLex())) { // CASO arr[1]
+                    pos = Integer.parseInt(dato.getLex());
+
+                    for (int i = 0; i < tArr.length; i++) {
+                        if(tArr[i][0] == dim) {
+                            if(pos < tArr[i][1]) {
+                                setRegla(1050, dato);
+
+                                return true;
+                            } else {
+                                System.out.println("ERROOOOOOOOR 1050 ------ d:" + dim + " p:" + pos);
+                                setError(1050, 765, dato);
+
+                                return false;
+                            }
                         }
                     }
+
+                } else { // CASO arr[x]
+                    setRegla(1050, dato);
+
+                    return false;
                 }
-                
-            } else { // CASO arr[x]
-                setRegla(1050, dato);
+
+                setError(1050, 765, dato);
 
                 return false;
-            }
-           
-            setError(1050, 765, dato);
-
-            return false;
-        } else 
-           setError(1050, 765, dato);
-        
+            } else 
+               setError(1050, 765, dato);
+        }
         return false;
+        
     }
     
     public void regla1070(Operando dato) {
+        if(dato != null) {
         
-        setTipoTupla(dato);
-        
-        setRegla(1070, lastId);
-        
+            setTipoTupla(dato);
+
+            setRegla(1070, lastId);
+        }
     }
     
     public void regla1071(Operando dato, int dim) {
-        if(dato.getTipo().equals("D")) { // Si es decimal
-            if(isInteger(dato.getLex())) { // caso tupla[1]
-                int num = Integer.parseInt(dato.getLex());
+        if(dato != null) {
+            if(dato.getTipo().equals("D")) { // Si es decimal
+                if(isInteger(dato.getLex())) { // caso tupla[1]
+                    int num = Integer.parseInt(dato.getLex());
 
-                if(num < 0) { // Si es negativo da ERROR 1071
-                    setError(1071, 769, dato);
-                } else {
+                    if(num < 0) { // Si es negativo da ERROR 1071
+                        setError(1071, 769, dato);
+                    } else {
+                        setRegla(1071, dato);
+                    }
+                } else // caso tupla[x]
                     setRegla(1071, dato);
-                }
-            } else // caso tupla[x]
-                setRegla(1071, dato);
-        } 
-        
+            } 
+        }
     }
     
     public void setRegla(int regla, Operando dato) {

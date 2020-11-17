@@ -180,15 +180,19 @@ public class Rangos {
     
     // REGLAS
     public void setRegla(int regla, Operando dato) {
-        sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
-                dato.getToken().getLinea(), "Acepta");
+        if(dato != null) {
+            sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
+                    dato.getToken().getLinea(), "Acepta");
+        }
         
     }
     
     public void setError(int regla, int error, Operando dato) {
-        sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
-                dato.getToken().getLinea(), "ERROR");
-        sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
+        if(dato != null) {
+            sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
+                    dato.getToken().getLinea(), "ERROR");
+            sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
+        }
     }
     
 }
