@@ -48,44 +48,86 @@ public class Rangos {
         if(size > 1) {
             Operando oper1, oper2, oper3;
             
-            oper3 = operStack.removeLast();
-            oper2 = operStack.removeLast();
+            oper3 = this.getLastOper();
+            oper2 = this.getLastOper();
             
-            int num1 = 0, num2, num3;
+            if(isInteger(oper3.getLex())) {
+               if(isInteger(oper2.getLex())) { // Si los dos son INT
+                    int num1 = 0, num2, num3;
 
-            num3 = Integer.parseInt(oper3.getLex());
-            num2 = Integer.parseInt(oper2.getLex());
+                    num3 = Integer.parseInt(oper3.getLex());
+                    num2 = Integer.parseInt(oper2.getLex());
 
-            if(size == 3) { // x , x , x
-                oper1 = operStack.removeLast();
-                num1 = Integer.parseInt(oper1.getLex());
-                
-                
-                sem2.regla1160(oper1.getToken(), num1, num2, num3);
-                
-                if(num1 > num2) 
-                    num1 = (num1 - num2);
-                else
-                    num1 = (num2 - num1);
-                
-                
-                if(num3 < 0) // Si es dividendo es negativo
-                    num3 *= -1;
-                
-                if((num1 % num3) != 0) 
-                    num1 = num1 / num3 + 1;
-                else 
-                    num1 /= num3;
-                
-                sem1.setOper(new Token(-45, oper3.getToken().getLinea(), num1 + ""), -45);
-                
-                sem1.operStack.peekLast().setRange(true);
+                    if(size == 3) { // x , x , x
+                        oper1 = this.getLastOper();
+                        num1 = Integer.parseInt(oper1.getLex());
+
+                        sem2.regla1160(oper1.getToken(), num1, num2, num3);
+
+                        if(num1 > num2) 
+                            num1 = (num1 - num2);
+                        else
+                            num1 = (num2 - num1);
+
+
+                        if(num3 < 0) // Si es dividendo es negativo
+                            num3 *= -1;
+
+                        if((num1 % num3) != 0) 
+                            num1 = num1 / num3 + 1;
+                        else 
+                            num1 /= num3;
+
+                        Token token= new Token(-45, oper3.getToken().getLinea(), num1 + "");
+
+                        sem1.operStack.offer(new Operando(token, sem1.getTipo(-45)));
+
+                        sem1.lexemaAsign += " " + token.getLexema();
+                        
+                        sem1.operStack.peekLast().setRange(true);
+                    }
+                }
             }
+            
             
         }
     }
     
-    // FUNSTACKS
+    // RANGSTACKS
+    public Operando getLastOper() {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeLast();
+        else {
+            Token tokenTemp = sem1.token;
+            
+            if(tokenTemp == null)
+                tokenTemp = new Token("0", -45);
+                                
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+        }
+        
+        return oper;
+    }
+    
+    public Operando getFirstOper() {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeFirst();
+        else {
+            Token tokenTemp = sem1.token;
+            
+            if(tokenTemp == null)
+                tokenTemp = new Token("0", -45);
+                                
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+        }
+        
+        return oper;
+    }
+    
     public void setIdentificador(String[] idsimbolos, Token token) {
         if(idsimbolos != null) {
                 operStack.offer(new Operando(token, sem1.getTipo(idsimbolos[0]), 
@@ -125,6 +167,15 @@ public class Rangos {
             System.out.println(" "+t.getLexema());
         
         System.out.println("\n------------------------*\n");
+    }
+    
+    public boolean isInteger(String numero){
+        try{
+            Integer.parseInt(numero);
+            return true;
+        }catch(NumberFormatException e){
+            return false;
+        }
     }
     
     // REGLAS

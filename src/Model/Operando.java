@@ -5,9 +5,9 @@ public class Operando {
     
     String tipo, lex;
     
-    int idsimbolos = -1;
+    int idsimbolos = -1, noTemp;
     
-    boolean temp, Fun, arr, range;
+    boolean temp, fun, arr, range;
     
     String[] simbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
 
@@ -27,13 +27,15 @@ public class Operando {
         this.lex = token.getLexema();
     }
     
-    public Operando(Token token, String tipo, boolean temp) {  // TEMP
+    public Operando(Token token, String tipo, boolean temp, int noTemp) {  // TEMP
         this.token = token;
         this.tipo = tipo;
         
         this.lex = token.getLexema();
         
         this.temp = temp;
+        
+        this.noTemp = noTemp;
     }
     
     public Token getToken() {
@@ -77,13 +79,13 @@ public class Operando {
     }
 
     public boolean isFun() {
-        return Fun;
+        return fun;
     }
 
-    public void setFun(boolean Fun) {
-        this.Fun = Fun;
+    public void setFun(boolean fun) {
+        this.fun = fun;
     }
-
+    
     public boolean isArr() {
         return arr;
     }
@@ -106,6 +108,14 @@ public class Operando {
 
     public void setTemp(boolean temp) {
         this.temp = temp;
+    }
+
+    public int getNoTemp() {
+        return noTemp;
+    }
+
+    public void setNoTemp(int noTemp) {
+        this.noTemp = noTemp;
     }
 
     

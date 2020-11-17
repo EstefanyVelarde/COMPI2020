@@ -47,7 +47,7 @@ public class Funciones {
     public void checarFunStack() {
         if(idsimbolos == null) {
             while(!operStack.isEmpty()) {
-                Operando dato = operStack.removeFirst();
+                Operando dato = this.getFirstOper();
                 
                 setError(1100, 774, dato);
             }
@@ -55,7 +55,7 @@ public class Funciones {
             Operando dato = null;
             int par = 0, noPar = Integer.parseInt(idsimbolos[6]);
             while(!operStack.isEmpty()) {
-                dato = operStack.removeFirst();
+                dato = this.getFirstOper();
                 
                 if(par < Integer.parseInt(idsimbolos[6])) {
                     par++;
@@ -93,6 +93,40 @@ public class Funciones {
     }
     
     // FUNSTACKS
+    public Operando getLastOper() {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeLast();
+        else {
+            Token tokenTemp = sem1.token;
+            
+            if(tokenTemp == null)
+                tokenTemp = new Token("0", -45);
+                                
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+        }
+        
+        return oper;
+    }
+    
+    public Operando getFirstOper() {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeFirst();
+        else {
+            Token tokenTemp = sem1.token;
+            
+            if(tokenTemp == null)
+                tokenTemp = new Token("0", -45);
+                                
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+        }
+        
+        return oper;
+    }
+    
     public void setIdentificador(String[] idsimbolos, Token token) {
         if(idsimbolos != null) {
                 operStack.offer(new Operando(token, sem1.getTipo(idsimbolos[0]), 

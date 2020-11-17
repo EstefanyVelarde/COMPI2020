@@ -151,7 +151,7 @@ public class Ambito {
                 
                 
                 case 820: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
-                case 821: sem2.regla1081(token.getLinea()); key = -1; break; // Fin FOR id
+                case 821: sem2.regla1080(token); sem2.regla1081(token); key = -1; break; // Fin FOR id
                 
                 
                 case 853: negativo = true; break; // - Decimal
@@ -833,6 +833,52 @@ public class Ambito {
         } catch (SQLException ex) {
             
             System.out.println(sql);
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return tipo;
+    }
+    
+    public String getTipoDatoTupla(int noPar, String tpArr) {
+        String tipo = "V";
+        
+        String sql = "SELECT tipo FROM simbolos WHERE clase = 'datoTupla' &&"
+                + " noPar ='" + noPar + "' && tpArr = '" + tpArr + "';";
+        
+        System.out.println("\nSQLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+        System.out.println(sql);
+        
+        try {
+            
+            if((rs = stmt.executeQuery(sql)).next())
+                tipo = rs.getString(1);
+            
+            return tipo;
+        } catch (SQLException ex) {
+            
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return tipo;
+    }
+    
+    public String getTipoDatoLista(int noPar, String tpArr) {
+        String tipo = "V";
+        
+        String sql = "SELECT tipo FROM simbolos WHERE clase = 'datoLista' &&"
+                + " noPar ='" + noPar + "' && tpArr = '" + tpArr + "';";
+        
+        System.out.println("\nSQLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+        System.out.println(sql);
+        
+        try {
+            
+            if((rs = stmt.executeQuery(sql)).next())
+                tipo = rs.getString(1);
+            
+            return tipo;
+        } catch (SQLException ex) {
+            
             Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
         }
         

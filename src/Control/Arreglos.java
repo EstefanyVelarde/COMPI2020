@@ -15,6 +15,8 @@ public class Arreglos {
     
     public LinkedList<Token> opStack;
     
+    public Operando lastId = null;
+    
     public String[] idsimbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista [6] noPar [7] funcion
     
     int[][] tArr;
@@ -33,6 +35,24 @@ public class Arreglos {
     
     public void zona(int PS) {
         switch(PS) {
+            
+            case 810: // START ARR (en operaciones)
+                
+                emptyStacks();
+            break;
+            
+            case 811: // FIN ARR (en operaciones)
+                printZone(PS);
+                checarArrIntervalo();
+                printStacks();
+                
+                Operando oper = this.getLastOper();
+                
+                sem1.setOper(new Operando(oper.getToken(), "D"));
+                
+                sem1.operStack.peekLast().setArr(true);
+            break;
+            
             case 823: // ,
                 printZone(PS);
                 checarArrIntervalo();
@@ -44,23 +64,27 @@ public class Arreglos {
                 nIntervalo++;
             break;
             
-            case 861:
+            case 860: // START ARR
+                printZone(PS);
+                
+                if(sem1.operStack.size() > 0) 
+                    lastId = sem1.operStack.peekLast();
+                
+                if(lastId.getSimbolos() != null)
+                    if(lastId.getSimbolos()[1].equals("arreglo"))
+                        lastId.setTipo(sem1.getTipo(lastId.getSimbolos()[5]));
+                
+                emptyStacks();
+                 
+                System.out.println("\n ++ ARR / LASTID: " + this.lastId + "\n");
+            break;
+            
+            case 861: // FIN ARR
                 printZone(PS);
                 checarArrIntervalo();
                 printStacks();
                 
                 checarArrStack();
-            break;
-            
-            case 811:
-                printZone(PS);
-                checarArrIntervalo();
-                printStacks();
-                
-                Operando oper = operStack.removeLast();
-                sem1.setOper(new Operando(oper.getToken(), "D"));
-                
-                sem1.operStack.peekLast().setArr(true);
             break;
         }
     }
@@ -72,13 +96,14 @@ public class Arreglos {
     public void checarArrStack() {
         if(idsimbolos == null) {
             while(!operStack.isEmpty()) {
-                Operando dato = operStack.removeFirst();
+                Operando dato = this.getFirstOper();
                 
                 setError(1030, 762, dato);
             }
         } else
             switch(idsimbolos[1]) {
                 case "arreglo": arreglo(); break;
+                case "lista": lista(); break;
                 case "diccionario": diccionario(); break;
                 case "tupla": tupla(); break;
 
@@ -89,42 +114,77 @@ public class Arreglos {
     
     public void arreglo() {
         int dim = 0;
-        int pos = 0;
+        
         printTArr();
         
-        Operando dato = new Operando(new Token(-18, 18, "!"), "V", true);
+        Operando dato = new Operando(new Token(-18, 18, "!"), "V", true, 
+                sem2.getNoTemp("V"));
         
         if(operStack.size() == 1) { // CASO arr[x] =
-            dato = operStack.removeFirst();
-            
-            if(isInteger(dato.getLex())) { // CASO arr[1] =
-                pos = Integer.parseInt(dato.getLex());
-                
-                if(regla1030(dato, dim)) {
-                    if(regla1040(dato)) {
-                        regla1050(dato, dim, pos);
-                        
-                    }
-                }
-                
-                dim++;
-            }
-        } 
-        
-        while(!operStack.isEmpty()) {
-            dato = operStack.removeFirst();
+            dato = this.getLastOper();
             
             if(regla1030(dato, dim)) {
                 if(regla1040(dato)) {
-                    regla1050(dato, dim);
+                    regla1050(dato, tArr, dim);
+
+                    dim++;
                 }
             }
+        } else {
+        
+            while(!operStack.isEmpty()) {
+                dato = this.getFirstOper();
+
+                if(regla1030(dato, dim)) {
+                    if(regla1040(dato)) {
+                        regla1050(dato, tArr, dim);
+                    }
+                }
+
+                dim++;
+            }
             
-            dim++;
+            
+            regla1030(dato, dim, dimArr);
         }
         
+    }
+    public void lista() {
+        int dim = 0;
         
-        regla1030(dato, dim, dimArr);
+        printTArr();
+        
+        Operando dato = new Operando(new Token(-18, 18, "!"), "V", true, 
+                sem2.getNoTemp("V"));
+        
+        if(operStack.size() == 1) { // CASO arr[x] =
+            dato = this.getLastOper();
+            
+            if(regla1030(dato, dim)) {
+                if(regla1040(dato)) {
+                    if(regla1050(dato, tArr, dim))
+                        setTipoLista(dato);
+                    dim++;
+                }
+            }
+        } else {
+        
+            while(!operStack.isEmpty()) {
+                dato = this.getFirstOper();
+
+                if(regla1030(dato, dim)) {
+                    if(regla1040(dato)) {
+                        regla1050(dato, tArr, dim);
+                    }
+                }
+
+                dim++;
+            }
+            
+            
+            regla1030(dato, dim, dimArr);
+        }
+        
     }
     
     public void diccionario() {
@@ -137,18 +197,70 @@ public class Arreglos {
         dimArr = 1;
         
         while(!operStack.isEmpty()) {
-            Operando dato = operStack.removeFirst();
+            Operando dato = this.getFirstOper();
             
             if(regla1030(dato, dim)) { // DIM
                 if(regla1040(dato)) { // ENT
-                    if(regla1050(dato, dim)) { // LIM
-                        regla1070(dato, Integer.parseInt(dato.getLex()) + 1);
+                    if(regla1050(dato, tArr, dim)) { // LIM
+                        regla1070(dato);
                         regla1071(dato, dim);
                     }
                 }
             }
             
             dim++;
+        }
+    }
+    
+    public void setTipoTupla(Operando dato) {
+        Operando tupla = lastId;
+        
+        if(tupla != null) {
+            if(tupla.getSimbolos() != null) {
+                
+                if(dato != null) {
+                    String tipo = null;
+                    
+                    if(isInteger(dato.getLex())) { // caso tupla[1]
+                        int noPar =  Integer.parseInt(dato.getLex()) + 1;
+                        
+                        tipo = sem1.getTipo(sem1.amb.getTipoDatoTupla(noPar, tupla.getLex()));
+
+                    } else { // caso tupla[x]
+                        tipo = sem1.getTipo(sem1.amb.getTipoDatoTupla(1, tupla.getLex())); // SE PONE EL PRIMER TIPO
+                    }
+                    
+                    
+                    tupla.setTipo(tipo);
+                }
+            } else
+                tupla.setTipo("V");
+        }
+    }
+    
+    public void setTipoLista(Operando dato) {
+        Operando lista = lastId;
+        
+        if(lista != null) {
+            if(lista.getSimbolos() != null) {
+                
+                if(dato != null) {
+                    String tipo = null;
+                    
+                    if(isInteger(dato.getLex())) { // caso tupla[1]
+                        int noPar =  Integer.parseInt(dato.getLex()) + 1;
+                        
+                        tipo = sem1.getTipo(sem1.amb.getTipoDatoLista(noPar, lista.getLex()));
+
+                    } else { // caso tupla[x]
+                        tipo = sem1.getTipo(sem1.amb.getTipoDatoLista(1, lista.getLex())); // SE PONE EL PRIMER TIPO
+                    }
+                    
+                    
+                    lista.setTipo(tipo);
+                }
+            } else
+                lista.setTipo("V");
         }
     }
     
@@ -161,6 +273,8 @@ public class Arreglos {
            return true;
         } else 
             setError(1030, 762, dato);
+        
+        this.printStacks();
         
         return false;
     }
@@ -183,22 +297,38 @@ public class Arreglos {
         return false;
     }
     
-    public boolean regla1050(Operando dato, int dim, int pos) {
+    public boolean regla1050(Operando dato, int[][] tArr, int dim) {
+        this.printZone(1050);
+        this.printTArr();
+        
         if(tArr != null) {
-            for (int i = 0; i < tArr.length; i++) {
-                if(tArr[i][0] == dim) {
-                    if(pos < tArr[i][1]) {
-                        setRegla(1050, dato);
+            
+            int pos = 0;
+            
+            if(isInteger(dato.getLex())) { // CASO arr[1]
+                pos = Integer.parseInt(dato.getLex());
+                
+                for (int i = 0; i < tArr.length; i++) {
+                    if(tArr[i][0] == dim) {
+                        if(pos < tArr[i][1]) {
+                            setRegla(1050, dato);
 
-                        return true;
-                    } else {
-                        setError(1050, 765, dato);
+                            return true;
+                        } else {
+                            System.out.println("ERROOOOOOOOR 1050 ------ d:" + dim + " p:" + pos);
+                            setError(1050, 765, dato);
 
-                        return false;
+                            return false;
+                        }
                     }
                 }
+                
+            } else { // CASO arr[x]
+                setRegla(1050, dato);
+
+                return false;
             }
-            
+           
             setError(1050, 765, dato);
 
             return false;
@@ -208,54 +338,17 @@ public class Arreglos {
         return false;
     }
     
-    public boolean regla1050(Operando dato, int dim) {
-        if(tArr != null) {
-            if(isInteger(dato.getLex())) { 
-                int pos = Integer.parseInt(dato.getLex());
-                
-                for (int i = 0; i < tArr.length; i++) {
-                    if(tArr[i][0] == dim) {
-                        if(pos < tArr[i][1]) {
-                            setRegla(1050, dato);
-
-                            return true;
-                        } else {
-                            setError(1050, 765, dato);
-
-                            return false;
-                        }
-                    }
-                }
-                
-                setError(1050, 765, dato);
-
-                return false;
-                
-            } else { // Si es temp
-                setRegla(1050, dato);
-
-                return false;
-            }
-        } else 
-           setError(1050, 765, dato);
+    public void regla1070(Operando dato) {
         
-        return false;
-    }
-    
-    public void regla1070(Operando dato, int noPar) {
-        Operando tupla = sem1.operStack.peekLast();
+        setTipoTupla(dato);
         
-        if(tupla.getSimbolos() != null) {
-            tupla.setTipo(sem1.getTipo(sem1.amb.getTipoDato(noPar, tupla.getLex())));
-        } else
-            tupla.setTipo("V");
+        setRegla(1070, lastId);
         
-        setRegla(1070, tupla);
     }
     
     public void regla1071(Operando dato, int dim) {
         if(dato.getTipo().equals("D")) { // Si es decimal
-            if(isInteger(dato.getLex())) { // Si no es temp
+            if(isInteger(dato.getLex())) { // caso tupla[1]
                 int num = Integer.parseInt(dato.getLex());
 
                 if(num < 0) { // Si es negativo da ERROR 1071
@@ -263,22 +356,48 @@ public class Arreglos {
                 } else {
                     setRegla(1071, dato);
                 }
-            } else
+            } else // caso tupla[x]
                 setRegla(1071, dato);
         } 
         
     }
     
     public void setRegla(int regla, Operando dato) {
-        sem2.setRegla(regla, sem2.getTipo(dato.getTipo()), dato.getLex(), 
-                dato.getToken().getLinea(), "Acepta");
+        if(dato != null) {
+            String tipo = dato.getTipo();
+            int line = dato.getToken().getLinea();
+            
+            if(dato.isTemp()) {
+                sem2.setRegla(regla, sem2.getTipo(tipo), 
+                        sem2.getTemp(tipo, dato.getNoTemp()),
+                        line, "Acepta");
+            } else {
+                sem2.setRegla(regla, sem2.getTipo(tipo), dato.getLex(), 
+                line, "Acepta");
+            }
+        }
+        
+        
         
     }
     
     public void setError(int regla, int error, Operando dato) {
-        sem2.setRegla(regla, dato.getTipo(), dato.getLex(), 
-                dato.getToken().getLinea(), "Error");
-        sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
+        if(dato != null) {
+            String tipo = dato.getTipo();
+            int line = dato.getToken().getLinea();
+            
+            
+            if(dato.isTemp()) {
+                sem2.setRegla(regla, sem2.getTipo(tipo),
+                        sem2.getTemp(tipo, dato.getNoTemp()),
+                        line, "Error");
+            } else {
+                sem2.setRegla(regla, sem2.getTipo(tipo), dato.getLex(), 
+                line, "Error");
+            }
+            
+            sem2.setError(error, dato.getToken().getLinea(), dato.getLex());
+        }
     }
     
     // INTERVALOS
@@ -293,53 +412,115 @@ public class Arreglos {
         if(size > 1) {
             Operando oper1, oper2, oper3;
             
-            oper3 = operStack.removeLast();
-            oper2 = operStack.removeLast();
+            oper3 = getLastOper();
+            oper2 = getLastOper();
             
-            int num1, num2, num3;
+            if(isInteger(oper3.getLex())) {
+                if(isInteger(oper2.getLex())) { // Si los dos son INT
+                    int num1, num2, num3;
             
-            num3 = Integer.parseInt(oper3.getLex());
-            num2 = Integer.parseInt(oper2.getLex());
+                    num3 = Integer.parseInt(oper3.getLex());
+                    num2 = Integer.parseInt(oper2.getLex());
+                    
+                    if(nIntervalo == 1) { // x : x
+                        if(num2 > num3) 
+                            num1 = num2 - num3;
+                        else
+                            num1 = num3 - num2; // Podria ir ERROR 1031
 
-            if(nIntervalo == 1) { // x : x
-                if(num2 > num3) 
-                    num1 = num2 - num3;
-                else
-                    num1 = num3 - num2; // Podria ir ERROR 1031
-            
-                sem2.regla1031(oper2.getToken(), num2, num3);
-            } else { // x : x : x
-                oper1 = operStack.removeLast();
-                num1 = Integer.parseInt(oper1.getLex());
-                
-                
-                sem2.regla1031(oper1.getToken(), num1, num2, num3);
-                
-                if(num1 > num2) 
-                    num1 = (num1 - num2);
-                else
-                    num1 = (num2 - num1);
-                
-                
-                if(num3 < 0) // Si es dividendo es negativo
-                    num3 *= -1;
-                
-                if((num1 % num3) != 0) 
-                    num1 = num1 / num3 + 1;
-                else 
-                    num1 /= num3;
-            }
-            
-                
-            operStack.add(new Operando(new Token(num1 + "", oper3.getToken().getLinea()), "D"));
+                        sem2.regla1031(oper2.getToken(), num2, num3);
+                    } else { // x : x : x
+                        oper1 = this.getLastOper();
+                        num1 = Integer.parseInt(oper1.getLex());
+
+
+                        sem2.regla1031(oper1.getToken(), num1, num2, num3);
+
+                        if(num1 > num2) 
+                            num1 = (num1 - num2);
+                        else
+                            num1 = (num2 - num1);
+
+
+                        if(num3 < 0) // Si es dividendo es negativo
+                            num3 *= -1;
+
+                        if((num1 % num3) != 0) 
+                            num1 = num1 / num3 + 1;
+                        else 
+                            num1 /= num3;
+                    }
+
+
+                    operStack.add(new Operando(new Token(num1 + "", oper3.getToken().getLinea()), "D"));
+                } else
+                    checarTD(oper2, oper3);
+            } else 
+                checarTD(oper2, oper3);
         }
         
         nIntervalo = 0;
     }
     
     
+    public void checarTD(Operando oper1, Operando oper2) {
+        if(oper1.getTipo().equals("D") && 
+                oper2.getTipo().equals("D")) {
+            operStack.add(new Operando(oper1.getToken(), "D", true, 
+                    sem2.getNoTemp("D")));
+        } else
+            operStack.add(new Operando(oper1.getToken(), "V", true, 
+                    sem2.getNoTemp("V")));
+    }
+    
+    
     
     // ARRSTACKS
+    public Operando getLastOper() {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeLast();
+        else {
+            Token tokenTemp = sem1.token;
+            
+            if(tokenTemp == null)
+                tokenTemp = new Token("0", -45);
+                                
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+        }
+        
+        return oper;
+    }
+    
+    public Token getLastOp() {
+        Token op;
+        
+        if(opStack.size() > 0) 
+            op = opStack.removeLast();
+        else 
+            op = new Token("!", -18);
+        
+        return op;
+    }
+    
+    public Operando getFirstOper() {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeFirst();
+        else {
+            Token tokenTemp = sem1.token;
+            
+            if(tokenTemp == null)
+                tokenTemp = new Token("0", -45);
+                                
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+        }
+        
+        return oper;
+    }
+    
     public void setIdentificador(String[] idsimbolos, Token token) {
         if(idsimbolos != null) {
                 operStack.offer(new Operando(token, sem1.getTipo(idsimbolos[0]), 
@@ -381,7 +562,14 @@ public class Arreglos {
         System.out.println("\n------------------------*\n");
     }
     
-    
+    public void emptyStacks() {
+        operStack =  new LinkedList();
+        
+        opStack = new LinkedList();
+
+        System.out.println("\n*--------------empty ARR stack----------*\n");
+    }
+   
     public boolean isInteger(String numero){
         try{
             Integer.parseInt(numero);
@@ -495,9 +683,13 @@ public class Arreglos {
     }
     
     public void printTArr() {
+        
+        System.out.println("\n*------------------------\n");
+        System.out.println(" ARR - TARR:");
         for (int i = 0; i < tArr.length; i++) {
-            System.out.println(tArr[i][0] + " " + tArr[i][1]);
+            System.out.println(" " + tArr[i][0] + " " + tArr[i][1]);
         }
+        System.out.println("\n------------------------*\n");
     }
     
    

@@ -106,7 +106,7 @@ public class Semantica2 {
         String valorReal = "";
         
         if(oper.isTemp())
-                valorReal = getTemp(oper.getTipo());
+                valorReal = getTemp(oper.getTipo(), oper.getNoTemp());
             else
                 valorReal = oper.getLex();
         
@@ -128,6 +128,12 @@ public class Semantica2 {
         String temp =  "T" + tipo;
         
         return temp + getNoTemp(tipo);
+    }
+    
+    public String getTemp(String tipo, int noTemp) {
+        String temp =  "T" + tipo + noTemp;
+        
+        return temp;
     }
     
     
@@ -205,17 +211,27 @@ public class Semantica2 {
         setRegla(1060, getTipo(sem1.getTipo(token.getToken())), token.getLexema(), token.getLinea(), "Acepta");
     }
     
-    public void regla1081(int line) {
-        setRegla(1081, "id", "TV", line, "Acepta");
+    public void regla1080(Token token) {
+        setRegla(1080, "id", token.getLexema(), token.getLinea(), "Acepta");
+    }
+    
+    public void regla1081(Token token) {
+        setRegla(1081, "id", token.getLexema(), token.getLinea(), "Acepta");
     }
     
     public void regla1082(Operando dato) {
-        if(dato.isArr() || dato.isRange() || dato.getTipo().equals("A") 
+        if(dato != null) {
+            if(dato.isArr() || dato.isRange() || dato.getTipo().equals("A") 
                 || dato.getTipo().equals("T") || dato.getTipo().equals("L") 
-                || dato.getTipo().equals("DIC") || dato.getTipo().equals("C"))
-            setRegla(1082, dato.getTipo(), dato.getLex(), dato.getToken().getLinea(), "Acepta");
-        else
-            setError(1082, 772, dato.getTipo(), dato.getLex(), dato.getToken().getLinea());
+                || dato.getTipo().equals("DIC") || dato.getTipo().equals("C")
+                     || dato.getTipo().equals("V"))
+                setRegla(1082, getTipo(dato.getTipo()), dato.getLex(), 
+                        dato.getToken().getLinea(), "Acepta");
+            else
+                setError(1082, 772, getTipo(dato.getTipo()), dato.getLex(), 
+                        dato.getToken().getLinea());
+        }
+        
     }
     
     public void regla1090(Operando dato) {
@@ -301,16 +317,16 @@ public class Semantica2 {
     }
     
     public void regla1160(Token token, int num1, int num2, int num3) {
-        if(num1 > num2) { // Rango negativo
+        if(num1 > num2) { // Rango debe ser negativo
             if(num3 < 0)
                 setRegla(1161, "decimal", num3 + "", token.getLinea(), "Acepta");
             else
-                setError(1161, 778, "decimal", num3 + "", token.getLinea());
+                setError(1161, 779, "decimal", num3 + "", token.getLinea());
         } else { // Rango positivo
             if(num3 > 0)
                 setRegla(1160, "decimal", num3 + "", token.getLinea(), "Acepta");
             else
-                setError(1160, 779, "decimal", num3 + "", token.getLinea());
+                setError(1160, 778, "decimal", num3 + "", token.getLinea());
             
         }
         
@@ -323,7 +339,7 @@ public class Semantica2 {
             String clase = dato.getSimbolos()[1];
             String tipo = dato.getTipo();
 
-            if(tipo.equals("N") && clase.equals("par")) {
+            if(clase.equals("par")) {
                 dato.setTipo(temp);
 
                 setRegla(1170, dato);
@@ -445,6 +461,7 @@ public class Semantica2 {
             case "L":   tipo = "lista";         break;
             case "A":   tipo = "arreglo";       break;
             case "DIC": tipo = "diccionario";   break;
+            case "V":   tipo = "variant";       break;
                 
             default: tipo = tipoSimbolos;
         }

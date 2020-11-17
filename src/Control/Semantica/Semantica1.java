@@ -79,15 +79,15 @@ public class Semantica1 {
     
     // @ ZONA
 
-    Operando oper1, oper2; 
+    public Operando oper1, oper2; 
 
-    String tipoOper1, tipoOper2, asign;
+    public String tipoOper1, tipoOper2, asign;
     
-    String lexemaAsign, lexemaOper, lexOp;
+    public String lexemaAsign, lexemaOper, lexOp;
 
-    String tempTipo;
+    public String tempTipo;
 
-    Token op;
+    public Token op;
 
     int opToken, line;  
     
@@ -191,7 +191,10 @@ public class Semantica1 {
                         
                         sem2.regla1170(oper1, tipoOper2); // CAMBIO DE VALOR
                         
-                        System.out.println("\nASIGN VERIFICADA " + tempTipo); printStacks();
+                        System.out.println("\nASIGN VERIFICADA " + tempTipo); 
+                        
+                        System.out.println("\nASIGN VERIFICADA " + tipoOper1 +" " +  tipoOper2); 
+                        printStacks();
                         
                         contador.addAsing(asign, line);
 
@@ -219,6 +222,8 @@ public class Semantica1 {
                     isArr = true; 
                     
                     arr.setIdSimbolos(idsimbolos);
+                    
+                    arr.zona(PS);
                 break;
 
                 case 861: case 811:
@@ -309,9 +314,9 @@ public class Semantica1 {
             
 
             tipoOper1 = oper1.getTipo();
-
-            if(tipoOper1.equals("A"))
-                tipoOper1 = getTipo(oper1.getSimbolos()[5]);
+//
+//            if(tipoOper1.equals("A"))
+//                tipoOper1 = getTipo(oper1.getSimbolos()[5]);
 
             tipoOper2 = oper2.getTipo();
 
@@ -330,30 +335,7 @@ public class Semantica1 {
             line = oper1.getToken().getLinea();
     }
     
-    public Operando getLastOper(Token op) {
-        Operando oper;
-        
-        if(operStack.size() > 0) 
-            oper = operStack.removeLast();
-        else {
-            Token tokenTemp = new Token(op.getLexema(), op.getLinea());
-                                
-            oper =  new Operando(tokenTemp, "V", true);
-        }
-        
-        return oper;
-    }
     
-    public Token getLastOp() {
-        Token op;
-        
-        if(opStack.size() > 0) 
-            op = opStack.removeLast();
-        else 
-            op = new Token("!", -18);
-        
-        return op;
-    }
     
     public void saveTemp() {
         if (tempTipo.equals("error")) {
@@ -363,13 +345,16 @@ public class Semantica1 {
         }
 
         if(isArr) {
-            arr.operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo, true)); // Guardamos temp
+            arr.operStack.offer(new Operando(new Token(lexemaOper, line), 
+                    tempTipo, true, sem2.getNoTemp(tempTipo))); // Guardamos temp
 
         } else {
             if(isFun) {
-                fun.operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo, true)); // Guardamos temp
+                fun.operStack.offer(new Operando(new Token(lexemaOper, line), 
+                        tempTipo, true, sem2.getNoTemp(tempTipo))); // Guardamos temp
             } else {
-                operStack.offer(new Operando(new Token(lexemaOper, line), tempTipo, true)); // Guardamos temp
+                operStack.offer(new Operando(new Token(lexemaOper, line), 
+                        tempTipo, true, sem2.getNoTemp(tempTipo))); // Guardamos temp
             }
         }
     }
@@ -408,6 +393,37 @@ public class Semantica1 {
     
    
     // OPER & OP
+    public Operando getLastOper(Token op) {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.removeLast();
+        else {
+            Token tokenTemp;
+            
+            if(op != null)
+                tokenTemp = new Token(op.getLexema(), op.getLinea());
+            else
+                tokenTemp = new Token("0", -45);
+            
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+            
+        }
+        
+        return oper;
+    }
+    
+    public Token getLastOp() {
+        Token op;
+        
+        if(opStack.size() > 0) 
+            op = opStack.removeLast();
+        else 
+            op = new Token("!", -18);
+        
+        return op;
+    }
+    
     public void setOper(Token token, int LT) {
         if(isArr)
             arr.setOper(token, LT);
