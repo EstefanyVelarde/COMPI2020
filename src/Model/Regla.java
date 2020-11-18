@@ -1,7 +1,7 @@
 package Model;
 
 public class Regla {
-    private String edo, topePila, valorReal;
+    private String edo, funcion, topePila, valorReal;
     private int id, linea, ambito;
     
     public Regla(int id, String topePila, String valorReal, int linea, String edo, int ambito) {
@@ -12,7 +12,25 @@ public class Regla {
         this.edo = edo;
         this.ambito = ambito;
     }
+    
+    public Regla(int id, String funcion, String topePila, String valorReal, int linea, String edo, int ambito) {
+        this.id = id;
+        this.funcion = funcion;
+        this.topePila = topePila; 
+        this.valorReal = valorReal;
+        this.linea = linea;
+        this.edo = edo;
+        this.ambito = ambito;
+    }
 
+    public String getFuncion() {
+        return funcion;
+    }
+
+    public void setFuncion(String funcion) {
+        this.funcion = funcion;
+    }
+    
     public String getTopePila() {
         return topePila;
     }

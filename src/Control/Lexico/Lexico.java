@@ -206,7 +206,7 @@ public class Lexico {
             case "append":      token = -66;   break;
             case "extend":      token = -67;   break;
             case "pop":         token = -68;   break;
-            case "remove":      token = -60;   break;
+            case "remove":      token = -69;   break;
             case "random":      token = -70;   break;
             case "findall":     token = -71;   break;
             case "replace":     token = -72;   break;

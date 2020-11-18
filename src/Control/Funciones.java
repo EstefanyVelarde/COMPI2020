@@ -155,7 +155,7 @@ public class Funciones {
         System.out.println(" FUN - OPERSTACK:");
         
         for(Operando o : operStack) {
-            if(o.getToken() != null)
+            if(!o.isTemp())
                 System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
             else
                 System.out.println(" T"+o.getTipo());

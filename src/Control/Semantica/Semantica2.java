@@ -449,14 +449,12 @@ public class Semantica2 {
         "ID debe ser declarado antes de ser utilizado",
         "Se esperaba rango positivo",
         "Se esperaba rango negativo"
-        
-        
     };
     
     
     // LISTA REGLAS
     public void printReglas() {
-        System.out.println("\n/////////////////////////////////");
+        System.out.println("\n//////////////// SEM 2 /////////////////");
         System.out.println("REGLA\tTOPE\tVALOR\tLINEA\tEDO\tAMB");
         
         for (Regla regla : listaReglas) {

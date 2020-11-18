@@ -238,6 +238,8 @@ public class Semantica1 {
                     printZone(PS);
                     
                     sem2.printReglas();
+                    
+                    this.emptyStacks();
                 break;
                 
                 
@@ -381,8 +383,10 @@ public class Semantica1 {
                     rang.setIdentificador(idsimbolos, token);
                 } else {
                     if(idsimbolos != null) { 
+                        int idSimbolos = Integer.parseInt(idsimbolos[2]);
+                        
                         operStack.offer(new Operando(token, getTipo(idsimbolos[0]), 
-                            Integer.parseInt(idsimbolos[2]), idsimbolos));
+                            idSimbolos, idsimbolos));
                     } else {
                         operStack.offer(new Operando(token, "V")); // Guardamos temp variant
                     }
@@ -398,6 +402,26 @@ public class Semantica1 {
         
         if(operStack.size() > 0) 
             oper = operStack.removeLast();
+        else {
+            Token tokenTemp;
+            
+            if(op != null)
+                tokenTemp = new Token(op.getLexema(), op.getLinea());
+            else
+                tokenTemp = new Token("0", -45);
+            
+            oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
+            
+        }
+        
+        return oper;
+    }
+    
+    public Operando peekLastOper(Token op) {
+        Operando oper;
+        
+        if(operStack.size() > 0) 
+            oper = operStack.peekLast();
         else {
             Token tokenTemp;
             
@@ -571,7 +595,7 @@ public class Semantica1 {
         
         opStack = new LinkedList();
 
-        System.out.println("\n*--------------empty----------*\n");
+        System.out.println("\n*-------------- sem1 empty stacks ----------*\n");
     }
     
     public void printStacks() {
@@ -579,7 +603,7 @@ public class Semantica1 {
         System.out.println(" OPERSTACK:");
         
         for(Operando o : operStack) {
-            if(o.getToken() != null)
+            if(!o.isTemp())
                 System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
             else
                 System.out.println(" T"+o.getTipo());

@@ -7,6 +7,7 @@ import Control.XLS;
 import Control.Archivos;
 import Control.Semantica.Semantica1;
 import Control.Semantica.Semantica2;
+import Control.Semantica.Semantica3;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
@@ -35,6 +36,7 @@ public class Interface extends javax.swing.JFrame {
     public Ambito ambito;
     public Semantica1 semantica1;
     public Semantica2 semantica2;
+    public Semantica3 semantica3;
 
     public Interface() {
         initComponents();
@@ -547,8 +549,10 @@ public class Interface extends javax.swing.JFrame {
             
             semantica2 = new Semantica2(ambito, semantica1);
             
+            semantica3 = new Semantica3(ambito, semantica1);
+            
             sintaxis = new Sintaxis(lexico.getTokensCopy(), lexico.getErrores(),
-                                    ambito, semantica1, semantica2);
+                                    ambito, semantica1, semantica2, semantica3);
         
             sintaxis.analizarTokens();
         }

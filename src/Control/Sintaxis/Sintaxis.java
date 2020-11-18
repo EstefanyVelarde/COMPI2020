@@ -3,6 +3,7 @@ package Control.Sintaxis;
 import Control.Ambito.Ambito;
 import Control.Semantica.Semantica1;
 import Control.Semantica.Semantica2;
+import Control.Semantica.Semantica3;
 import Model.Token;
 import Model.Error;
 import java.util.LinkedList;
@@ -17,6 +18,8 @@ public class Sintaxis {
     
     Semantica2  semantica2;
 
+    Semantica3  semantica3;
+    
     LinkedList<Integer> prodStack;
     
     LinkedList<Token> tokens;
@@ -25,7 +28,8 @@ public class Sintaxis {
     
     
     public Sintaxis(LinkedList<Token> tokens, LinkedList<Error> errores, 
-            Ambito ambito, Semantica1 semantica1, Semantica2 semantica2) {
+            Ambito ambito, Semantica1 semantica1, Semantica2 semantica2,
+            Semantica3 semantica3) {
         matriz = new MatrizSintaxis();
         
         this.tokens = tokens;
@@ -48,6 +52,8 @@ public class Sintaxis {
         
         this.semantica2 = semantica2;
         
+        this.semantica3 = semantica3;
+        
         this.semantica1.addSem2(this.semantica2);
         
         this.ambito.sem1 = this.semantica1;
@@ -69,6 +75,8 @@ public class Sintaxis {
                 
                 semantica2.zona(PS);
                 
+                semantica3.zona(PS);
+                
                 prodStack.removeLast();
                 
                 continue;
@@ -86,13 +94,18 @@ public class Sintaxis {
                     else 
                         if(error(valor)) {
                             setError(valor);
+                    System.out.println("-- ERROR "
+                            + "\n\tPS: " + prodStack.toString() 
+                            + "\n\tLT: " + LT);
                         }
             } else {
                 if(terminales(PS, LT)) { 
                     ambito.checar(LT); // CHECA AMBITO
                     
-                    if(!ambito.declaracion) // SI ESTA EN ZONA DE EJECUCION
+                    if(!ambito.declaracion) {// SI ESTA EN ZONA DE EJECUCION
                         semantica1.checar(LT); // CHECA SEMANTICA 1
+                        semantica3.checar(LT); // CHECA SEMANTICA 3
+                    }
                     
                     setTerminales();
                 } else {
@@ -223,7 +236,7 @@ public class Sintaxis {
         {8, 810, 24, 811}, // LIST-TUP-RANGOS -> @ ARR @
         {8, 812, -76, -44, 813, 7, -53, 814, 7, -53, 815, 7, -45, 816}, // LIST-TUP-RANGOS -> @ range ( @ CONSTENTERO , @ CONSTENTERO , @ CONSTENTERO ) @
         {8, 817, -46, 6, 10, 11, -47, 819}, // LIST-TUP-RANGOS -> @ { CONSTANTE B1 B2 } @
-        {9, -53, 20, 9}, // B0 -> , OR B0
+        {9, -53, 20, 871, 9}, // B0 -> , OR @ B0
         {10, -50, 818, 6, 11}, // B1 -> : CONSTANTE B2
         {11, -53, 6, 10, 11}, // B2 -> , CONSTANTE B1 B2
         {12, 14, 13}, // TERMINOPASCAL -> ELEVACION C0
@@ -266,12 +279,12 @@ public class Sintaxis {
         {31, 845, -44, 35, -45, 846}, // J1 -> @ ( J5 ) @
         {31, -54}, // J1 -> ++
         {31, -55}, // J1 -> --
-        {31, -52, 48}, // J1 -> . FUNLIST
+        {31, -52, 869, 48}, // J1 -> . @ FUNLIST
         {32, 28, 33}, // J2 -> ASIGN J3
         {33, 20, 852}, // J3 -> OR @
         {33, -94, -44, 34, -45}, // J3 -> input ( J4 )
         {34, -4}, // J4 -> ConstCadena
-        {35, 20, 9}, // J5 -> OR B0
+        {35, 20, 870, 9}, // J5 -> OR @ B0
         {36, -81, -44, 20, 9, -45}, // EST -> print ( OR B0 )
         {36, -82, -44, 35, -45}, // EST -> println ( J5 )
         {36, -83, 1009, 20, 1010, -50, 36, 5, 37}, // EST -> if @ OR @ : EST A3 K0
@@ -304,26 +317,26 @@ public class Sintaxis {
         {46, 18, 47}, // AND -> NOT Q0
         {47, -22, 18, 850, 47}, // Q0 -> && NOT @ Q0
         {47, -23, 18, 850, 47}, // Q0 -> ## NOT @ Q0
-        {48, -60, -44, 35, -45}, // FUNLIST -> Sort ( J5 )
-        {48, -61, -44, 35, -45}, // FUNLIST -> Reverse ( J5 )
-        {48, -63, -44, 35, -45}, // FUNLIST -> Count ( J5 )
-        {48, -64, -44, 35, -45}, // FUNLIST -> index ( J5 )
-        {48, -65, -44, 35, -45}, // FUNLIST -> append ( J5 )
-        {48, -66, -44, 35, -45}, // FUNLIST -> extend ( J5 )
-        {48, -67, -44, 35, -45}, // FUNLIST -> pop ( J5 )
-        {48, -68, -44, 35, -45}, // FUNLIST -> remove ( J5 )
-        {48, -62, -44, 35, -45}, // FUNLIST -> insert ( J5 )
-        {49, -70, -44, 35, -45}, // FUNCIONES -> findall ( J5 )
-        {49, -71, -44, 35, -45}, // FUNCIONES -> replace ( J5 )
-        {49, -73, -44, 35, -45}, // FUNCIONES -> len ( J5 )
-        {49, -72, -44, 35, -45}, // FUNCIONES -> Sample ( J5 )
-        {49, -74, -44, 35, -45}, // FUNCIONES -> choice ( J5 )
+        {48, -60, -44, 35, -45, 873}, // FUNLIST -> Sort ( J5 )
+        {48, -61, -44, 35, -45, 873}, // FUNLIST -> Reverse ( J5 )
+        {48, -63, -44, 35, -45, 873}, // FUNLIST -> Count ( J5 )
+        {48, -64, -44, 35, -45, 873}, // FUNLIST -> index ( J5 )
+        {48, -65, -44, 35, -45, 873}, // FUNLIST -> append ( J5 )
+        {48, -66, -44, 35, -45, 873}, // FUNLIST -> extend ( J5 )
+        {48, -67, -44, 35, -45, 873}, // FUNLIST -> pop ( J5 )
+        {48, -68, -44, 35, -45, 873}, // FUNLIST -> remove ( J5 )
+        {48, -62, -44, 35, -45, 873}, // FUNLIST -> insert ( J5 )
+        {49, -70, -44, 35, -45, 872}, // FUNCIONES -> findall ( J5 )
+        {49, -71, -44, 35, -45, 872}, // FUNCIONES -> replace ( J5 )
+        {49, -73, -44, 35, -45, 872}, // FUNCIONES -> len ( J5 )
+        {49, -72, -44, 35, -45, 872}, // FUNCIONES -> Sample ( J5 )
+        {49, -74, -44, 35, -45, 872}, // FUNCIONES -> choice ( J5 )
         {49, -69, -44, 35, -45}, // FUNCIONES -> random ( J5 )
-        {49, -75, -44, 35, -45}, // FUNCIONES -> randrange ( J5 )
-        {49, -77, -44, 35, -45}, // FUNCIONES -> mean ( J5 )
+        {49, -75, -44, 35, -45, 872}, // FUNCIONES -> randrange ( J5 )
+        {49, -77, -44, 35, -45, 872}, // FUNCIONES -> mean ( J5 )
         {49, -78, -44, 35, -45}, // FUNCIONES -> median ( J5 )
         {49, -79, -44, 35, -45}, // FUNCIONES -> variance ( J5 )
-        {49, -80, -44, 35, -45},  // FUNCIONES -> sum ( J5 )
+        {49, -80, -44, 35, -45, 872},  // FUNCIONES -> sum ( J5 )
         {7, 853, -35, -7} // CONSTENTERO -> - Decimal
     };
 }
