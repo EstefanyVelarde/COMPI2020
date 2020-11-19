@@ -361,7 +361,29 @@ public class Semantica1 {
         }
     }
     
-    
+    public Operando saveTemp(String lexemaOper, int line, String tempTipo) {
+        if (tempTipo.equals("error")) {
+            setError(lexemaOper);
+
+            tempTipo = "V"; // Marcamos Variant
+        }
+        
+        Operando newOper = new Operando(new Token(lexemaOper, line), 
+                    tempTipo, true, sem2.getNoTemp(tempTipo));
+
+        if(isArr) {
+            arr.operStack.offer(newOper); // Guardamos temp
+
+        } else {
+            if(isFun) {
+                fun.operStack.offer(newOper); // Guardamos temp
+            } else {
+                operStack.offer(newOper); // Guardamos temp
+            }
+        }
+        
+        return newOper;
+    }
     
     // IDENTIFICADOR
     public boolean identificador(int LT) {
@@ -545,6 +567,7 @@ public class Semantica1 {
                     case "lista":       tipo = "L";   break;
                     case "arreglo":     tipo = "A";   break;
                     case "diccionario": tipo = "DIC"; break;
+                    case "rango":       tipo = "R"; break;
                 }
             break;
             

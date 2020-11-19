@@ -1,6 +1,7 @@
 package Control.Semantica;
 
 import Control.Ambito.Ambito;
+import Model.Funcion;
 import Model.Operando;
 import Model.Regla;
 import Model.Token;
@@ -14,11 +15,7 @@ public class Semantica3 {
      
     LinkedList<Regla> listaReglas;
     
-    LinkedList<Token> funStack;
-    
-    LinkedList<Operando> idFunListStack;
-    
-    LinkedList<Operando> parStack;
+    LinkedList<Funcion> funStack;
     
     public Semantica3(Ambito ambito, Semantica1 sem1) {
         this.ambito = ambito;
@@ -29,31 +26,35 @@ public class Semantica3 {
         
         funStack = new LinkedList();
         
-        idFunListStack = new LinkedList();
-        
-        parStack = new LinkedList();
-        
         tempCont = new int[15];
     }
     
     
-    public Token lastFun;
+    public Token token;
 
     public void checar(int LT) {
-        if(isFuncion(LT) || isFunList(LT)) {
-            lastFun = ambito.tokens.peekFirst();
+        if(isFuncion(LT)) {
+            token = ambito.tokens.peekFirst();
             
-            funStack.offer(lastFun);
+            funStack.offer(new Funcion(token));
             
+            System.out.println("\n++ ISFUN\n");
             this.printStacks();
+        } else {
+            if(isFunlist(LT)) {
+                token = ambito.tokens.peekFirst();
+
+                funStack.offer(new Funcion(token, sem1.peekLastOper(null)));
+                
+                System.out.println("\n++ ISFUNLIST\n");
+                this.printStacks();
+            }
         }
     }
     
     public void zona(int PS) {
         switch(PS) {
             case 869: // GET FUNLIST ID
-                idFunListStack.offer(sem1.peekLastOper(null));
-                
                 this.printZone(PS);
                 
             break;
@@ -61,22 +62,40 @@ public class Semantica3 {
         
         if(!funStack.isEmpty()) {
             switch(PS) {
+                
+                // EST ;
+                case 862: 
+                    printZone(PS);
+                    
+                    this.printReglas();
+                    
+                    this.emptyStacks();
+                break;
+                
                 case 870: // FUN_PAR1
                     this.printZone(PS);
                     
                     Operando par1 = sem1.getLastOper(null);
+                    
+                    if(!funStack.isEmpty()) {
+                        
+                        Funcion lastFun = funStack.peekLast();
+                        
+                        lastFun.setPar(par1);
 
-                    parStack.offer(par1);
+                        //se deberia verificar regla dependiendo fun y par1
+                        verificarReglas(lastFun, par1, lastFun.getParStackSize());
                     
-                    //se deberia verificar regla dependiendo fun y par1
-                    verificarReglas(funStack.peekLast(), par1, parStack.size());
+                        if(par1.isTemp())
+                            System.out.println("++ PAR1: " + "T" + par1.getTipo());
+                        else
+                            System.out.println("++ PAR1: " + par1.getLex());
+                    }
                     
-                    if(par1.isTemp())
-                        System.out.println("++ PAR1: " + "T" + par1.getTipo());
-                    else
-                        System.out.println("++ PAR1: " + par1.getLex());
                     
                     sem1.printStacks();
+                    
+                    this.printStacks();
                 break;
                 
                 case 871: // FUN_PAR2
@@ -84,93 +103,113 @@ public class Semantica3 {
                     
                     Operando par2 = sem1.getLastOper(null);
                     
-                    parStack.offer(par2);
+                    if(!funStack.isEmpty()) {
+                        
+                        Funcion lastFun = funStack.peekLast();
+                        
+                        lastFun.setPar(par2);
+
+                        //se deberia verificar regla dependiendo fun y par2
+                        verificarReglas(lastFun, par2, lastFun.getParStackSize());
                     
-                    //se deberia verificar regla dependiendo fun y par2
-                    verificarReglas(funStack.peekLast(), par2, parStack.size());
-                    
-                    if(par2.isTemp())
-                        System.out.println("++ PAR2: " + "T" + par2.getTipo());
-                    else
-                        System.out.println("++ PAR2: " + par2.getLex());
+                        if(par2.isTemp())
+                            System.out.println("++ PAR2: " + "T" + par2.getTipo());
+                        else
+                            System.out.println("++ PAR2: " + par2.getLex());
+                    }
                     
                     
                     sem1.printStacks();
+                    
+                    this.printStacks();
                 break;
                 
                 case 872: // END FUN                   
                     this.printZone(PS);
                     
-                    lastFun = funStack.removeLast();
-                    
-                    if(parStack.size() == 2 || parStack.size() == 1) {
-
-                        // se marca el tipo que regresa la funcion y se agrega a sem1 operandos
-                        verificarReglas(lastFun);
-                    } else {
-                        // Set error y variant? o solo variant?
+                    if(!funStack.isEmpty()) {
+                        Funcion lastFun = funStack.removeLast();
+                        
+                        if(checarNoPar(lastFun)) { // verificamos num parametros de la funcion
+                            
+                            // se marca el tipo que regresa la funcion y se agrega a sem1 operandos
+                            String tipo = getTipoSalida(lastFun); 
+                            
+                            if(tipo != null) { // Si es SALIDA
+                                Token funToken = lastFun.getToken();
+                                
+                                Operando temp = saveTemp(funToken, tipo);
+                                
+                                verificarReglas(lastFun, temp);
+                            } else { // es sort, reverse o extend, remove, insert
+                                
+                            } 
+                            
+                        } else { // Set error 2020 TV num parametros incorrectos
+                            
+                        }
                     }
+                   
                            
                     sem1.printStacks();
                     
-                    this.emptyStacks();
+                    this.printStacks();
                 break; 
                 
                 case 873: // END FUNLIST               
                     this.printZone(PS);
                     
-                    lastFun = funStack.removeLast();
-                    
-                    if(isFunList(lastFun.getToken())) { // Si era FUNLIST
-                        if(!idFunListStack.isEmpty()) {
-                            Operando lastId = idFunListStack.removeLast(); // Sacamos el id
-                            
+                    if(!funStack.isEmpty()) {
+                        Funcion lastFun = funStack.removeLast();
+                        
+                        Operando lastId = lastFun.getIdFunlist();
+                        
+                        if(lastId != null) { // Sacamos el id
                             lastId.setTemp(true);
-                            
+
                             // se marca el tipo que regresa la funlist
-                            
+
                         } else {
                             // set error y variant? o solo variant?
                         }
-                    }
                         
+                    }
+                    
                     sem1.printStacks();
                     
-                    this.emptyStacks();
+                    this.printStacks();
                 break; 
             }
         }
     }
     
-    public void verificarReglas(Token lastFun) {
+    public void verificarReglas(Funcion lastFun, Operando temp) {
         if(lastFun != null) {
-            String funLex = lastFun.getLexema();
+            Token funToken = lastFun.getToken();
+            
+            String funLex = funToken.getLexema();
             
             switch(funLex) {
-                case "findall": // 2008
-//                    topePila = getTopePila(funLex);
-//                    
-//                    Operando dato = null;
-//                    
-//                    for(Operando o : parStack) {
-//                        if(isVariant(o)) {
-//                            dato = o;
-//                            break;
-//                        }
-//                    }
-//                    
-//                    if(dato == null)
-//                        this.setTemp(parStack.peekLast(), "L");
-//                    
-//                    setRegla(2001, funLex, par, "Acepta");
-//                    
-//                    if(par.getTipo().equals("C") || isIdentificador(par)
-//                            || isVariant(par))
-//                        setRegla(2001, funLex, par, "Acepta");
-//                    else 
-//                        setError(2001, funLex, par);
-
-// TENDRE QUE HACER UN STACK DE FUNCIONES Y SUS PARSTACK
+                case "findall":  // 2008
+//                case "sample":
+                    topePila = getTopePila(lastFun);
+                    
+                    setRegla(2008, funLex, temp, "Acepta");
+                break;
+                
+                case "replace": // 2009
+                    topePila = getTopePila(lastFun);
+                    
+                    setRegla(2009, funLex, temp, "Acepta");
+                break;
+                
+                case "count": // 2010, 2017
+                    topePila = getTopePila(lastFun);
+                    
+                    setRegla(2010, funLex, temp, "Acepta");
+                    
+                    // checar uso
+                    
                 break;
             }
         }
@@ -178,9 +217,12 @@ public class Semantica3 {
         this.printReglas();
     }
     
-    public void verificarReglas(Token lastFun, Operando par, int noPar) {
+    public void verificarReglas(Funcion lastFun, Operando par, int noPar) {
         if(lastFun != null && par != null) {
-            String funLex = lastFun.getLexema();
+            Token funToken = lastFun.getToken();
+            
+            String funLex = funToken.getLexema();
+            
             if(noPar == 1) {
                 switch(funLex) {
                     case "findall": // 2001
@@ -212,7 +254,7 @@ public class Semantica3 {
                             
                         break;
                             
-                        case "findall":
+                        case "findall": // 2002
                             topePila = getTopePila(funLex, noPar);
                             
                             if(par.getTipo().equals("C") 
@@ -232,6 +274,114 @@ public class Semantica3 {
         }
         
         this.printReglas();
+    }
+    
+    public boolean checarNoPar(Funcion fun) {
+        
+        if(fun != null) {
+            Token funToken = fun.getToken();
+            
+            if(funToken != null) {
+                String funLex = funToken.getLexema();
+                
+                int noPar = fun.getParStackSize();
+
+                switch(funLex) {
+                    case "findall": case "sample": case "randrange": case "insert": 
+                        if(noPar == 2)
+                            return true;
+                    break;
+                    
+                    case "replace": 
+                        if(noPar == 3)
+                            return true;
+                    break;
+                    
+                    case "len": case "choice": case "mean": case "variance": 
+                    case "sum": case "count": case "index": case "append": 
+                    case "extend": case "remove": 
+                        if(noPar == 1)
+                            return true;
+                    break;
+                    
+                    case "sort": case "reverse": 
+                        if(noPar == 0)
+                            return true;
+                    break;
+                    
+                    
+                    case "pop":
+                        if(noPar == 0 || noPar == 1)
+                            return true;
+                    break;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    
+    public String getTipoSalida(Funcion fun) {
+        String tipo = null;
+        
+        if(fun != null) {
+            Token funToken = fun.getToken();
+            
+            if(funToken != null) {
+                String funLex = funToken.getLexema();
+
+                switch(funLex) {
+                    case "findall": case "sample": 
+                        tipo = "L";
+                    break;
+                    
+                    case "replace": 
+                        tipo = "C";
+                    break;
+                    
+                    case "len": case "randrange": case "count": case "index":  
+                        tipo = "D";
+                    break;
+                    
+                    case "choice": 
+                        Operando par = fun.getLastPar();
+                        
+                        String parTipo = par.getTipo();
+                        
+                        switch(parTipo) {
+                            case "V": case "L": case "A":  case "T": case "DIC":
+                                tipo = "V"; 
+                            break;
+                            case "C": tipo = "CH"; break;
+                            case "R": tipo = "D"; break;
+                        }
+                    break;
+                    
+                    case "pop": 
+                        tipo = "V"; 
+                    break;
+                    
+                    case "mean": case "variance": 
+                        tipo = "DH";
+                    break;
+                    
+                    case "sum": 
+                        tipo = "V";
+                    break;
+                    
+                    case "append": 
+                        tipo = "V";
+                    break;
+                    
+                    case "sort": case "reverse": 
+                        tipo = "L";
+                    break;
+                }
+            }
+        }
+        
+        return tipo;
     }
     
     public boolean isIdentificador(Operando oper) {
@@ -260,6 +410,14 @@ public class Semantica3 {
         dato.setTemp(true);
     }
     
+    public Operando saveTemp(Token funToken, String tipo) {
+        String funLex = funToken.getLexema();
+
+        int line = funToken.getLinea();
+
+        return sem1.saveTemp(funLex, line, tipo); 
+    }
+    
     Operando oper; 
 
     String funcion, topePila, valorReal, lexOper, edo;
@@ -284,25 +442,81 @@ public class Semantica3 {
         
         if(noPar == 1) 
             switch(fun) {
-                case "findall":   topePila = "id, cadena";   break;
+                case "findall": case "replace": 
+                    topePila = "id, cadena";   break;
             }
         else
             if(noPar == 2) 
                 switch(fun) {
+                    case "replace": topePila = "id, cadena";   break;
                     case "findall":   topePila = "id, cadena, lista";   break;
                 }
         
         return topePila;
     }
     
-    public String getTopePila(String fun) {
-        String topePila = "";
+    public String getTopePila(Funcion fun) {
+        String tipo = null;
         
-        switch(fun) {
-            case "findall":   topePila = "lista";   break;
+        if(fun != null) {
+            Token funToken = fun.getToken();
+            
+            if(funToken != null) {
+                String funLex = funToken.getLexema();
+
+                switch(funLex) {
+                    case "findall": case "sample": 
+                        tipo = "lista";
+                    break;
+                    
+                    case "replace": 
+                        tipo = "cadena";
+                    break;
+                    
+                    case "len": case "randrange": case "count": case "index":  
+                        tipo = "decimal";
+                    break;
+                    
+                    case "choice": 
+                        Operando par = fun.getLastPar();
+                        
+                        String parTipo = par.getTipo();
+                        
+                        switch(parTipo) {
+                            case "V": case "L": case "A":  case "T": case "DIC":
+                                tipo = "decimal, float, hex, octal, binario, "
+                                        + "complejo, cadena"; 
+                            break;
+                            case "C": tipo = "char"; break;
+                            case "R": tipo = "decimal"; break;
+                        }
+                    break;
+                    
+                    case "pop": 
+                        tipo = "decimal, float, hex, octal, binario, "
+                                        + "complejo, cadena"; 
+                    break;
+                    
+                    case "mean": case "variance": 
+                        tipo = "hex";
+                    break;
+                    
+                    case "sum": 
+                        tipo = "decimal, float, hex, octal, binario";
+                    break;
+                    
+                    case "append": 
+                        tipo = "cadena, lista, dicc";
+                    break;
+                    
+                    case "sort": case "reverse": 
+                        tipo = "lista";
+                    break;
+                }
+            }
         }
         
-        return topePila;
+        return tipo;
     }
     
     public String getTemp(String tipo) {
@@ -370,11 +584,11 @@ public class Semantica3 {
     
     // FUNCION
     public boolean isFuncion(int LT) {
-        return (LT <= -71 && LT >= -76) || LT == -78 || LT == -81;
+        return (LT <= -71 && LT >= -76) || LT == -78 || LT == -80 || LT == -81;
     }
     
     
-    public boolean isFunList(int LT) {
+    public boolean isFunlist(int LT) {
         return (LT <= -61 && LT >= -69);
     }
     
@@ -398,10 +612,6 @@ public class Semantica3 {
     
     public void emptyStacks() {
         funStack =  new LinkedList();
-        
-        idFunListStack = new LinkedList();
-        
-        parStack = new LinkedList();
 
         System.out.println("\n*-------------- sem3 empty stacks----------*\n");
     }
@@ -410,27 +620,23 @@ public class Semantica3 {
         System.out.println("\n*------------------------\n");
         
         System.out.println(" FUNSTACK:");
-        for(Token t : funStack) 
-            System.out.println(" "+t.getLexema());
+        for(Funcion f : funStack)  {
+            System.out.print("\n ++");
+            System.out.print(" "+f.getToken().getLexema());
+            
+            if(f.isFunlist)
+                System.out.print(" "+f.getIdFunlist().getLex());
+            
+            System.out.println("\n\tPARSTACK:");
         
-        System.out.println("\n IDFUNLISTSTACK:");
-        
-        for(Operando o : idFunListStack) {
-            if(!o.isTemp())
-                System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
-            else
-                System.out.println(" T"+o.getTipo());
+            for(Operando o : f.getParStack()) {
+                if(!o.isTemp())
+                    System.out.println("\t "+o.getToken().getLexema()+" "+o.getTipo());
+                else
+                    System.out.println("\t T"+o.getTipo()+o.getNoTemp());
+            }
+            System.out.println("");
         }
-        
-        System.out.println("\n PARSTACK:");
-        
-        for(Operando o : parStack) {
-            if(!o.isTemp())
-                System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
-            else
-                System.out.println(" T"+o.getTipo()+o.getNoTemp());
-        }
-        
         
         System.out.println("\n------------------------*\n");
     }
