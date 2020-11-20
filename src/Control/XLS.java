@@ -4,6 +4,7 @@ import Control.Ambito.ContAmbito;
 import Control.Lexico.ContLexico;
 import Control.Semantica.ContSemantica1;
 import Control.Semantica.ContSemantica2;
+import Control.Semantica.ContSemantica3;
 import Model.Asign;
 import Model.Error;
 import Model.Token;
@@ -33,21 +34,23 @@ public class XLS {
     ContAmbito contAmbito;
     ContSemantica1 contSemantica1;
     ContSemantica2 contSemantica2;
+    ContSemantica3 contSemantica3;
 
     LinkedList<Token> tokens;
     LinkedList<Model.Error> errores;
     
     public XLS(LinkedList<Token> tokens, LinkedList<Error> errores, 
             ContLexico contLexico, ContAmbito contAmbito, 
-            ContSemantica1 contSemantica1, ContSemantica2 contSemantica2) {
+            ContSemantica1 contSemantica1, ContSemantica2 contSemantica2, 
+            ContSemantica3 contSemantica3) {
         
         this.tokens = tokens;
         this.errores = errores;
         this.contLexico = contLexico;
         this.contAmbito = contAmbito;
         this.contSemantica1 = contSemantica1;
-        
         this.contSemantica2 = contSemantica2;
+        this.contSemantica3 = contSemantica3;
     }
 
     public void crearExcel() {
@@ -55,7 +58,7 @@ public class XLS {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy");  
         LocalDateTime now = LocalDateTime.now();  
         
-        String nombreArchivo="Estefany-Velarde-Semantica1-"+ dtf.format(now) +".xls";
+        String nombreArchivo="Estefany-Velarde-Semantica3-"+ dtf.format(now) +".xls";
         String rutaArchivo= nombreArchivo;
         
         String nombreHoja1="Lista de Tokens";
@@ -67,6 +70,7 @@ public class XLS {
         String nombreHoja7="Semántica 2 Tabla";
         String nombreHoja8="Semántica 2 Cont";
         String nombreHoja9="Semántica 2 Amb";
+        String nombreHoja10="Semántica 3 Tabla";
 
         Workbook libro= new HSSFWorkbook();
         Sheet hoja1 = libro.createSheet(nombreHoja1);
@@ -78,6 +82,7 @@ public class XLS {
         Sheet hoja7 = libro.createSheet(nombreHoja7);
         Sheet hoja8 = libro.createSheet(nombreHoja8);
         Sheet hoja9 = libro.createSheet(nombreHoja9);
+        Sheet hoja10 = libro.createSheet(nombreHoja10);
 
         //cabecera de la hoja de excel
         String [] Cabecera1= new String[]{"Linea", "Token","Lexema"};
@@ -94,6 +99,7 @@ public class XLS {
         String [] Cabecera7= new String[]{"Regla", "Tope pila", "Valor real", "Linea", "Estado", "Ambito"};
         String [] Cabecera8= new String[]{"Regla", "Aparece", "Aceptada", "Errores"};
         String [] Cabecera9= new String[]{"Regla", "Totales"};
+        String [] Cabecera10= new String[]{"Regla", "Funcion", "Tope pila", "Valor real", "Linea", "Estado", "Ambito"};
 
         //poner negrita a la cabecera
         CellStyle style = libro.createCellStyle();
@@ -422,6 +428,46 @@ public class XLS {
             cell2.setCellValue(contSemantica2.contAmb[27][j - 1]);
         }
         
+        
+        // SEMANTICA 3 tabla
+        row = hoja10.createRow(0);
+        
+        
+        for (int j = 0; j <Cabecera10.length; j++) {
+            cell2= row.createCell(j);
+            cell2.setCellStyle(style); 
+            cell2.setCellValue(Cabecera10[j]);
+        }
+        
+        for (int i = 0; i < contSemantica3.listaReglas.size(); i++) {
+            row = hoja10.createRow(i + 1);
+            
+            Cell cell = row.createCell(0); //Regla
+            cell.setCellValue(contSemantica3.listaReglas.get(i).getId());
+            
+            cell = row.createCell(1); //Funcion
+            cell.setCellValue(contSemantica3.listaReglas.get(i).getFuncion());
+            
+            cell = row.createCell(2); //Tope
+            cell.setCellValue(contSemantica3.listaReglas.get(i).getTopePila());
+            
+            
+            cell = row.createCell(3); //Valor
+            cell.setCellValue(contSemantica3.listaReglas.get(i).getValorReal());
+            
+            cell = row.createCell(4); //Linea
+            cell.setCellValue(contSemantica3.listaReglas.get(i).getLinea());
+            
+            cell = row.createCell(5); //edo
+            cell.setCellValue(contSemantica3.listaReglas.get(i).getEdo());
+            
+            cell = row.createCell(6); //ambito
+            cell.setCellValue(contSemantica3.listaReglas.get(i).getAmbito());
+        }
+        
+        
+        
+        ///////////////////////////////////////////////////////////
         File file;
         file = new File(rutaArchivo);
         try (FileOutputStream fileOuS = new FileOutputStream(file)){						

@@ -22,6 +22,8 @@ public class Semantica3 {
         
         this.sem1 = sem1;
         
+        contador = new ContSemantica3();
+        
         listaReglas = new LinkedList();
         
         funStack = new LinkedList();
@@ -82,14 +84,17 @@ public class Semantica3 {
                         Funcion lastFun = funStack.peekLast();
                         
                         lastFun.setPar(par1);
+                        
+                        if(regla2020(lastFun, par1)) { // verificamos num parametros de la funcion
 
-                        //se deberia verificar regla dependiendo fun y par1
-                        verificarReglas(lastFun, par1, lastFun.getParStackSize());
-                    
-                        if(par1.isTemp())
-                            System.out.println("++ PAR1: " + "T" + par1.getTipo());
-                        else
-                            System.out.println("++ PAR1: " + par1.getLex());
+                            //se deberia verificar regla dependiendo fun y par1
+                            verificarReglas(lastFun, par1, lastFun.getParStackSize());
+
+                            if(par1.isTemp())
+                                System.out.println("++ PAR1: " + "T" + par1.getTipo());
+                            else
+                                System.out.println("++ PAR1: " + par1.getLex());
+                        }
                     }
                     
                     sem1.printStacks();
@@ -107,14 +112,17 @@ public class Semantica3 {
                         Funcion lastFun = funStack.peekLast();
                         
                         lastFun.setPar(par2);
+                        
+                        if(regla2020(lastFun, par2)) { // verificamos num parametros de la funcion
 
-                        //se deberia verificar regla dependiendo fun y par2
-                        verificarReglas(lastFun, par2, lastFun.getParStackSize());
-                    
-                        if(par2.isTemp())
-                            System.out.println("++ PAR2: " + "T" + par2.getTipo());
-                        else
-                            System.out.println("++ PAR2: " + par2.getLex());
+                            //se deberia verificar regla dependiendo fun y par2
+                            verificarReglas(lastFun, par2, lastFun.getParStackSize());
+
+                            if(par2.isTemp())
+                                System.out.println("++ PAR2: " + "T" + par2.getTipo());
+                            else
+                                System.out.println("++ PAR2: " + par2.getLex());
+                        }
                     }
                     
                     sem1.printStacks();
@@ -130,20 +138,19 @@ public class Semantica3 {
                         
                         if(checarNoPar(lastFun)) { // verificamos num parametros de la funcion
                             
-                            // se marca el tipo que regresa la funcion y se agrega a sem1 operandos
-                            String tipo = getTipoSalida(lastFun); 
+                            String tipo = getTipoSalida(lastFun); // se marca el tipo que regresa la funcion
                             
                             if(tipo != null) { // Si es SALIDA
                                 Token funToken = lastFun.getToken();
                                 
-                                Operando temp = saveTemp(funToken, tipo);
+                                Operando temp = saveTemp(funToken, tipo);  // se agrega a sem1 operandos
                                 
                                 verificarReglas(lastFun, temp);
                             } else { // es sort, reverse o extend, remove, insert
                                 
                             } 
                             
-                        } else { // Set error 2020 TV num parametros incorrectos
+                        } else { // Set error 2020 TV num parametros incorrectos ?? q faltan parametros
                             
                         }
                     }
@@ -165,12 +172,25 @@ public class Semantica3 {
                         if(lastId != null) { // Sacamos el id
                             lastId.setTemp(true);
 
-                            // se marca el tipo que regresa la funlist
+                            if(checarNoPar(lastFun)) { // verificamos num parametros de la funcion 
+                                
+                                String tipo = getTipoSalida(lastFun); // se marca el tipo que regresa la funcion
 
-                        } else {
-                            // set error y variant? o solo variant?
+                                if(tipo != null) { // Si es SALIDA
+                                    Token funToken = lastFun.getToken();
+
+                                    Operando temp = saveTemp(funToken, tipo); // se agrega a sem1 operandos
+
+                                    verificarReglas(lastFun, temp);
+                                } else { // es sort, reverse o extend, remove, insert
+
+                                } 
+                            } else { // Set error 2020 TV num parametros incorrectos ?? q faltan parametros
+                                
+                            }
+                        } else { // set error y variant? o solo variant?
+                            
                         }
-                        
                     }
                     
                     sem1.printStacks();
@@ -267,26 +287,54 @@ public class Semantica3 {
             
             switch(funLex) {
                 case "findall":  // 2008
-//                case "sample":
-                    topePila = getTopePila(lastFun);
-                    
-                    setRegla(2008, funLex, temp, "Acepta");
+                case "sample":
+                    regla2008(lastFun, temp, funLex);
                 break;
                 
                 case "replace": // 2009
-                    topePila = getTopePila(lastFun);
-                    
-                    setRegla(2009, funLex, temp, "Acepta");
+                    regla2009(lastFun, temp, funLex);
+                break;
+                
+                case "len": case "randrange": case "index": // 2010
+                    regla2010(lastFun, temp, funLex);
+                break;
+                
+                case "choice": case "pop": // 2011
+                    regla2011(lastFun, temp, funLex);
+                break;
+                
+                case "mean": case "variance": // 2012
+                    regla2012(lastFun, temp, funLex);
+                break;
+                
+                case "sum": // 2013
+                    regla2013(lastFun, temp, funLex);
+                break;
+                
+                case "append": // 2014, 2018
+                    regla2014(lastFun, temp, funLex);
+                    regla2018(lastFun, temp, funLex);
+                break;
+                
+                case "sort": case "reverse": // 2015, 2016
+                    regla2015(lastFun, temp, funLex);
+                    regla2016(lastFun, temp, funLex);
+                break;
+                
+                case "extend": // 2016
+                    regla2016(lastFun, temp, funLex);
                 break;
                 
                 case "count": // 2010, 2017
-                    topePila = getTopePila(lastFun);
-                    
-                    setRegla(2010, funLex, temp, "Acepta");
-                    
-                    // checar uso
-                    
+                    regla2010(lastFun, temp, funLex);
+                    regla2017(lastFun, temp, funLex);
                 break;
+                
+                case "remove": case "insert": // 2019
+                    regla2019(lastFun, temp, funLex);
+                break;
+                
+                
             }
         }
         
@@ -389,56 +437,116 @@ public class Semantica3 {
             setError(idRegla, funLex, par);
     }
     
-    public void regla2008(Funcion fun, String funLex) {
+    public void regla2008(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2008;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2009(Funcion fun, String funLex) {
+    public void regla2009(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2009;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2010(Operando par, String funLex) {
+    public void regla2010(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2010;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2011(Operando par, String funLex) {
+    public void regla2011(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2011;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2012(Operando par, String funLex) {
+    public void regla2012(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2012;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2013(Operando par, String funLex) {
+    public void regla2013(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2013;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2014(Operando par, String funLex) {
+    public void regla2014(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2014;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, fun.getIdFunlist(), "Acepta");
     }
     
-    public void regla2015(Operando par, String funLex) {
+    public void regla2015(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2015;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2016(Operando par, String funLex) {
+    public void regla2016(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2016;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2017(Operando par, String funLex) {
+    public void regla2017(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2017;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2018(Operando par, String funLex) {
+    public void regla2018(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2018;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2019(Operando par, String funLex) {
+    public void regla2019(Funcion fun, Operando temp, String funLex) {
+        int idRegla = 2019;
         
+        topePila = getTopePila(fun);
+
+        setRegla(idRegla, funLex, temp, "Acepta");
     }
     
-    public void regla2020(Operando par, String funLex) {
+    public boolean regla2020(Funcion fun, Operando par) {
+        int idRegla = 2020;
         
+        if(notNull(fun) && notNull(par))
+            if(!checarNoPar(fun)) {
+                String funLex = fun.getToken().getLexema();
+                
+                setError(idRegla, funLex, par);
+                
+                return false;
+            } else
+                return true;
+        
+        return false;
     }
     
     // PARAMETROS
@@ -547,7 +655,7 @@ public class Semantica3 {
     }
     
     public String getTopePila(Funcion fun) { // REGLAS SALIDA
-        String tipo = null;
+        String tipo = "";
         
         if(fun != null) {
             Token funToken = fun.getToken();
@@ -569,7 +677,7 @@ public class Semantica3 {
                     break;
                     
                     case "choice": 
-                        Operando par = fun.getLastPar();
+                        Operando par = fun.peekLastPar();
                         
                         String parTipo = par.getTipo();
                         
@@ -611,6 +719,7 @@ public class Semantica3 {
     }
     
     public String getTipoSalida(Funcion fun) {
+        Operando par = null;
         String tipo = null;
         
         if(fun != null) {
@@ -633,11 +742,11 @@ public class Semantica3 {
                     break;
                     
                     case "choice": 
-                        Operando par = fun.getLastPar();
+                        par = fun.peekLastPar();
                         
                         if(par != null) {
-                        String parTipo = par.getTipo();
-                        
+                            String parTipo = par.getTipo();
+
                             switch(parTipo) {
                                 case "V": case "L": case "A":  case "T": case "DIC":
                                     tipo = "V"; 
@@ -645,7 +754,8 @@ public class Semantica3 {
                                 case "C": tipo = "CH"; break;
                                 case "R": tipo = "D"; break;
                             }
-                        }
+                        } else
+                            tipo = "V";
                     break;
                     
                     case "pop": 
@@ -661,7 +771,19 @@ public class Semantica3 {
                     break;
                     
                     case "append": 
-                        tipo = "V";
+                        Operando idFunlist = fun.getIdFunlist();
+                        
+                        if(idFunlist != null) {
+                            String tipoIdFunlist = idFunlist.getTipo();
+                            
+                            switch(tipoIdFunlist) {
+                                case "L": tipo = "L";
+                                
+                                default: tipo = "V";
+                            }
+                        } else 
+                            tipo = "V";
+                        
                     break;
                     
                     case "sort": case "reverse": 
@@ -772,7 +894,7 @@ public class Semantica3 {
         "", //2017
         "", //2018
         "", //2019
-        "Numero de parametros incorrecto",  //2020
+        "Parametro excedido",  //2020
     };
     
     // FUNCION
@@ -886,5 +1008,20 @@ public class Semantica3 {
     
     public boolean notNull(Funcion dato) {
         return dato != null;
+    }
+    
+    // CONTADOR
+    ContSemantica3 contador;
+    
+    public ContSemantica3 getContador() {
+        return contador;
+    }
+    
+    public void setContador(int contAmb) {
+        contador.listaReglas = this.listaReglas;
+        
+        contador.setAparicion();
+        
+        contador.setAmb(contAmb);
     }
 }

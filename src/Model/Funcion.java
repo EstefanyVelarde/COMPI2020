@@ -41,7 +41,7 @@ public class Funcion {
             return parStack.removeLast();
     }
     
-    public Operando peekLastPar(Operando par) {
+    public Operando peekLastPar() {
         if(parStack.isEmpty())
             return null;
         else

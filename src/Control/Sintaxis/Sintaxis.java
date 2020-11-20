@@ -123,6 +123,7 @@ public class Sintaxis {
         
         ambito.setContador();
         semantica2.setContador(ambito.contAmb);
+        semantica3.setContador(ambito.contAmb);
     }
     
     // PRODUCCION
