@@ -825,11 +825,11 @@ public class Ambito {
         try {
             System.out.println(sql);
             
-            (rs = stmt.executeQuery(sql)).next();
-            
-            tipo = rs.getString(1);
+            if((rs = stmt.executeQuery(sql)).next())
+                tipo = rs.getString(1);
             
             return tipo;
+            
         } catch (SQLException ex) {
             
             System.out.println(sql);

@@ -9,7 +9,7 @@ public class Funcion {
     
     LinkedList<Operando> parStack;
     
-    public boolean isFun, isFunlist;
+    public boolean isFun, isFunlist, error, errorParFaltante;
 
     public Funcion(Token token) {
         this.token = token;
@@ -27,6 +27,13 @@ public class Funcion {
         parStack = new LinkedList();
         
         isFunlist = true;
+    }
+    
+    public String getFunLex() {
+        if(token != null)
+            return token.getLexema();
+        else 
+            return "";
     }
     
     
@@ -48,7 +55,7 @@ public class Funcion {
             return parStack.peekLast();
     }
     
-    public int getParStackSize() {
+    public int getNoPar() {
         return parStack.size();
     }
     
@@ -76,6 +83,40 @@ public class Funcion {
     public void setParStack(LinkedList<Operando> parStack) {
         this.parStack = parStack;
     }
+
+    public boolean isIsFun() {
+        return isFun;
+    }
+
+    public void setIsFun(boolean isFun) {
+        this.isFun = isFun;
+    }
+
+    public boolean isIsFunlist() {
+        return isFunlist;
+    }
+
+    public void setIsFunlist(boolean isFunlist) {
+        this.isFunlist = isFunlist;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+    }
+
+    public boolean isErrorParFaltante() {
+        return errorParFaltante;
+    }
+
+    public void setErrorParFaltante(boolean errorParFaltante) {
+        this.errorParFaltante = errorParFaltante;
+    }
+    
+    
     
     
 }
