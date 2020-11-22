@@ -273,6 +273,7 @@ public class Semantica1 {
             if(isArr) {
                 oper2 = arr.operStack.removeLast();
                 oper1 = arr.operStack.removeLast(); 
+                
                 op = arr.opStack.removeLast();
             } else {
                 if(isFun) {

@@ -423,48 +423,66 @@ public class Arreglos {
             oper3 = getLastOper();
             oper2 = getLastOper();
             
-            if(isInteger(oper3.getLex())) {
-                if(isInteger(oper2.getLex())) { // Si los dos son INT
-                    int num1, num2, num3;
+            int num1, num2, num3;
             
-                    num3 = Integer.parseInt(oper3.getLex());
-                    num2 = Integer.parseInt(oper2.getLex());
-                    
-                    if(nIntervalo == 1) { // x : x
+            
+            if(nIntervalo == 1) { // x : x
+                if(isInteger(oper3.getLex())) {
+                    if(isInteger(oper2.getLex())) { // Si los dos son INT
+            
+                        num3 = Integer.parseInt(oper3.getLex());
+                        num2 = Integer.parseInt(oper2.getLex());
+                        
                         if(num2 > num3) 
                             num1 = num2 - num3;
                         else
                             num1 = num3 - num2; // Podria ir ERROR 1031
 
                         sem2.regla1031(oper2.getToken(), num2, num3);
-                    } else { // x : x : x
-                        oper1 = this.getLastOper();
-                        num1 = Integer.parseInt(oper1.getLex());
-
-
-                        sem2.regla1031(oper1.getToken(), num1, num2, num3);
-
-                        if(num1 > num2) 
-                            num1 = (num1 - num2);
-                        else
-                            num1 = (num2 - num1);
-
-
-                        if(num3 < 0) // Si es dividendo es negativo
-                            num3 *= -1;
-
-                        if((num1 % num3) != 0) 
-                            num1 = num1 / num3 + 1;
-                        else 
-                            num1 /= num3;
-                    }
-
-
-                    operStack.add(new Operando(new Token(num1 + "", oper3.getToken().getLinea()), "D"));
+                    } else
+                        checarTD(oper2, oper3);
                 } else
                     checarTD(oper2, oper3);
-            } else 
-                checarTD(oper2, oper3);
+            } else { 
+                if(nIntervalo == 2) { // x : x : x
+                    oper1 = this.getLastOper();
+                    
+                    
+                    if(isInteger(oper3.getLex())) {
+                        if(isInteger(oper2.getLex())) { // Si los dos son INT
+                            if(isInteger(oper1.getLex())) { // Si los tres son INT
+                                num3 = Integer.parseInt(oper3.getLex());
+                                num2 = Integer.parseInt(oper2.getLex());
+                                num1 = Integer.parseInt(oper1.getLex());
+
+
+                                sem2.regla1031(oper1.getToken(), num1, num2, num3);
+
+                                if(num1 > num2) 
+                                    num1 = (num1 - num2);
+                                else
+                                    num1 = (num2 - num1);
+
+
+                                if(num3 < 0) // Si es dividendo es negativo
+                                    num3 *= -1;
+
+                                if((num1 % num3) != 0) 
+                                    num1 = num1 / num3 + 1;
+                                else 
+                                    num1 /= num3;
+
+                                operStack.add(new Operando(new Token(num1 + "", oper3.getToken().getLinea()), "D"));
+                            } else
+                                checarTD(oper1, oper2, oper3);
+                        }  else
+                            checarTD(oper1, oper2, oper3);
+                    }  else
+                        checarTD(oper1, oper2, oper3);
+                } else {
+                    
+                }
+            }
         }
         
         nIntervalo = 0;
@@ -481,6 +499,16 @@ public class Arreglos {
                     sem2.getNoTemp("V")));
     }
     
+    public void checarTD(Operando oper1, Operando oper2, Operando oper3) {
+        if(oper1.getTipo().equals("D") && 
+                oper2.getTipo().equals("D") && 
+                oper3.getTipo().equals("D") ) {
+            operStack.add(new Operando(oper1.getToken(), "D", true, 
+                    sem2.getNoTemp("D")));
+        } else
+            operStack.add(new Operando(oper1.getToken(), "V", true, 
+                    sem2.getNoTemp("V")));
+    }
     
     
     // ARRSTACKS
