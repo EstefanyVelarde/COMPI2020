@@ -88,10 +88,9 @@ public class Rangos {
                     }
                 }
             }
-            
-            
         }
     }
+    
     
     // RANGSTACKS
     public Operando getLastOper() {

@@ -105,9 +105,7 @@ public class ContLexico {
         
         while (it.hasNext()) {
             Error tmp = (Error) it.next();
-            
             lineas[tmp.getLinea()]++;
-            
         }
         
         cE = errores.size();

@@ -71,6 +71,7 @@ public class XLS {
         String nombreHoja8="Semántica 2 Cont";
         String nombreHoja9="Semántica 2 Amb";
         String nombreHoja10="Semántica 3 Tabla";
+        String nombreHoja11="Semántica 3 Cont";
 
         Workbook libro= new HSSFWorkbook();
         Sheet hoja1 = libro.createSheet(nombreHoja1);
@@ -83,6 +84,7 @@ public class XLS {
         Sheet hoja8 = libro.createSheet(nombreHoja8);
         Sheet hoja9 = libro.createSheet(nombreHoja9);
         Sheet hoja10 = libro.createSheet(nombreHoja10);
+        Sheet hoja11 = libro.createSheet(nombreHoja11);
 
         //cabecera de la hoja de excel
         String [] Cabecera1= new String[]{"Linea", "Token","Lexema"};
@@ -100,7 +102,8 @@ public class XLS {
         String [] Cabecera8= new String[]{"Regla", "Aparece", "Aceptada", "Errores"};
         String [] Cabecera9= new String[]{"Regla", "Totales"};
         String [] Cabecera10= new String[]{"Regla", "Funcion", "Tope pila", "Valor real", "Linea", "Estado", "Ambito"};
-
+        String [] Cabecera11= new String[]{"Funcion", "Entradas", "Salidas", "Uso", "Aceptados", "Errores"};
+        
         //poner negrita a la cabecera
         CellStyle style = libro.createCellStyle();
         Font font = libro.createFont();
@@ -465,7 +468,37 @@ public class XLS {
             cell.setCellValue(contSemantica3.listaReglas.get(i).getAmbito());
         }
         
+        // SEMANTICA 3 cont
+        row = hoja11.createRow(0);
         
+        
+        for (int j = 0; j <Cabecera11.length; j++) {
+            cell2= row.createCell(j);
+            cell2.setCellStyle(style); 
+            cell2.setCellValue(Cabecera11[j]);
+        }
+        
+        for (int i = 0; i < contSemantica3.funcion.length; i++) {
+            row = hoja11.createRow(i + 1);
+            
+            Cell cell = row.createCell(0); // Funcion
+            cell.setCellValue(contSemantica3.funcion[i]);
+            
+            cell = row.createCell(1); // Entradas
+            cell.setCellValue(contSemantica3.salida[i][0]);
+                        
+            cell = row.createCell(2); // Salida
+            cell.setCellValue(contSemantica3.salida[i][1]);
+                        
+            cell = row.createCell(3); // Uso
+            cell.setCellValue(contSemantica3.salida[i][2]);
+                        
+            cell = row.createCell(4); // Acepta
+            cell.setCellValue(contSemantica3.salida[i][3]);
+                        
+            cell = row.createCell(5); // Error
+            cell.setCellValue(contSemantica3.salida[i][4]);
+        }
         
         ///////////////////////////////////////////////////////////
         File file;

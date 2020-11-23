@@ -6,6 +6,7 @@ import Model.Regla;
 import Model.Error;
 import Model.Token;
 import java.util.LinkedList;
+import javax.swing.JOptionPane;
 
 
 public class Semantica2 {
@@ -404,12 +405,18 @@ public class Semantica2 {
     public void setError(int error) {
         this.edo = "Error";
         
+        if(line < 0)
+            JOptionPane.showMessageDialog(null, error + " " + line + " " + valorReal + " " + desc[error-760], "Error", JOptionPane.ERROR_MESSAGE);
+        else
         ambito.errores.add(new Error(error, line, valorReal, desc[error-760], "Semántica 2"));
     }
     
     public void setError(int error, int line, String lexema) {
         this.edo = "Error";
         
+        if(line < 0)
+            JOptionPane.showMessageDialog(null,  error + " " + line + " " + valorReal + " " + desc[error-760], "Error", JOptionPane.ERROR_MESSAGE);
+        else
         ambito.errores.add(new Error(error, line, lexema, desc[error-760], "Semántica 2"));
     }
     
@@ -502,7 +509,7 @@ public class Semantica2 {
             case "B":   no = 1 + tempCont[0]++; break;
             case "CH":  no = 1 + tempCont[1]++; break;
             case "C":   no = 1 + tempCont[2]++; break;
-            case "D":  System.out.println("\n\nNOTEMP DDDDD\n\n"); no = 1 + tempCont[3]++; break;
+            case "D":   no = 1 + tempCont[3]++; break;
             case "F":   no = 1 + tempCont[4]++; break;
             case "CM":  no = 1 + tempCont[5]++; break;
             case "DB":  no = 1 + tempCont[6]++; break;

@@ -151,21 +151,23 @@ public class Semantica1 {
                 case 850:
                     printZone(PS);
 
-                    saveLast();
+                    if(!opStack.isEmpty() && operStack.size() > 1) {
+                        saveLast();
 
-                    tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
+                        tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
 
-                    saveTemp();
-                    
-                    System.out.println("\n++ SE CREO TEMP\n"); printStacks();
+                        saveTemp();
 
-                    
-                    contador.addTemp(tempTipo);
-                    
-                    if(isIf || isArr || isFun || isRang || isFor)
-                        contador.addAsing(asign, line); // SE AGREGO EN S2 (?)
-                    
-                    System.out.println("\nOPERACION VERIFICADA " + tempTipo);
+                        System.out.println("\n++ SE CREO TEMP\n"); printStacks();
+
+
+                        contador.addTemp(tempTipo);
+
+                        if(isIf || isArr || isFun || isRang || isFor)
+                            contador.addAsing(asign, line); // SE AGREGO EN S2 (?)
+
+                        System.out.println("\nOPERACION VERIFICADA " + tempTipo);
+                    }
                 break;
                 
 
@@ -431,7 +433,7 @@ public class Semantica1 {
             if(op != null)
                 tokenTemp = new Token(op.getLexema(), op.getLinea());
             else
-                tokenTemp = new Token("0", -45);
+                tokenTemp = new Token("V", 1);
             
             oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
             
@@ -451,7 +453,7 @@ public class Semantica1 {
             if(op != null)
                 tokenTemp = new Token(op.getLexema(), op.getLinea());
             else
-                tokenTemp = new Token("0", -45);
+                tokenTemp = new Token("V", 1);
             
             oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
             
@@ -465,8 +467,8 @@ public class Semantica1 {
         
         if(opStack.size() > 0) 
             op = opStack.removeLast();
-        else 
-            op = new Token("!", -18);
+        else
+            op = new Token("V", 1);
         
         return op;
     }

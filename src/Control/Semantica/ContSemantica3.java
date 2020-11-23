@@ -6,81 +6,136 @@ import java.util.LinkedList;
 public class ContSemantica3 {
     public LinkedList<Regla> listaReglas;
     
-    public int[][] aparece, contAmb;
+    public String[] funcion =  {
+            "append",
+            "append_par1",
+            "choice",
+            "choice_par1",
+            "count",
+            "count_par1",
+            "extend",
+            "extend_par1",
+            "findall",
+            "findall_par1",
+            "findall_par2",
+            "index",
+            "index_par1",
+            "insert",
+            "insert_par1",
+            "insert_par2",
+            "len",
+            "len_par1",
+            "mean",
+            "mean_par1",
+            "pop",
+            "pop_par1",
+            "randrange",
+            "randrange_par1",
+            "randrange_par2",
+            "remove",
+            "remove_par1",
+            "replace",
+            "replace_par1",
+            "replace_par2",
+            "replace_par3",
+            "reverse",
+            "sample",
+            "sample_par1",
+            "sample_par2",
+            "sort",
+            "sum",
+            "sum_par1",
+            "variance",
+            "variance_par1",
+            "print_par"
+        };
     
-    public int amb;
-
-    public int getAmb() {
-        return amb;
-    }
-
-    public void setAmb(int amb) {
-        this.amb = amb;
-        
-        contAmb = new int[20][amb + 2];
-        
-        setContAmb();
-    }
+    
+    public int[][] salida;
+    
 
     public ContSemantica3() {
+        salida = new int[funcion.length][5];
         
-        aparece = new int[19][4];
-        
-        aparece[0][0] = 2001;
-        aparece[1][0] = 2002;
-        aparece[2][0] = 2003;
-        aparece[3][0] = 2004;
-        aparece[4][0] = 2005;
-        aparece[5][0] = 2006;
-        aparece[6][0] = 2007;
-        aparece[7][0] = 2008;
-        aparece[8][0] = 2009;
-        aparece[9][0] = 2010;
-        aparece[10][0] = 2011;
-        aparece[11][0] = 2012;
-        aparece[12][0] = 2013;
-        aparece[13][0] = 2014;
-        aparece[14][0] = 2016;
-        aparece[15][0] = 2017;
-        aparece[16][0] = 2018;
-        aparece[17][0] = 2019;
-        aparece[18][0] = 2020;
     }
     
-    public void setAparicion() {
+    
+    public void setContSalida() {
         for (int i = 0; i < listaReglas.size(); i++) {
-            int id = listaReglas.get(i).getId();
+            String fun = listaReglas.get(i).getFuncion();
+            
             String edo = listaReglas.get(i).getEdo();
             
-            for (int j = 0; j < aparece.length; j++) {
-                if(id == aparece[j][0]) {
-                    aparece[j][1]++;
+            int id = listaReglas.get(i).getId();
+            
+            int tipo = 0;
+            
+            for (int j = 0; j < funcion.length; j++) {
+                if(fun.equals(funcion[j])) {
+                    tipo = getTipo(id);
                     
-                    if(edo.equals("Acepta"))
-                        aparece[j][2]++;
-                    else
-                        aparece[j][3]++;
+                    salida[j][tipo]++;
+        
+                    switch(edo) {
+                        case "Acepta":
+                            salida[j][3]++;
+                        break;
+
+                        case "Error":
+                            salida[j][4]++;
+                        break;
+                    }
+                    
+                    break;
+                    
+                } else {
+                    if(fun.contains(funcion[j])) { // print_par
+                        tipo = getTipo(id);
+                    
+                        salida[j][tipo]++;
+
+                        switch(edo) {
+                            case "acepta":
+                                salida[j][3]++;
+                            break;
+
+                            case "error":
+                                salida[j][4]++;
+                            break;
+                        }
+                        
+                        break;
+                    }
                 }
             }
         }
     }
     
-    public void setContAmb() {
-        for (int i = 0; i < listaReglas.size(); i++) {
-            int id = listaReglas.get(i).getId();
-            int amb = listaReglas.get(i).getAmbito();
-            
-            for (int j = 0; j < aparece.length; j++) {
-                if(id == aparece[j][0]) {
-                    contAmb[j][amb]++;
-                    
-                    contAmb[19][amb]++;
-                    
-                    contAmb[j][this.amb + 1]++;
-                    
-                    contAmb[19][this.amb + 1]++;
-                }
-            }
-        }
+    public int getTipo(int id) {
+        
+        if(isEntrada(id)) 
+            return 0;
+        else
+            if(isSalida(id))
+                return 1;
+            else
+                if(isUso(id))
+                    return 2;
+        
+        return 0;
     }
+    
+    public boolean isEntrada(int id) {
+        return (id >= 2001 && id <= 2008) || id == 2020;
+    }
+    
+    public boolean isSalida(int id) {
+        return id >= 2009 && id <= 2016;
+    }
+    
+    public boolean isUso(int id) {
+        return id >= 2017 && id <= 2020;
+    }
+    
+    
 }
