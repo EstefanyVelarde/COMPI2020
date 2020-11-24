@@ -47,7 +47,7 @@ public class ContSemantica3 {
             "sum_par1",
             "variance",
             "variance_par1",
-            "print_par"
+            "print_parN"
         };
     
     
@@ -86,20 +86,21 @@ public class ContSemantica3 {
                         break;
                     }
                     
+                    
                     break;
                     
                 } else {
-                    if(fun.contains(funcion[j])) { // print_par
+                    if(fun.contains("print_par") && funcion[j].equals("print_parN")) { // print_parN
                         tipo = getTipo(id);
                     
                         salida[j][tipo]++;
 
                         switch(edo) {
-                            case "acepta":
+                            case "Acepta":
                                 salida[j][3]++;
                             break;
 
-                            case "error":
+                            case "Error":
                                 salida[j][4]++;
                             break;
                         }
@@ -126,7 +127,7 @@ public class ContSemantica3 {
     }
     
     public boolean isEntrada(int id) {
-        return (id >= 2001 && id <= 2008) || id == 2020;
+        return (id >= 2001 && id <= 2008) || id == 2021;
     }
     
     public boolean isSalida(int id) {
@@ -137,5 +138,11 @@ public class ContSemantica3 {
         return id >= 2017 && id <= 2020;
     }
     
-    
+    public void printSalida() {
+        for (int i = 0; i < funcion.length; i++) {
+                System.out.println(funcion[i] + " " + salida[i][0] + " " + salida[i][1] 
+                        + " " + salida[i][2] + " " + salida[i][3] + " " + salida[i][4]);
+            
+        }
+    }
 }

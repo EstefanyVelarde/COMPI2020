@@ -555,6 +555,9 @@ public class Semantica3 {
                         else
                             temp = createTemp(funToken, "V");
                     
+                    
+                    //saveTemp(funToken, "N"); // se agrega a sem1 operandos
+                    
                     verificarReglasUso(lastFun, temp, funLex);
                 break;
                 
