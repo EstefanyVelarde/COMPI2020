@@ -550,6 +550,7 @@ public class Semantica3 {
                 
                 case "extend": 
                 case "remove":
+                case "insert":
                     if(isIdentificador(lastFun.getIdFunlist()))
                             temp = lastFun.getIdFunlist();
                         else
@@ -711,18 +712,21 @@ public class Semantica3 {
         
         String funLex_par = fun.getFunLex() + "_par" + noPar;
         
-        if(fun.isErrorParFaltante()) {
-            setError(fun, idRegla, funLex_par, createTemp(fun.getToken(), fun.getFunLex()));
-        } else {
-             if(isVariant(par))
-                setRegla(idRegla, funLex_par, par, "Acepta");
-             else
-                 if(isConstanteEntero(par) || isCadena(par) || isChar(par) ||
-                         isIdentificador(par))
-                    setRegla(idRegla, funLex_par, par, "Acepta");
-                 else
-                    setError(fun, idRegla, funLex_par, par);
-        }
+        
+        setRegla(idRegla, funLex_par, par, "Acepta");
+        
+//        if(fun.isErrorParFaltante()) {
+//            setError(fun, idRegla, funLex_par, createTemp(fun.getToken(), fun.getFunLex()));
+//        } else {
+//             if(isVariant(par))
+//                setRegla(idRegla, funLex_par, par, "Acepta");
+//             else
+//                 if(isConstanteEntero(par) || isCadena(par) || isChar(par) ||
+//                         isIdentificador(par))
+//                    setRegla(idRegla, funLex_par, par, "Acepta");
+//                 else
+//                    setError(fun, idRegla, funLex_par, par);
+//        }
     }
     
     public void regla2008(Funcion fun, Operando par, int noPar) {

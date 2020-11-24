@@ -48,7 +48,7 @@ public class Arreglos {
                 
                 Operando oper = this.getLastOper();
                 
-                sem1.setOper(new Operando(oper.getToken(), "D"));
+                sem1.setOper(new Operando(oper.getToken(), "A"));
                 
                 sem1.operStack.peekLast().setArr(true);
             break;
@@ -117,7 +117,7 @@ public class Arreglos {
         
         printTArr();
         
-        Operando dato = new Operando(new Token(-18, 18, "!"), "V", true, 
+        Operando dato = new Operando(new Token("V", 1), "V", true, 
                 sem2.getNoTemp("V"));
         
         if(operStack.size() == 1) { // CASO arr[x] =
@@ -289,6 +289,12 @@ public class Arreglos {
         }
     }
     
+    public void regla1031(Operando dato, int nIntervalo) {
+        if(nIntervalo > 3) {
+            setError(1031, 762, dato);
+        }
+    }
+    
     public boolean regla1040(Operando dato) {
         if(dato != null) {
             if(dato.getTipo().equals("D")) {
@@ -320,7 +326,6 @@ public class Arreglos {
 
                                 return true;
                             } else {
-                                System.out.println("ERROOOOOOOOR 1050 ------ d:" + dim + " p:" + pos);
                                 setError(1050, 765, dato);
 
                                 return false;
@@ -420,13 +425,14 @@ public class Arreglos {
         if(size > 1) {
             Operando oper1, oper2, oper3;
             
-            oper3 = getLastOper();
-            oper2 = getLastOper();
-            
             int num1, num2, num3;
             
             
             if(nIntervalo == 1) { // x : x
+                
+                oper3 = getLastOper();
+                oper2 = getLastOper();
+
                 if(isInteger(oper3.getLex())) {
                     if(isInteger(oper2.getLex())) { // Si los dos son INT
             
@@ -436,16 +442,20 @@ public class Arreglos {
                         if(num2 > num3) 
                             num1 = num2 - num3;
                         else
-                            num1 = num3 - num2; // Podria ir ERROR 1031
-
+                            num1 = num3 - num2; 
+                        
                         sem2.regla1031(oper2.getToken(), num2, num3);
+                        
+                        operStack.add(new Operando(new Token(num1 + "", oper3.getToken().getLinea()), "D"));
                     } else
                         checarTD(oper2, oper3);
                 } else
                     checarTD(oper2, oper3);
             } else { 
                 if(nIntervalo == 2) { // x : x : x
-                    oper1 = this.getLastOper();
+                    oper3 = getLastOper();
+                    oper2 = getLastOper();
+                    oper1 = getLastOper();
                     
                     
                     if(isInteger(oper3.getLex())) {
@@ -480,7 +490,11 @@ public class Arreglos {
                     }  else
                         checarTD(oper1, oper2, oper3);
                 } else {
+                    oper1 = getLastOper();
+                    operStack.add(new Operando(oper1.getToken(), "V", true, 
+                    sem2.getNoTemp("V")));
                     
+                    regla1031(oper1, nIntervalo);
                 }
             }
         }
@@ -521,7 +535,7 @@ public class Arreglos {
             Token tokenTemp = sem1.token;
             
             if(tokenTemp == null)
-                tokenTemp = new Token("0", -45);
+                tokenTemp = new Token("V", 1);
                                 
             oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
         }
@@ -535,7 +549,7 @@ public class Arreglos {
         if(opStack.size() > 0) 
             op = opStack.removeLast();
         else 
-            op = new Token("!", -18);
+            op = new Token("V", 1);
         
         return op;
     }
@@ -549,7 +563,7 @@ public class Arreglos {
             Token tokenTemp = sem1.token;
             
             if(tokenTemp == null)
-                tokenTemp = new Token("0", -45);
+                tokenTemp = new Token("V", 1);
                                 
             oper =  new Operando(tokenTemp, "V", true, sem2.getNoTemp("V"));
         }
