@@ -1,6 +1,7 @@
 package Control.Ambito;
 
 import Control.Conexion;
+import Control.Cuadruplos.Cuadruplos;
 import Control.Semantica.Semantica1;
 import Control.Semantica.Semantica2;
 import Model.Diccionario;
@@ -16,7 +17,10 @@ import java.util.logging.Logger;
 
 public class Ambito {
     public Semantica1 sem1;
+    
     public Semantica2 sem2;
+    
+    public Cuadruplos cuad;
     
     public LinkedList<Integer> prodStack; // Sintaxis prodStack
     
@@ -32,7 +36,9 @@ public class Ambito {
     
     public boolean declaracion, negativo;
     
-    public int contAmb, key;
+    public int contAmb;
+    
+    public Integer key;
     
     public Ambito() {
         this.con = (new Conexion()).Conectar();
@@ -672,6 +678,8 @@ public class Ambito {
     public void addSimbolos(Token token) {
         String sql;
         
+        key = keys.peekLast();
+        
         switch(key) {
             case 804: // Funcion
                 tpArr = (ambStack.peekLast() + 1) + ""; // Define el ambito que creara
@@ -697,6 +705,9 @@ public class Ambito {
                 lastFuncionId = id;
                 
                 lastFuncionToken = token;
+                
+                
+//                cuad.setCuadruplo(lastFuncionToken);
             break; 
             
             case 806: // Parametro
@@ -794,7 +805,7 @@ public class Ambito {
                 
                 llave = "";
                 
-                System.out.println("\nSQL 817: " + sql + "\n");
+//                System.out.println("\nSQL 817: " + sql + "\n");
                 
             break;
             
@@ -939,10 +950,10 @@ public class Ambito {
                 System.out.println(", amb = " + idsimbolos[4]);
                 
                 idsimbolos[5] = rs.getString(6) + ""; // llave
-                System.out.println(", llave = " + idsimbolos[5]);
+                System.out.println("llave = " + idsimbolos[5]);
                 
                 idsimbolos[6] = rs.getString(7) + ""; // tpArr
-                System.out.println(", tpArr = " + idsimbolos[6]);
+                System.out.println("tpArr = " + idsimbolos[6]);
             }
 
             rs.close();
@@ -1058,9 +1069,9 @@ public class Ambito {
         
         String sql = "SELECT tipo FROM simbolos WHERE clase = 'datoTupla' &&"
                 + " noPar ='" + noPar + "' && tpArr = '" + tpArr + "';";
-        
-        System.out.println("\nSQLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-        System.out.println(sql);
+//        
+//        System.out.println("\nSQLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+//        System.out.println(sql);
         
         try {
             
@@ -1082,8 +1093,8 @@ public class Ambito {
         String sql = "SELECT tipo FROM simbolos WHERE clase = 'datoLista' &&"
                 + " noPar ='" + noPar + "' && tpArr = '" + tpArr + "';";
         
-        System.out.println("\nSQLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-        System.out.println(sql);
+//        System.out.println("\nSQLEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+//        System.out.println(sql);
         
         try {
             
@@ -1122,26 +1133,26 @@ public class Ambito {
     }
     
     public void printKeys() {
-        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
-        System.out.println(" KEYSTACK:");
-        
-        for(Integer o : keys) {
-                System.out.println(o);
-        }
-        
-        
-        System.out.println("\n------------------------*\n");
+//        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
+//        System.out.println(" KEYSTACK:");
+//        
+//        for(Integer o : keys) {
+//                System.out.println(o);
+//        }
+//        
+//        
+//        System.out.println("\n------------------------*\n");
     }
     
     public void printDiccionarioStack() {
-        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
-        System.out.println(" DICCSTACK:");
-        
-        for(Diccionario o : diccionarioStack) {
-            System.out.println(o.getId());
-        }
-        
-        
-        System.out.println("\n------------------------*\n");
+//        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
+//        System.out.println(" DICCSTACK:");
+//        
+//        for(Diccionario o : diccionarioStack) {
+//            System.out.println(o.getId());
+//        }
+//        
+//        
+//        System.out.println("\n------------------------*\n");
     }
 }

@@ -1,6 +1,7 @@
 package Control.Sintaxis;
 
 import Control.Ambito.Ambito;
+import Control.Cuadruplos.Cuadruplos;
 import Control.Semantica.Semantica1;
 import Control.Semantica.Semantica2;
 import Control.Semantica.Semantica3;
@@ -20,6 +21,8 @@ public class Sintaxis {
 
     Semantica3  semantica3;
     
+    Cuadruplos cuadruplos;
+    
     LinkedList<Integer> prodStack;
     
     LinkedList<Token> tokens;
@@ -29,7 +32,7 @@ public class Sintaxis {
     
     public Sintaxis(LinkedList<Token> tokens, LinkedList<Error> errores, 
             Ambito ambito, Semantica1 semantica1, Semantica2 semantica2,
-            Semantica3 semantica3) {
+            Semantica3 semantica3, Cuadruplos cuadruplos) {
         matriz = new MatrizSintaxis();
         
         this.tokens = tokens;
@@ -47,7 +50,7 @@ public class Sintaxis {
         
         this.ambito.initAmbito(prodStack, tokens, errores);
         
-        // INIT SEMANTICA
+        // INIT SEMANTICAS
         this.semantica1 = semantica1;
         
         this.semantica2 = semantica2;
@@ -57,7 +60,23 @@ public class Sintaxis {
         this.semantica1.addSem2(this.semantica2);
         
         this.ambito.sem1 = this.semantica1;
+        
         this.ambito.sem2 = this.semantica2;
+        
+        // INIT CUADRUPLOS
+        
+        this.cuadruplos = cuadruplos;
+        
+        this.cuadruplos.amb = this.ambito;
+        
+        this.cuadruplos.sem1 = this.semantica1;
+        
+        this.cuadruplos.sem2 = this.semantica2;
+       
+        this.cuadruplos.sem3 = this.semantica3;
+        
+        this.ambito.cuad = this.cuadruplos;
+        
         
     }
     
@@ -76,6 +95,8 @@ public class Sintaxis {
                 semantica2.zona(PS);
                 
                 semantica3.zona(PS);
+                
+                cuadruplos.zona(PS);
                 
                 prodStack.removeLast();
                 
@@ -215,7 +236,7 @@ public class Sintaxis {
     int prod[][] = {
         {0, 1, -96}, // S0 -> PROGRAM $
         {1, 2, 800, -46, 36, 5, -47, 801}, // PROGRAM -> A0 @ { EST A3 } @
-        {2, -95, 804, -2, -44, 802, 3, 807, -45, 1, 803, 1804, 1150, -51, 2}, // A0 -> def @ id ( @ A1 @ ) PROGRAM @ @ ; A0
+        {2, -95, 804, -2, 8041, -44, 802, 3, 807, -45, 1, 803, 1804, 1150, -51, 2}, // A0 -> def @ id @ ( @ A1 @ ) PROGRAM @ @ ; A0
         {2, 805, -2, -36, 6, -51, 2}, // A0 -> @ id = CONSTANTE ; A0
         {3, 806, -2, 4}, // A1 -> @ id A2
         {4, -53, 806, -2, 4}, // A2 -> , @ id A2

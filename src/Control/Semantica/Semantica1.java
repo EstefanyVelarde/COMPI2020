@@ -2,6 +2,7 @@ package Control.Semantica;
 
 import Control.Ambito.Ambito;
 import Control.Arreglos;
+import Control.Cuadruplos.Cuadruplos;
 import Control.Funciones;
 import Control.Rangos;
 import Model.Operando;
@@ -630,21 +631,21 @@ public class Semantica1 {
     }
     
     public void printStacks() {
-//        System.out.println("\n*------------------------\n");
-//        System.out.println(" OPERSTACK:");
-//        
-//        for(Operando o : operStack) {
-//            if(!o.isTemp())
-//                System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
-//            else
-//                System.out.println(" T"+o.getTipo());
-//        }
-//        
-//        System.out.println("\n OPSTACK:");
-//        for(Token t : opStack) 
-//            System.out.println(" "+t.getLexema());
-//        
-//        System.out.println("\n------------------------*\n");
+        System.out.println("\n*------------------------\n");
+        System.out.println(" OPERSTACK:");
+        
+        for(Operando o : operStack) {
+            if(!o.isTemp())
+                System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
+            else
+                System.out.println(" T"+o.getTipo());
+        }
+        
+        System.out.println("\n OPSTACK:");
+        for(Token t : opStack) 
+            System.out.println(" "+t.getLexema());
+        
+        System.out.println("\n------------------------*\n");
     }
     
     public void addSem2(Semantica2 sem2) {

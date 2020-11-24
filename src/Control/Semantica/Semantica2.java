@@ -465,14 +465,14 @@ public class Semantica2 {
     
     // LISTA REGLAS
     public void printReglas() {
-//        System.out.println("\n//////////////// SEM 2 /////////////////");
-//        System.out.println("REGLA\tTOPE\tVALOR\tLINEA\tEDO\tAMB");
-//        
-//        for (Regla regla : listaReglas) {
-//            System.out.println(regla.getId() + "\t" + regla.getTopePila() + "\t" + regla.getValorReal() +
-//                    "\t" + regla.getLinea() + "\t" + regla.getEdo() +
-//                    "\t" + regla.getAmbito());
-//        }
+        System.out.println("\n//////////////// SEM 2 /////////////////");
+        System.out.println("REGLA\tTOPE\tVALOR\tLINEA\tEDO\tAMB");
+        
+        for (Regla regla : listaReglas) {
+            System.out.println(regla.getId() + "\t" + regla.getTopePila() + "\t" + regla.getValorReal() +
+                    "\t" + regla.getLinea() + "\t" + regla.getEdo() +
+                    "\t" + regla.getAmbito());
+        }
         
     }
     
