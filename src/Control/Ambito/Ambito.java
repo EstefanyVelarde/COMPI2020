@@ -143,7 +143,7 @@ public class Ambito {
                 case 822: delArrAmbito(); checarArrIntervalo(); arrStack.add(";"); break; // ;
                 case 823: checarArrIntervalo(); comaArr = true; break; // ,
                 case 824: delArrAmbito(); nIntervalo++; keys.offer(PS); break; // :
-                case 811: checarArrIntervalo(); if(isArreglo) { setArreglo(); } addSimbolos(822); keys.removeLast(); break; // Fin lista
+                case 811: checarArrIntervalo(); if(isArreglo) { setArreglo(); } else ambStack.removeLast(); addSimbolos(822); keys.removeLast(); break; // Fin lista
                 
                 
                 case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; keys.offer(PS); addSimbolos(808); break; // Rango
@@ -155,9 +155,9 @@ public class Ambito {
                           addDiccionarioStack(); ambStack.add(++contAmb); 
                           clase = "datoDic"; valor = ""; llave = ""; 
                           break; // Diccionario
-                case 818:  checarValorDicc(); break; // :
-                case 8181:  break; // ,
-                case 819: keys.removeLast(); ambStack.removeLast(); addSimbolos(819); 
+                case 818:  checarLlaveDicc(); break; // :
+                case 8181:  checarValorDicc(); break; // VALOR EN DATODIC
+                case 819: keys.removeLast(); ambStack.removeLast(); checarDimDicc(); 
                           diccionarioStack.removeLast(); break; // Fin diccionario
                 
                 
@@ -497,7 +497,7 @@ public class Ambito {
                         llave = token.getLexema();
                     
                     this.tipo = tipo;
-                } 
+                }
             break;
             
         }
@@ -535,14 +535,18 @@ public class Ambito {
 //        
 //    }
     
-    public void checarValorDicc() {
+    public void checarLlaveDicc() {
         
         if(notNull(diccionarioStack)) {
-            if(!diccionarioStack.isEmpty())
-                if(diccionarioStack.size() == 1) 
-                    tpArr = diccionarioStack.peekLast().getId();
-                else
-                    tpArr = diccionarioStack.peekLast().getTpArr();
+            if(!diccionarioStack.isEmpty()) {
+                Diccionario lastDicc = diccionarioStack.peekLast();
+                        
+                lastDicc.tArr++;
+
+                noPar = lastDicc.tArr;
+                
+                tpArr = lastDicc.getId();
+            }
         }
             
         
@@ -562,11 +566,36 @@ public class Ambito {
 
     }
     
+    public void checarValorDicc() {
+        if(llave != null) {
+            valor = llave;
+
+            addSimbolos(818); // update valor last dato
+        }
+    }
+    
+    public void checarDimDicc() {
+        if(notNull(diccionarioStack)) {
+            if(!diccionarioStack.isEmpty()) {
+                Diccionario lastDicc = diccionarioStack.peekLast();
+
+                tArr = lastDicc.tArr;
+
+                dimArr = lastDicc.dimArr;
+
+                id = lastDicc.getId();
+            }
+        }
+        
+        addSimbolos(819);
+    }
+    
     public void addDiccionarioStack() {
         String[] simbolos;
         Diccionario newDicc, firstDicc;
         
         if(!notNull(diccionarioStack) || diccionarioStack.isEmpty()) { // dic = @ {}
+            
             addSimbolos(808);
             
             simbolos = getLastIdSimbolos();
@@ -576,14 +605,25 @@ public class Ambito {
             diccionarioStack = new LinkedList();
             
             diccionarioStack.offer(newDicc);
+            
+            newDicc.dimArr = 1;
+            
+            newDicc.tArr= 0;
 
         } else { // dic = @ { 1 : @ { } }
+            firstDicc = diccionarioStack.peekFirst();
+            
+            firstDicc.dimArr++;
             
             simbolos = getLastIdSimbolos(); // [0] idsimbolos [1] id [2] tipo [3] clase [4] amb [5] llave [6] tpArr
             
             simbolos[1] = simbolos[6] + "_" + simbolos[5];
             
             newDicc = new Diccionario(simbolos);
+            
+            newDicc.dimArr = 1;
+            
+            newDicc.tArr= 0;
             
             diccionarioStack.offer(newDicc);
             
@@ -750,7 +790,7 @@ public class Ambito {
             case 817: // INSERT DATODIC
                 
                 sql = "INSERT INTO simbolos (tipo, clase, amb, llave, noPar, tpArr) VALUES ('" 
-                    + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", '" + llave + "', " + tArr + ", '" + tpArr + "');";
+                    + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", '" + llave + "', " + noPar + ", '" + tpArr + "');";
                 
                 llave = "";
                 
@@ -771,11 +811,13 @@ public class Ambito {
                     + id + "', '"+ tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ");";
             break;
             
-            case 819: // UPDATE LAST DICCIONARIO: tArr, dimArr
-                sql = update + "tArr = '" + tArr + "', dimArr  = '1' WHERE clase = 'diccionario' "+ last;
+            case 819: // UPDATE DICCIONARIO: tArr, dimArr
+                sql = update + "tArr = '" + tArr + "', dimArr  = '" + dimArr + "' WHERE id = '"+ id +"' "+ last;
                 tArr = 0;
+                dimArr = 0;
                 valor = null; 
                 llave = null;
+                id = null;
             break;
         }
         

@@ -238,8 +238,8 @@ public class Sintaxis {
         {8, 812, -76, -44, 813, 7, -53, 814, 7, -53, 815, 7, -45, 816}, // LIST-TUP-RANGOS -> @ range ( @ CONSTENTERO , @ CONSTENTERO , @ CONSTENTERO ) @
         {8, 817, -46, 6, 10, 11, -47, 819}, // LIST-TUP-RANGOS -> @ { CONSTANTE B1 B2 } @
         {9, -53, 20, 871, 9}, // B0 -> , OR @ B0
-        {10, -50, 818, 6, 11}, // B1 -> : @ CONSTANTE B2
-        {11, -53, 8181, 6, 10, 11}, // B2 -> , @ CONSTANTE B1 B2
+        {10, -50, 818, 6, 8181, 11}, // B1 -> : @ CONSTANTE @ B2
+        {11, -53, 6, 10, 11}, // B2 -> , CONSTANTE B1 B2
         {12, 14, 13}, // TERMINOPASCAL -> ELEVACION C0
         {13, -14, 14, 850, 13}, // C0 -> * ELEVACION @ C0
         {13, -16, 14, 850, 13}, // C0 -> / ELEVACION @ C0

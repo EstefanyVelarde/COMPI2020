@@ -5,9 +5,9 @@ import java.util.LinkedList;
 public class Diccionario {
     int idsimbolos;
     String id, tipo, clase;
-    int ambito, tArr, dimArr;
+    public int ambito, tArr, dimArr;
     String valor;
-    int noPar;
+    public int noPar;
     String llave, tpArr;
 
     public Diccionario(int idsimbolos, String id, String tipo, String clase, int ambito) {
