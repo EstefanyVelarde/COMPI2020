@@ -76,7 +76,7 @@ public class Arreglos {
                 
                 emptyStacks();
                  
-                System.out.println("\n ++ ARR / LASTID: " + this.lastId + "\n");
+                System.out.println("\n ++ ARR / LASTID: " + this.lastId.getLex() + "\n");
             break;
             
             case 861: // FIN ARR
@@ -90,7 +90,7 @@ public class Arreglos {
     }
     
     public void printZone(int PS) {
-        System.out.println("\n@ " + PS); printStacks();
+        System.out.println("\n ARREGLOS @ " + PS); printStacks();
     }
     
     public void checarArrStack() {
@@ -420,6 +420,7 @@ public class Arreglos {
     }
     
     public void setArrIntervalo() {
+        System.out.println("\n ** SETTING ARRINTERV \n");
         int size = operStack.size();
 
         if(size > 1) {
@@ -452,50 +453,51 @@ public class Arreglos {
                 } else
                     checarTD(oper2, oper3);
             } else { 
-                if(nIntervalo == 2) { // x : x : x
-                    oper3 = getLastOper();
-                    oper2 = getLastOper();
-                    oper1 = getLastOper();
-                    
-                    
-                    if(isInteger(oper3.getLex())) {
-                        if(isInteger(oper2.getLex())) { // Si los dos son INT
-                            if(isInteger(oper1.getLex())) { // Si los tres son INT
-                                num3 = Integer.parseInt(oper3.getLex());
-                                num2 = Integer.parseInt(oper2.getLex());
-                                num1 = Integer.parseInt(oper1.getLex());
+                if(size > 2)
+                    if(nIntervalo == 2) { // x : x : x
+                        oper3 = getLastOper();
+                        oper2 = getLastOper();
+                        oper1 = getLastOper();
 
 
-                                sem2.regla1031(oper1.getToken(), num1, num2, num3);
+                        if(isInteger(oper3.getLex())) {
+                            if(isInteger(oper2.getLex())) { // Si los dos son INT
+                                if(isInteger(oper1.getLex())) { // Si los tres son INT
+                                    num3 = Integer.parseInt(oper3.getLex());
+                                    num2 = Integer.parseInt(oper2.getLex());
+                                    num1 = Integer.parseInt(oper1.getLex());
 
-                                if(num1 > num2) 
-                                    num1 = (num1 - num2);
-                                else
-                                    num1 = (num2 - num1);
+
+                                    sem2.regla1031(oper1.getToken(), num1, num2, num3);
+
+                                    if(num1 > num2) 
+                                        num1 = (num1 - num2);
+                                    else
+                                        num1 = (num2 - num1);
 
 
-                                if(num3 < 0) // Si es dividendo es negativo
-                                    num3 *= -1;
+                                    if(num3 < 0) // Si es dividendo es negativo
+                                        num3 *= -1;
 
-                                if((num1 % num3) != 0) 
-                                    num1 = num1 / num3 + 1;
-                                else 
-                                    num1 /= num3;
+                                    if((num1 % num3) != 0) 
+                                        num1 = num1 / num3 + 1;
+                                    else 
+                                        num1 /= num3;
 
-                                operStack.add(new Operando(new Token(num1 + "", oper3.getToken().getLinea()), "D"));
-                            } else
+                                    operStack.add(new Operando(new Token(num1 + "", oper3.getToken().getLinea()), "D"));
+                                } else
+                                    checarTD(oper1, oper2, oper3);
+                            }  else
                                 checarTD(oper1, oper2, oper3);
                         }  else
                             checarTD(oper1, oper2, oper3);
-                    }  else
-                        checarTD(oper1, oper2, oper3);
-                } else {
-                    oper1 = getLastOper();
-                    operStack.add(new Operando(oper1.getToken(), "V", true, 
-                    sem2.getNoTemp("V")));
-                    
-                    regla1031(oper1, nIntervalo);
-                }
+                    } else {
+                        oper1 = getLastOper();
+                        operStack.add(new Operando(oper1.getToken(), "V", true, 
+                        sem2.getNoTemp("V")));
+
+                        regla1031(oper1, nIntervalo);
+                    }
             }
         }
         

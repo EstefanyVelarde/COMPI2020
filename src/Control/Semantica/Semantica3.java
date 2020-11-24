@@ -50,6 +50,14 @@ public class Semantica3 {
                 
                 System.out.println("\n++ ISFUNLIST\n");
                 this.printStacks();
+            } else {
+                if(isFuncionNoExplicada(LT)) {
+                    token = ambito.tokens.peekFirst();
+                    
+                    saveTemp(token, "N"); // se agrega a sem1 operandos
+                    
+                    sem1.isFunNoExplicada = true;
+                }
             }
         }
     }
@@ -1416,6 +1424,11 @@ public class Semantica3 {
     
     public boolean isFunlist(int LT) {
         return (LT <= -61 && LT >= -69);
+    }
+    
+    
+    public boolean isFuncionNoExplicada(int LT) {
+        return LT == -70 || LT == -79 || LT == -83 || LT == -95;
     }
     
     // LISTA REGLAS

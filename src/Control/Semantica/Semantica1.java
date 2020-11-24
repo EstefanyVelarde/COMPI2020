@@ -93,7 +93,7 @@ public class Semantica1 {
     
     public boolean asignacion, negativo;
     
-    public boolean isIf, isArr, isFun, isRang, isFor;
+    public boolean isIf, isArr, isFun, isRang, isFor, isFunNoExplicada;
     
     public void zona(int PS) {
         if(!amb.declaracion) {// SI ESTA EN EJECUCION
@@ -144,6 +144,8 @@ public class Semantica1 {
                     printZone(PS);
                     
                     isFun = false;
+                    
+                    isFunNoExplicada = false;
                 break;
 
                 
@@ -151,9 +153,9 @@ public class Semantica1 {
                 case 850:
                     printZone(PS);
 
-                    if(!opStack.isEmpty() && operStack.size() > 1) {
-                        saveLast();
-
+                    saveLast();
+                    
+                    if(notNull(oper1) && notNull(oper1) && notNull(op)) {
                         tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
 
                         saveTemp();
@@ -175,37 +177,44 @@ public class Semantica1 {
                 case 851: 
                     asignacion = true;
                     
+                    System.out.println("\n\n   INICIO ASIGNACIOOOOON    \n\n");
+                    
                     sem2.regla1090(operStack.peekLast()); // TIPOS VALIDOS
                 break;
                 
                 case 852: // VERIF. ASIGNACIÓN
                     if(asignacion) {
                         printZone(PS);
-
+                        
                         saveLast();
                         
-                        tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
-                        
-                        if (tempTipo.equals("error")) 
-                            setError(lexemaAsign);
-                        
-                        sem2.regla1020(oper1, oper2, lexOp, tempTipo); // ASIGNACION
-                        
-                        sem2.regla1170(oper1, tipoOper2); // CAMBIO DE VALOR
-                        
-                        System.out.println("\nASIGN VERIFICADA " + tempTipo); 
-                        
-                        System.out.println("\nASIGN VERIFICADA " + tipoOper1 +" " +  tipoOper2); 
-                        printStacks();
-                        
-                        contador.addAsing(asign, line);
+                        if(notNull(oper1) && notNull(oper1) && notNull(op)) {
+                            tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
 
-                        asignacion = false;
+                            if (tempTipo.equals("error")) 
+                                setError(lexemaAsign);
 
+                            sem2.regla1020(oper1, oper2, lexOp, tempTipo); // ASIGNACION
+
+                            sem2.regla1170(oper1, tipoOper2); // CAMBIO DE VALOR
+
+                            System.out.println("\nASIGN VERIFICADA " + tempTipo); 
+
+                            System.out.println("\nASIGN VERIFICADA " + tipoOper1 +" " +  tipoOper2); 
+                            printStacks();
+
+                            contador.addAsing(asign, line);
+                        
+                        }
                         emptyStacks();
                     }
 
                     lexemaAsign = "";
+                    
+                    asignacion = false;
+                    
+                    System.out.println("\n\n   fin ASIGNACIOOOOON    \n\n");
+                    
                 break;
 
                 
@@ -266,7 +275,7 @@ public class Semantica1 {
     }
     
     public void printZone(int PS) {
-        System.out.println("\n@ " + PS); printStacks();
+        System.out.println("\n SEM1 @ " + PS); printStacks();
     }
     
     // Guarda datos para verif. asignacion de operacion normal
@@ -302,42 +311,38 @@ public class Semantica1 {
                             if(opStack.size() > 0)
                                 op = opStack.removeLast();
                             else {
-                                Token tokenTemp = new Token("!", -18);
-                                
-                                op =  tokenTemp;
+                                op = null;
                             }
                         } else {
-                            op = getLastOp();
+                            oper2 = null;
+
+                            oper1 = null;
                             
-                            oper2 = getLastOper(op);
-                            
-                            oper1 = getLastOper(op);
                         }
                     }
                 }
             }
             
-
-            tipoOper1 = oper1.getTipo();
-//
-//            if(tipoOper1.equals("A"))
-//                tipoOper1 = getTipo(oper1.getSimbolos()[5]);
-
-            tipoOper2 = oper2.getTipo();
-
-            opToken = op.getToken();
-
-            lexOp = op.getLexema();
-
-            lexemaOper = oper1.getToken().getLexema() + " " + op.getLexema()
-                    + " " + oper2.getToken().getLexema();
             
-            if(asignacion)
-                asign = oper1.getToken().getLexema() + " -> T" + oper2.getTipo();
-            else 
-                asign = "";
+            if(notNull(oper1) && notNull(oper1) && notNull(op)) {
+                tipoOper1 = oper1.getTipo();
 
-            line = oper1.getToken().getLinea();
+                tipoOper2 = oper2.getTipo();
+
+                opToken = op.getToken();
+
+                lexOp = op.getLexema();
+
+                lexemaOper = oper1.getToken().getLexema() + " " + op.getLexema()
+                        + " " + oper2.getToken().getLexema();
+
+                if(asignacion)
+                    asign = oper1.getToken().getLexema() + " -> T" + oper2.getTipo();
+                else 
+                    asign = "";
+
+                line = oper1.getToken().getLinea();
+            }
     }
     
     
@@ -625,21 +630,21 @@ public class Semantica1 {
     }
     
     public void printStacks() {
-        System.out.println("\n*------------------------\n");
-        System.out.println(" OPERSTACK:");
-        
-        for(Operando o : operStack) {
-            if(!o.isTemp())
-                System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
-            else
-                System.out.println(" T"+o.getTipo());
-        }
-        
-        System.out.println("\n OPSTACK:");
-        for(Token t : opStack) 
-            System.out.println(" "+t.getLexema());
-        
-        System.out.println("\n------------------------*\n");
+//        System.out.println("\n*------------------------\n");
+//        System.out.println(" OPERSTACK:");
+//        
+//        for(Operando o : operStack) {
+//            if(!o.isTemp())
+//                System.out.println(" "+o.getToken().getLexema()+" "+o.getTipo());
+//            else
+//                System.out.println(" T"+o.getTipo());
+//        }
+//        
+//        System.out.println("\n OPSTACK:");
+//        for(Token t : opStack) 
+//            System.out.println(" "+t.getLexema());
+//        
+//        System.out.println("\n------------------------*\n");
     }
     
     public void addSem2(Semantica2 sem2) {
@@ -647,5 +652,25 @@ public class Semantica1 {
         arr.sem2 = sem2;
         fun.sem2 = sem2;
         rang.sem2 = sem2;
+    }
+    
+    public boolean isInteger(String numero){
+        try{
+            Integer.parseInt(numero);
+            return true;
+        }catch(NumberFormatException e){
+            return false;
+        }
+    }
+    
+    public int getInteger(String num) {
+        if(isInteger(num))
+            return Integer.parseInt(num);
+        else
+            return -1;
+    }
+    
+    public boolean notNull(Object dato) {
+        return dato != null;
     }
 }

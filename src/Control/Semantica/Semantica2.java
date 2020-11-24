@@ -218,6 +218,10 @@ public class Semantica2 {
             setRegla(1060, getTipo(sem1.getTipo(token.getToken())), token.getLexema(), token.getLinea(), "Acepta");
     }
     
+    public void regla1061(Token token) {
+        
+    }
+    
     public void regla1080(Token token) {
         if(token != null) 
             setRegla(1080, "id", token.getLexema(), token.getLinea(), "Acepta");
@@ -461,14 +465,14 @@ public class Semantica2 {
     
     // LISTA REGLAS
     public void printReglas() {
-        System.out.println("\n//////////////// SEM 2 /////////////////");
-        System.out.println("REGLA\tTOPE\tVALOR\tLINEA\tEDO\tAMB");
-        
-        for (Regla regla : listaReglas) {
-            System.out.println(regla.getId() + "\t" + regla.getTopePila() + "\t" + regla.getValorReal() +
-                    "\t" + regla.getLinea() + "\t" + regla.getEdo() +
-                    "\t" + regla.getAmbito());
-        }
+//        System.out.println("\n//////////////// SEM 2 /////////////////");
+//        System.out.println("REGLA\tTOPE\tVALOR\tLINEA\tEDO\tAMB");
+//        
+//        for (Regla regla : listaReglas) {
+//            System.out.println(regla.getId() + "\t" + regla.getTopePila() + "\t" + regla.getValorReal() +
+//                    "\t" + regla.getLinea() + "\t" + regla.getEdo() +
+//                    "\t" + regla.getAmbito());
+//        }
         
     }
     

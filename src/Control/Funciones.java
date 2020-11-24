@@ -41,7 +41,7 @@ public class Funciones {
     }
     
     public void printZone(int PS) {
-        System.out.println("\n@ " + PS); printStacks();
+        System.out.println("\n FUNCIONES @ " + PS); printStacks();
     }
     
     public void checarFunStack() {

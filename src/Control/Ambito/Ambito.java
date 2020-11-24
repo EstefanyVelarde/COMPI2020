@@ -3,6 +3,7 @@ package Control.Ambito;
 import Control.Conexion;
 import Control.Semantica.Semantica1;
 import Control.Semantica.Semantica2;
+import Model.Diccionario;
 import Model.Token;
 import Model.Error;
 import java.sql.Connection;
@@ -24,6 +25,8 @@ public class Ambito {
     public LinkedList<Error> errores;
     
     public LinkedList<Integer> ambStack; // Pila de ambitos
+    
+    public LinkedList<Integer> keys; // Pila de keys
     
     public Token token;
     
@@ -52,6 +55,9 @@ public class Ambito {
         ambStack = new LinkedList();
         
         ambStack.add(contAmb); // Crea ambito 0
+        
+        
+        keys = new LinkedList();
     }
     
     public void checar(int LT) {
@@ -67,7 +73,7 @@ public class Ambito {
                 if(!existeID()) 
                     setError(701);
         } else 
-            if(key != -1)
+            if(!keys.isEmpty())
                 key(LT);
     }
     
@@ -119,39 +125,44 @@ public class Ambito {
         
         if(declaracion) {
             switch(PS) {
-                case 804: tipo = "none"; clase = "fun"; key = PS;   break;  // Funcion
+                case 804: tipo = "none"; clase = "fun"; keys.offer(PS);  break;  // Funcion
                 
                 
-                case 805: clase = "var"; key = PS;   break;  // Variable
+                case 805: clase = "var"; keys.offer(PS);   break;  // Variable
                 
                 
-                case 806: tipo = "none"; clase = "par"; noPar++;  key = PS;   break;  // Parametro
+                case 806: tipo = "none"; clase = "par"; noPar++;  keys.offer(PS);   break;  // Parametro
                 case 807: tpArr = ambStack.peekLast() + ""; addSimbolos(PS); break;  // Fin parametros
 
                 
-                case 808: tipo = "struct"; clase = "tupla"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoTupla"; break; // Tupla
-                case 809: key = -1; ambStack.removeLast(); addSimbolos(809); break; // Fin tupla
+                case 808: tipo = "struct"; clase = "tupla"; keys.offer(PS); addSimbolos(808); ambStack.add(++contAmb); clase = "datoTupla"; break; // Tupla
+                case 809: keys.removeLast(); ambStack.removeLast(); addSimbolos(809); break; // Fin tupla
                 
                 
-                case 810: initLista(); key = PS; break; // Lista
-                case 822: delArrAmbito(); checarArrIntervalo(); arrStack.add(";"); key = PS; break; // ;
-                case 823: checarArrIntervalo(); comaArr = true; key = PS; break; // ,
-                case 824: delArrAmbito(); nIntervalo++; key = PS;break; // :
-                case 811: checarArrIntervalo(); if(isArreglo) { setArreglo(); } addSimbolos(822); key = -1; break; // Fin lista
+                case 810: initLista(); keys.offer(PS); break; // Lista
+                case 822: delArrAmbito(); checarArrIntervalo(); arrStack.add(";"); break; // ;
+                case 823: checarArrIntervalo(); comaArr = true; break; // ,
+                case 824: delArrAmbito(); nIntervalo++; keys.offer(PS); break; // :
+                case 811: checarArrIntervalo(); if(isArreglo) { setArreglo(); } addSimbolos(822); keys.removeLast(); break; // Fin lista
                 
                 
-                case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; key = PS; addSimbolos(808); break; // Rango
-                case 813: case 814: case 815: key = PS; break;
-                case 816: key = -1; break; // Fin rango
+                case 812: tipo = "struct"; clase = "rango"; tArrRango = ""; dimArrRango = ""; keys.offer(PS); addSimbolos(808); break; // Rango
+                case 813: case 814: case 815: keys.offer(PS); break;
+                case 816: keys.removeLast(); break; // Fin rango
                 
                 
-                case 817: tipo = "struct"; clase = "diccionario"; key = PS; addSimbolos(808); ambStack.add(++contAmb); clase = "datoDic"; valor = ""; llave = ""; break; // Diccionario
-                case 818: checarValorDicc(); key = PS; break;
-                case 819: key = -1; ambStack.removeLast(); addSimbolos(819); break; // Fin diccionario
+                case 817: tipo = "struct"; clase = "diccionario"; keys.offer(PS); 
+                          addDiccionarioStack(); ambStack.add(++contAmb); 
+                          clase = "datoDic"; valor = ""; llave = ""; 
+                          break; // Diccionario
+                case 818:  checarValorDicc(); break; // :
+                case 8181:  break; // ,
+                case 819: keys.removeLast(); ambStack.removeLast(); addSimbolos(819); 
+                          diccionarioStack.removeLast(); break; // Fin diccionario
                 
                 
-                case 820: tipo = "decimal"; clase = "var"; key = PS; break; // para FOR id 
-                case 821: sem2.regla1080(token); sem2.regla1081(token); key = -1; break; // Fin FOR id
+                case 820: tipo = "decimal"; clase = "var"; keys.offer(PS); break; // para FOR id 
+                case 821: sem2.regla1080(token); sem2.regla1081(token);  break; // Fin FOR id
                 
                 
                 case 853: negativo = true; break; // - Decimal
@@ -161,6 +172,10 @@ public class Ambito {
     }
     
     public void key(int LT) {
+        printKeys();
+        
+        key = keys.peekLast();
+        
         switch(key) {
             case 813: case 814: 
             case 815: rango(LT);        break;
@@ -184,6 +199,8 @@ public class Ambito {
         
         if(tipo != null)
             addSimbolos(805);
+        
+        keys.removeLast();
     }
     
     
@@ -342,45 +359,77 @@ public class Ambito {
         int size = arrStack.size();
 
         if(size > 1) {
-            int num1, num2, num3;
-
-            num3 = Integer.parseInt(arrStack.removeLast());
-            num2 = Integer.parseInt(arrStack.removeLast());
-
+            String a1, a2, a3;
+            int num1 = 0, num2, num3;
+            
             if(nIntervalo == 1) {// x : x
-                if(num2 > num3) 
-                    num1 = num2 - num3;
-                else
-                    num1 = num3 - num2; // error?
+                a3 = arrStack.removeLast();
+                a2 = arrStack.removeLast();
                 
-                sem2.regla1031(token, num2, num3);
-            } else { // x : x : x
-                num1 = Integer.parseInt(arrStack.removeLast());
-                
-                
-                sem2.regla1031(token, num1, num2, num3);
-                
-                
-                if(num1 > num2) 
-                    num1 = (num1 - num2);
-                else
-                    num1 = (num2 - num1);
-                
-                if(num3 < 0) // Si es dividendo es negativo
-                    num3 *= -1;
-                
-                
-                if((num1 % num3) != 0) 
-                    num1 = num1 / num3 + 1;
-                else 
-                    num1 /= num3;
+                if(isInteger(a3)) {
+                    if(isInteger(a2)) { // Si los dos son INT
+                        num3 = getInteger(a3);
+                        num2 = getInteger(a2);
+
+
+                        if(num2 > num3) 
+                            num1 = num2 - num3;
+                        else
+                            num1 = num3 - num2; // error?
+
+                        sem2.regla1031(token, num2, num3);
+                    } 
+                }
+            } else {
+                if(size > 2)
+                    if(nIntervalo == 2) { // x : x : x
+
+                        a3 = arrStack.removeLast();
+                        a2 = arrStack.removeLast();
+                        a1 = arrStack.removeLast();
+
+                        if(isInteger(a3)) {
+                            if(isInteger(a2)) { // Si los dos son INT
+                                if(isInteger(a1)) { // Si los tres son INT
+
+                                    num3 = getInteger(a3);
+                                    num2 = getInteger(a2);
+                                    num1 = getInteger(a1);
+
+                                    sem2.regla1031(token, num1, num2, num3);
+
+
+                                    if(num1 > num2) 
+                                        num1 = (num1 - num2);
+                                    else
+                                        num1 = (num2 - num1);
+
+                                    if(num3 < 0) // Si es dividendo es negativo
+                                        num3 *= -1;
+
+
+                                    if((num1 % num3) != 0) 
+                                        num1 = num1 / num3 + 1;
+                                    else 
+                                        num1 /= num3;
+                                }
+                            }
+                        }
+                    }
             }
+            
+            
             
             arrStack.add(num1 + "");
             arrStack.add(":");
         }
         
         nIntervalo = 0;
+        
+        
+        while(keys.peekLast() == 824) {
+            keys.removeLast();
+        }
     }
     
     public void initLista() {
@@ -404,15 +453,6 @@ public class Ambito {
         tArrDim = "";
     }
     
-    public boolean isInteger(String numero){
-        try{
-            Integer.parseInt(numero);
-            return true;
-        }catch(NumberFormatException e){
-            return false;
-        }
-    }
-    
     
     
     
@@ -424,59 +464,141 @@ public class Ambito {
                     tArrRango = tokens.peekFirst().getLexema();
                 } else {
                     tArrRango += tokens.peekFirst().getLexema() + ", ";
-                    key = -1;
                 }
+                
+                keys.removeLast();
             break;
-            case 814: tArrRango += tokens.peekFirst().getLexema(); if(LT != -8) { key = -1; addSimbolos(814); }break;
-            case 815: dimArrRango += tokens.peekFirst().getLexema(); if(LT != -8) { key = -1; addSimbolos(815); } break;
+            case 814: tArrRango += tokens.peekFirst().getLexema(); if(LT != -8) { 
+                keys.removeLast(); addSimbolos(814); }break;
+            case 815: dimArrRango += tokens.peekFirst().getLexema(); if(LT != -8) { 
+                keys.removeLast(); addSimbolos(815); } break;
         }
     }
     
     
     
     // DICCIONARIO
-    String tipoDicc;
-    Token lastDicc;
+    public LinkedList<Diccionario> diccionarioStack;
     
-    public void diccionario(int LT) {
-        String tipo = getTipo(LT);
+    public void diccionario(int LT) {   
+        String tipo;
+        Token token = tokens.peekFirst();
         
-        if(tipo != null) {
-            if(tipoDicc == null)
-                tipoDicc = tipo;
-            
-            tArr++;
-            
-            lastDicc = tokens.peekFirst();
-            
-            id = lastDicc.getLexema();
-            
-            if(LT == -40 || LT == -41)
-                id = "\\" + id.substring(0, id.length()-1) + "\\" + id.charAt(id.length() -1);
+        switch(key) {
+            case 817: 
+                tipo = getTipo(LT);
+        
+                if(tipo != null) {
                     
+                    if(negativo) {
+                        llave = "-" + token.getLexema();
+                        negativo = false;
+                    } else
+                        llave = token.getLexema();
+                    
+                    this.tipo = tipo;
+                } 
+            break;
             
-            this.tipo = tipo;
-            
-            addSimbolos(key);
-        } else
-            if(LT == -8) {
-                if(key == 817)
-                    valor = "-";
-                else 
-                    llave = "-";
-            }
-                
+        }
         
     }
     
+//    public void diccionario(int LT) {
+//        String tipo = getTipo(LT);
+//        
+//        if(tipo != null) {
+//            if(tipoDicc == null)
+//                tipoDicc = tipo;
+//            
+//            tArr++;
+//            
+//            lastDicc = tokens.peekFirst();
+//            
+//            id = lastDicc.getLexema();
+//            
+//            if(LT == -40 || LT == -41)
+//                id = "\\" + id.substring(0, id.length()-1) + "\\" + id.charAt(id.length() -1);
+//                    
+//            
+//            this.tipo = tipo;
+//            
+//            addSimbolos(key);
+//        } else
+//            if(LT == -8) {
+//                if(key == 817)
+//                    valor = "-";
+//                else 
+//                    llave = "-";
+//            }
+//                
+//        
+//    }
+    
     public void checarValorDicc() {
-        if(tipoDicc.equals(getTipo(lastDicc.getToken())))
-            sem2.regla1060(lastDicc);
-        else
-            sem2.setError(1060, 766, sem2.getTipo(sem1.getTipo(lastDicc.getToken())), 
-                    lastDicc.getLexema(),lastDicc.getLinea() );
         
-        sem2.printReglas();
+        if(notNull(diccionarioStack)) {
+            if(!diccionarioStack.isEmpty())
+                if(diccionarioStack.size() == 1) 
+                    tpArr = diccionarioStack.peekLast().getId();
+                else
+                    tpArr = diccionarioStack.peekLast().getTpArr();
+        }
+            
+        
+        addSimbolos(817);
+                
+        
+//        if(notNull(tipoDicc))
+//            if(tipoDicc.equals(getTipo(lastDicc.getToken())))
+//                sem2.regla1060(lastDicc);
+//            else
+//                sem2.setError(1060, 766, sem2.getTipo(sem1.getTipo(lastDicc.getToken())), 
+//                        lastDicc.getLexema(),lastDicc.getLinea() );
+//        
+//        sem2.printReglas();
+
+
+
+    }
+    
+    public void addDiccionarioStack() {
+        String[] simbolos;
+        Diccionario newDicc, firstDicc;
+        
+        if(!notNull(diccionarioStack) || diccionarioStack.isEmpty()) { // dic = @ {}
+            addSimbolos(808);
+            
+            simbolos = getLastIdSimbolos();
+            
+            newDicc = new Diccionario(simbolos);
+            
+            diccionarioStack = new LinkedList();
+            
+            diccionarioStack.offer(newDicc);
+
+        } else { // dic = @ { 1 : @ { } }
+            
+            simbolos = getLastIdSimbolos(); // [0] idsimbolos [1] id [2] tipo [3] clase [4] amb [5] llave [6] tpArr
+            
+            simbolos[1] = simbolos[6] + "_" + simbolos[5];
+            
+            newDicc = new Diccionario(simbolos);
+            
+            diccionarioStack.offer(newDicc);
+            
+            id = simbolos[1];
+            
+            valor = id;
+            
+            addSimbolos(818); // update valor last dato
+           
+            addSimbolos(8181); // insert dicc
+            
+        }
+            
+        
+        printDiccionarioStack();
     }
     
     
@@ -528,7 +650,7 @@ public class Ambito {
                 
                 tpArr = id; // Guarda tpArr para parametros
                 
-                key = -1;
+                keys.removeLast();
                 
                 error = 0;
                 
@@ -541,7 +663,7 @@ public class Ambito {
                 sql = "INSERT INTO simbolos (id, tipo, clase, amb, noPar, tpArr) VALUES ('" 
                     + token.getLexema() + "', '"+ tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", "+ noPar + ", '"+ tpArr + "');";
                 
-                key = -1;
+                keys.removeLast();
             break;
             
             default:
@@ -562,7 +684,7 @@ public class Ambito {
             case 805: // UPDATE LAST: tipo
                 sql = update + "tipo = '" + tipo + "' " + last;
                 
-                key = 0;
+                keys.removeLast();
             break;
             
             case 807: // UPDATE LAST FUN: noPar
@@ -626,24 +748,27 @@ public class Ambito {
             break;
             
             case 817: // INSERT DATODIC
-                valor += id;
                 
-                sql = "INSERT INTO simbolos (tipo, clase, amb, valor, noPar, tpArr) VALUES ('" 
-                    + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", '" + valor + "', " + tArr + ", '" + tpArr + "');";
-                
-                valor = "";
-            break;
-            
-            case 818: // UPDATE LAST DATODIC: llave
-                llave += id;
-                
-                sql = update + "llave = '" + llave + "' WHERE clase = 'datoDic' "+ last;
+                sql = "INSERT INTO simbolos (tipo, clase, amb, llave, noPar, tpArr) VALUES ('" 
+                    + tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ", '" + llave + "', " + tArr + ", '" + tpArr + "');";
                 
                 llave = "";
                 
-                key = 817;
+                System.out.println("\nSQL 817: " + sql + "\n");
                 
-                tArr--;
+            break;
+            
+            case 818: // UPDATE LAST DATODIC: valor
+                
+                sql = update + "valor = '" + valor + "' WHERE clase = 'datoDic' "+ last;
+                
+                valor = "";
+                
+            break;
+            
+            case 8181: // INSERT DICC
+                sql = "INSERT INTO simbolos (id, tipo, clase, amb) VALUES ('" 
+                    + id + "', '"+ tipo + "', '"+ clase + "', "+ ambStack.peekLast() + ");";
             break;
             
             case 819: // UPDATE LAST DICCIONARIO: tArr, dimArr
@@ -711,7 +836,8 @@ public class Ambito {
         
         errores.add(new Error(error, token.getLinea(), token.getLexema(), desc[error - 700], "Ámbito"));
         
-        key = -1;
+        if(!keys.isEmpty())
+            keys.removeLast();
     }
     
     String desc[] = { 
@@ -741,6 +867,52 @@ public class Ambito {
     public ContAmbito getContador() {
         return contAmbito;
     }
+    
+    // DICCCCCC
+    String getLastIdSimbolos = "SELECT idsimbolos, id, tipo, clase, amb, llave, tpArr FROM simbolos " + last;
+    
+    public String[] getLastIdSimbolos(){
+        String[] idsimbolos = null; // [0] idsimbolos [1] id [2] tipo [3] clase [4] amb [5] llave [6] tpArr
+        
+        System.out.println("\n** OBTENIENDO LAST");
+        try {
+            if((rs = stmt.executeQuery(getLastIdSimbolos)).next()) {
+                idsimbolos = new String[7];
+
+                idsimbolos[0] = rs.getString(1); // idsimbolos
+
+                System.out.println("\nLASTIDSIMBOLOS");
+                System.out.println("idsimbolos = " + idsimbolos[0]);
+
+                idsimbolos[1] = rs.getString(2); // id
+                System.out.println("id = " + idsimbolos[1]);
+
+                idsimbolos[2] = rs.getString(3) + ""; // tipo
+                System.out.println("tipo = " + idsimbolos[2]);
+
+                idsimbolos[3] = rs.getString(4) + ""; // clase
+                System.out.print("clase = " + idsimbolos[3]);
+
+                idsimbolos[4] = rs.getString(5) + ""; // amb
+                System.out.println(", amb = " + idsimbolos[4]);
+                
+                idsimbolos[5] = rs.getString(6) + ""; // llave
+                System.out.println(", llave = " + idsimbolos[5]);
+                
+                idsimbolos[6] = rs.getString(7) + ""; // tpArr
+                System.out.println(", tpArr = " + idsimbolos[6]);
+            }
+
+            rs.close();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return idsimbolos;
+    }
+    
+    
     
     // PARA SEMANTICA
     String getIdSimbolos = "SELECT tipo, clase, idsimbolos, tArr, dimArr, tipoLista, noPar, funcion FROM simbolos where (clase = 'var' OR clase = 'fun' OR clase = 'par' OR tipo = 'struct') && id = '";
@@ -883,5 +1055,51 @@ public class Ambito {
         }
         
         return tipo;
+    }
+    
+    
+    
+    public boolean isInteger(String numero){
+        try{
+            Integer.parseInt(numero);
+            return true;
+        }catch(NumberFormatException e){
+            return false;
+        }
+    }
+    
+    public int getInteger(String num) {
+        if(isInteger(num))
+            return Integer.parseInt(num);
+        else
+            return -1;
+    }
+    
+    public boolean notNull(Object dato) {
+        return dato != null;
+    }
+    
+    public void printKeys() {
+        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
+        System.out.println(" KEYSTACK:");
+        
+        for(Integer o : keys) {
+                System.out.println(o);
+        }
+        
+        
+        System.out.println("\n------------------------*\n");
+    }
+    
+    public void printDiccionarioStack() {
+        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
+        System.out.println(" DICCSTACK:");
+        
+        for(Diccionario o : diccionarioStack) {
+            System.out.println(o.getId());
+        }
+        
+        
+        System.out.println("\n------------------------*\n");
     }
 }

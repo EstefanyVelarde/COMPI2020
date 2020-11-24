@@ -238,8 +238,8 @@ public class Sintaxis {
         {8, 812, -76, -44, 813, 7, -53, 814, 7, -53, 815, 7, -45, 816}, // LIST-TUP-RANGOS -> @ range ( @ CONSTENTERO , @ CONSTENTERO , @ CONSTENTERO ) @
         {8, 817, -46, 6, 10, 11, -47, 819}, // LIST-TUP-RANGOS -> @ { CONSTANTE B1 B2 } @
         {9, -53, 20, 871, 9}, // B0 -> , OR @ B0
-        {10, -50, 818, 6, 11}, // B1 -> : CONSTANTE B2
-        {11, -53, 6, 10, 11}, // B2 -> , CONSTANTE B1 B2
+        {10, -50, 818, 6, 11}, // B1 -> : @ CONSTANTE B2
+        {11, -53, 8181, 6, 10, 11}, // B2 -> , @ CONSTANTE B1 B2
         {12, 14, 13}, // TERMINOPASCAL -> ELEVACION C0
         {13, -14, 14, 850, 13}, // C0 -> * ELEVACION @ C0
         {13, -16, 14, 850, 13}, // C0 -> / ELEVACION @ C0
@@ -281,8 +281,8 @@ public class Sintaxis {
         {31, -54}, // J1 -> ++
         {31, -55}, // J1 -> --
         {31, -52, 869, 48}, // J1 -> . @ FUNLIST
-        {32, 28, 33}, // J2 -> ASIGN J3
-        {33, 20, 852}, // J3 -> OR @
+        {32, 28, 33, 852}, // J2 -> ASIGN J3 @
+        {33, 20}, // J3 -> OR
         {33, -94, -44, 34, -45}, // J3 -> input ( J4 )
         {34, -4}, // J4 -> ConstCadena
         {35, 20, 870, 9}, // J5 -> OR @ B0
