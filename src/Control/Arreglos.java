@@ -137,7 +137,9 @@ public class Arreglos {
 
                 if(regla1030(dato, dim)) {
                     if(regla1040(dato)) {
-                        regla1050(dato, tArr, dim);
+                        if(regla1050(dato, tArr, dim)) {
+                            
+                        }
                     }
                 }
 
@@ -147,6 +149,9 @@ public class Arreglos {
             
             regla1030(dato, dim, dimArr);
         }
+        
+        
+       sem1.cuad.pushLista(lastId, dato);
         
     }
     public void lista() {
@@ -174,7 +179,9 @@ public class Arreglos {
 
                 if(regla1030(dato, dim)) {
                     if(regla1040(dato)) {
-                        regla1050(dato, tArr, dim);
+                        if(regla1050(dato, tArr, dim)) {
+                            
+                        }
                     }
                 }
 
@@ -185,6 +192,8 @@ public class Arreglos {
             regla1030(dato, dim, dimArr);
         }
         
+        
+        sem1.cuad.pushLista(lastId, dato);
     }
     
     public void diccionario() {
@@ -304,6 +313,7 @@ public class Arreglos {
             } else 
                setError(1040, 764, dato);
         }
+        
         return false;
     }
     
@@ -317,29 +327,44 @@ public class Arreglos {
                 int pos = 0;
 
                 if(isInteger(dato.getLex())) { // CASO arr[1]
-                    pos = Integer.parseInt(dato.getLex());
+                    pos = getInteger(dato.getLex());
 
                     for (int i = 0; i < tArr.length; i++) {
                         if(tArr[i][0] == dim) {
                             if(pos < tArr[i][1]) {
                                 setRegla(1050, dato);
-
+                                
+                                // Obtener tipo dato
+                                
                                 return true;
                             } else {
                                 setError(1050, 765, dato);
-
+                                
+                                
+                                // Meter variant
+                                
                                 return false;
                             }
                         }
                     }
 
-                } else { // CASO arr[x]
-                    setRegla(1050, dato);
+                } else {
+                    if(isIdentificador(dato)) { // CASO arr[x]
+                        setRegla(1050, dato);
 
-                    return false;
+                        
+                        // Obtener tipo dato T?
+                        
+                        return false;
+                    } else {
+                        if(dato.isTemp()) { // arr[1+1...]
+                            setRegla(1050, dato);
+                            
+                            return false;
+                        }
+                    }
+                    
                 }
-
-                setError(1050, 765, dato);
 
                 return false;
             } else 
@@ -629,6 +654,25 @@ public class Arreglos {
         }catch(NumberFormatException e){
             return false;
         }
+    }
+    
+    public int getInteger(String num) {
+        if(isInteger(num))
+            return Integer.parseInt(num);
+        else
+            return -1;
+    }
+    
+    public boolean notNull(Object dato) {
+        return dato != null;
+    }
+    
+    public boolean isIdentificador(Operando oper) {
+        if(notNull(oper))
+            if(notNull(oper.getSimbolos()))
+                return true;
+        
+        return false;
     }
     
     // IDSIMBOLOS

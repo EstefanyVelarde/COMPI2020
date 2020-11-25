@@ -3,7 +3,7 @@ package Model;
 public class Operando {
     Token token;
     
-    String tipo, lex;
+    String tipo, lex, tipoCuad;
     
     int idsimbolos = -1, noTemp;
     

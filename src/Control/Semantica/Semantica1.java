@@ -19,6 +19,8 @@ public class Semantica1 {
     
     Semantica2 sem2;
     
+    public Cuadruplos cuad;
+    
     Arreglos arr;
     
     Funciones fun;
@@ -160,6 +162,8 @@ public class Semantica1 {
                         tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
 
                         saveTemp();
+                        
+                        cuad.pushOperacion(op, oper1, oper2, tempTipo);
 
                         System.out.println("\n++ SE CREO TEMP\n"); printStacks();
 

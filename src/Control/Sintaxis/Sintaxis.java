@@ -78,6 +78,9 @@ public class Sintaxis {
         this.ambito.cuad = this.cuadruplos;
         
         
+        this.semantica1.cuad = this.cuadruplos;
+        
+        
     }
     
     public void analizarTokens() {

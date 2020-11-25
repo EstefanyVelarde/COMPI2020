@@ -203,10 +203,16 @@ public class Ambito {
     public void var(int LT) {
         tipo = getTipo(LT); 
         
-        if(tipo != null)
+        if(tipo != null) {
             addSimbolos(805);
-        
-        keys.removeLast();
+            
+            keys.removeLast();
+        } else {
+            if(LT == -38) // ; 
+                if(!keys.isEmpty())
+                    if(keys.peekLast().equals(805))
+                        keys.removeLast();
+        }
     }
     
     
@@ -705,9 +711,6 @@ public class Ambito {
                 lastFuncionId = id;
                 
                 lastFuncionToken = token;
-                
-                
-//                cuad.setCuadruplo(lastFuncionToken);
             break; 
             
             case 806: // Parametro
@@ -735,7 +738,6 @@ public class Ambito {
             case 805: // UPDATE LAST: tipo
                 sql = update + "tipo = '" + tipo + "' " + last;
                 
-                keys.removeLast();
             break;
             
             case 807: // UPDATE LAST FUN: noPar
@@ -1133,15 +1135,15 @@ public class Ambito {
     }
     
     public void printKeys() {
-//        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
-//        System.out.println(" KEYSTACK:");
-//        
-//        for(Integer o : keys) {
-//                System.out.println(o);
-//        }
-//        
-//        
-//        System.out.println("\n------------------------*\n");
+        System.out.println("\n*------------------------ T: " + token.getLexema() + "\n");
+        System.out.println(" KEYSTACK:");
+        
+        for(Integer o : keys) {
+                System.out.println(o);
+        }
+        
+        
+        System.out.println("\n------------------------*\n");
     }
     
     public void printDiccionarioStack() {
