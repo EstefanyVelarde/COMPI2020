@@ -436,8 +436,6 @@ public class Ambito {
                     }
             }
             
-            
-            
             arrStack.add(num1 + "");
             arrStack.add(":");
         }
@@ -495,11 +493,13 @@ public class Ambito {
     
     
     
-    // DICCIONARIO
+    // DICCIONARIOfdv
     public LinkedList<Diccionario> diccionarioStack;
+    Token llaveT;
     
     public void diccionario(int LT) {   
         String tipo;
+        
         Token token = tokens.peekFirst();
         
         switch(key) {
@@ -513,6 +513,9 @@ public class Ambito {
                         negativo = false;
                     } else
                         llave = token.getLexema();
+                    
+                    llaveT = token;
+                    System.out.println("llave t " + llaveT.getLexema());
                     
                     this.tipo = tipo;
                 }
@@ -564,6 +567,11 @@ public class Ambito {
                 noPar = lastDicc.tArr;
                 
                 tpArr = lastDicc.getId();
+                
+                if(notNull(lastDicc.llaveT))
+                    sem2.regla1060(lastDicc, llaveT);
+                else
+                    lastDicc.llaveT = llaveT;
             }
         }
             
@@ -1054,6 +1062,28 @@ public class Ambito {
         String tipo = "V";
         
         String sql = "SELECT tipo FROM simbolos WHERE noPar ='" + noPar + "' && tpArr = '" + tpArr + "';";
+        
+        try {
+            System.out.println(sql);
+            
+            if((rs = stmt.executeQuery(sql)).next())
+                tipo = rs.getString(1);
+            
+            return tipo;
+            
+        } catch (SQLException ex) {
+            
+            System.out.println(sql);
+            Logger.getLogger(Ambito.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return tipo;
+    }
+    
+    public String getTipoValor(String id, String llave) {
+        String tipo = "V";
+        
+        String sql = "SELECT valor FROM simbolos WHERE id ='" + id + "' && llave = '" + llave + "';";
         
         try {
             System.out.println(sql);

@@ -203,6 +203,27 @@ public class Arreglos {
     
     public void diccionario() {
         this.printStacks();
+        
+        int dim = 0;
+        
+        Operando dato = new Operando(new Token(-56, 1, "none"), "V", true, 
+                sem2.getNoTemp("V"));
+        
+        if(operStack.size() == 1) {
+            dato = operStack.removeLast();
+            
+            if(regla1050Dic(dato, tArr, dim)) { // LIM
+                
+            }
+        } else {
+            if(operStack.size() == 2) {
+                if(regla1050Dic(dato, tArr, dim)) { // LIM
+                
+                }
+            }
+        }
+        
+        sem1.cuad.pushLista(lastId, dato);
     }
     
     public void tupla() {
@@ -330,6 +351,64 @@ public class Arreglos {
         }
         
         return false;
+    }
+    
+    public boolean regla1050Dic(Operando dato, int[][] tArr, int dim) {
+        if(dato != null) {
+            this.printZone(1050);
+            
+            this.printTArr();
+
+            if(tArr != null) {
+                if(isIdentificador(lastId)) {
+                    String tipo;
+                    
+                    String valor = sem1.amb.getTipoValor(lastId.getSimbolos()[2], dato.getLex());
+                    
+                    if(notNull(valor))
+                    if(isInteger(valor)) {
+                        tipo = "D";
+                        
+                        lastId.setTipo(tipo);
+                        
+                        lastId.setTemp(true);
+                        
+                        lastId.setNoTemp(sem2.getNoTemp(tipo));
+                    } else {
+                        if(valor.charAt(0) == '"') {
+                            
+                            tipo = "C";
+
+
+                            lastId.setTipo(tipo);
+
+                            lastId.setTemp(true);
+
+                            lastId.setNoTemp(sem2.getNoTemp(tipo));
+                        } else {
+                            
+                                tipo = "V";
+
+
+                                lastId.setTipo(tipo);
+
+                                lastId.setTemp(true);
+
+                                lastId.setNoTemp(sem2.getNoTemp(tipo));
+                        }
+                    }
+                    
+                                setRegla(1050, dato);
+                
+                } else
+                    setError(1050, 765, dato);
+
+                return false;
+            } else 
+               setError(1050, 765, dato);
+        }
+        return false;
+        
     }
     
     public boolean regla1050(Operando dato, int[][] tArr, int dim) {

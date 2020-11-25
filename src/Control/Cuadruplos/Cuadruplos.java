@@ -42,7 +42,7 @@ public class Cuadruplos {
         
         etiquetas = new LinkedList();
         
-        tempCont = new int[25];
+        tempCont = new int[26];
         
         etiquetaCont = new int[3];
         
@@ -636,6 +636,8 @@ public class Cuadruplos {
            
             accion = op.getLexema();
             
+            
+            
             if(oper1.isTempCuad())
                 arg1 = oper1.getTipoTempCuad();
             else
@@ -645,9 +647,40 @@ public class Cuadruplos {
                 res = oper2.getTipoTempCuad();
             else
                 res = oper2.getLex();
+            
+            switch(accion) {
+                case "+=": 
+                    String res2 = this.getTempTipoCuad(tempTipo);
+                    newCuad = new Cuadruplo("", "+", arg1, 
+                        res, res2, amb.peekLastAmb());
+                    
+                    this.cuadruplos.offer(newCuad);
+                    
+                    
+                    newCuad = new Cuadruplo("", "=", arg1, 
+                                "", res2, amb.peekLastAmb());
+                break;
                 
-            newCuad = new Cuadruplo("", accion, arg1, 
-                        "", res, amb.peekLastAmb());
+                case "-=": 
+                    String res3 = this.getTempTipoCuad(tempTipo);
+                    
+                    newCuad = new Cuadruplo("", "-", arg1, 
+                        res, res3, amb.peekLastAmb());
+                    
+                    this.cuadruplos.offer(newCuad);
+                    
+                    
+                    newCuad = new Cuadruplo("", "=", arg1, 
+                                "", res3, amb.peekLastAmb());
+                break;
+                
+                default:
+                    
+                    newCuad = new Cuadruplo("", accion, arg1, 
+                                "", res, amb.peekLastAmb());
+            }
+                
+            
 
             this.cuadruplos.offer(newCuad);
             
@@ -818,7 +851,8 @@ public class Cuadruplos {
                         no = 1 + tempCont[21]++; break;    
             case "L-B": no = 1 + tempCont[22]++; break;     
             case "for": no = 1 + tempCont[23]++; break;      
-            case "forb": no = 1 + tempCont[24]++; break;     
+            case "forb": no = 1 + tempCont[24]++; break;         
+            case "error": case "V": no = 1 + tempCont[25]++; break; 
             case "none": no = -1;
         }
         

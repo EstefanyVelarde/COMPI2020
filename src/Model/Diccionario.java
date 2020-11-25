@@ -9,6 +9,7 @@ public class Diccionario {
     String valor;
     public int noPar;
     String llave, tpArr;
+    public Token llaveT;
 
     public Diccionario(int idsimbolos, String id, String tipo, String clase, int ambito) {
         this.idsimbolos = idsimbolos;

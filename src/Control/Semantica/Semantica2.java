@@ -1,6 +1,7 @@
 package Control.Semantica;
 
 import Control.Ambito.Ambito;
+import Model.Diccionario;
 import Model.Operando;
 import Model.Regla;
 import Model.Error;
@@ -213,9 +214,15 @@ public class Semantica2 {
         printReglas();
     }
     
-    public void regla1060(Token token) {
-        if(token != null) 
-            setRegla(1060, getTipo(sem1.getTipo(token.getToken())), token.getLexema(), token.getLinea(), "Acepta");
+    public void regla1060(Diccionario dic, Token llave) {
+        if(llave != null) {
+            if(dic.llaveT.getToken() == llave.getToken())
+                setRegla(1060, getTipo(sem1.getTipo(llave.getToken())), llave.getLexema(), llave.getLinea(), "Acepta");
+            else
+                setError(1060, 766, getTipo(sem1.getTipo(llave.getToken())), llave.getLexema(), llave.getLinea());
+        } else {
+            setError(1060, 766, getTipo(sem1.getTipo(llave.getToken())), llave.getLexema(), llave.getLinea());
+        }
     }
     
     public void regla1061(Token token) {
