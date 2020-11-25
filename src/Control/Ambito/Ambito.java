@@ -83,6 +83,12 @@ public class Ambito {
                 key(LT);
     }
     
+    
+    
+    public int peekLastAmb() {
+        return this.ambStack.peekLast();
+    }
+    
     public boolean existeID() {
         id = tokens.peekFirst().getLexema();
         
@@ -625,7 +631,7 @@ public class Ambito {
         } else { // dic = @ { 1 : @ { } }
             firstDicc = diccionarioStack.peekFirst();
             
-            firstDicc.dimArr++;
+            firstDicc.dimArr = 2;
             
             simbolos = getLastIdSimbolos(); // [0] idsimbolos [1] id [2] tipo [3] clase [4] amb [5] llave [6] tpArr
             

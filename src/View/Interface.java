@@ -570,7 +570,7 @@ public class Interface extends javax.swing.JFrame {
         XLS ce = new XLS(lexico.getTokensCopy(), lexico.getErrores(), 
                 lexico.getContadores(), ambito.getContador(), 
                 semantica1.getContador(), semantica2.getContador(), 
-                semantica3.getContador());
+                semantica3.getContador(), cuadruplos.getContador());
         
             ce.crearExcel();
              

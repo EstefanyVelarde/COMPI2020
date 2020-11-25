@@ -30,6 +30,8 @@ public class Cuadruplos {
     
     int[] tempCont, etiquetaCont;
     
+    ContCuadruplos cont;
+    
     public Cuadruplos() {
         
         cuadruplos = new LinkedList();
@@ -43,6 +45,8 @@ public class Cuadruplos {
         tempCont = new int[25];
         
         etiquetaCont = new int[3];
+        
+        this.cont = new ContCuadruplos();
     }
     
     public void zona(int PS) {
@@ -57,7 +61,7 @@ public class Cuadruplos {
             case 821: // FOR
                 printZone(PS);
                 
-                idFor = sem1.peekLastOper(null);
+                
             break;
             
             case 80110: // main
@@ -82,16 +86,30 @@ public class Cuadruplos {
                 pushIf(sem2.oper);
             break;   
             
+            case 10091: // WHILE
+                printZone(PS);
+                
+                pushWhileEtiqueta();
+            break;
             
             case 1011: // WHILE
                 printZone(PS);
+                
+                pushWhileJF();
                 
             break;
                 
             case 1012: // ELIF
                 printZone(PS);
                 
-            break;     
+                pushElif(sem2.oper);
+            break;  
+            
+            case 10092: // ELIF
+                printZone(PS);
+                
+                pushElif();
+            break;
             
             case 10101: // END
                 printZone(PS);
@@ -102,6 +120,7 @@ public class Cuadruplos {
             case 10102: // ELSE
                 printZone(PS);
                 
+                pushElse();
             break; 
             
             
@@ -109,6 +128,13 @@ public class Cuadruplos {
                 printZone(PS);
                 
                 pushEndFor();
+            break; 
+            
+            
+            case 10104: // END WHILE
+                printZone(PS);
+                
+                pushEndWhile();
             break; 
             
             case 8041: // def fun
@@ -128,27 +154,202 @@ public class Cuadruplos {
         }
     }
     
+    public void pushElif(Operando exp) {
+        if(noErrores() && notNull(exp)) {
+            Cuadruplo newCuad;
+            
+            String tipoCuad;
+            
+            int noTempCuad;
+            
+            
+            String resultado = getEtiqueta("IF-E");
+            
+            
+            if(exp.isTempCuad()) {
+                tipoCuad = exp.getTipoTempCuad();
+                
+                if(tipoCuad.contains("TL-")){
+                    noTempCuad = getNoTemp("B");
+                    
+                    newCuad = new Cuadruplo("", "==", 
+                        tipoCuad, "true", "TB"+noTempCuad, amb.peekLastAmb()); // == TL-B0
+                    
+                    tipoCuad = "TB"+noTempCuad;
+                    
+                    cuadruplos.offer(newCuad);
+                }
+                    
+                newCuad = new Cuadruplo("", "JF", 
+                        tipoCuad, "", resultado, amb.peekLastAmb()); // [TEMP]
+            } else { // if true: if x:
+                
+                noTempCuad = getNoTemp("B");
+                    
+                newCuad = new Cuadruplo("", "==", 
+                    exp.getLex(), "true", "TB"+noTempCuad, amb.peekLastAmb()); // == x true TB0
+
+                tipoCuad = "TB"+noTempCuad;
+
+                cuadruplos.offer(newCuad);
+                
+                newCuad = new Cuadruplo("", "JF", 
+                        tipoCuad, "", resultado, amb.peekLastAmb()); // [1], [x]
+            }
+            
+            cuadruplos.offer(newCuad);
+            
+            // ETIQUETA
+            
+            Etiqueta last = etiquetas.peekLast();
+            
+            last.setSalida(resultado);
+        }
+    }
+    
+    public void pushElif() {
+        if(noErrores()  && !etiquetas.isEmpty()) {
+            
+            Etiqueta last = etiquetas.peekLast();
+            String etiqueta;
+            
+            if(last.getEst2() == "") {
+                etiqueta = getEtiqueta("IF-E");
+                
+                last.setEst2(etiqueta);
+            } else
+                etiqueta = last.getEst2();
+
+            Cuadruplo newCuad = new Cuadruplo("", "JMP", "", "",  etiqueta, amb.peekLastAmb());
+
+            cuadruplos.offer(newCuad);
+            
+            
+            newCuad = new Cuadruplo(last.getSalida() + ":", "", "", "", "", amb.peekLastAmb());
+            
+            etiqueta = last.getSalida();
+            
+            last.setSalida("");
+
+            cuadruplos.offer(newCuad);
+
+        }
+    }
+    
+    public void pushElse() {
+        if(noErrores()  && !etiquetas.isEmpty()) {
+            String etiqueta;
+            
+            Etiqueta last = etiquetas.peekLast();
+            
+            Cuadruplo newCuad;
+            
+            String newEti = last.getSalida();
+            
+            last.setSalida("");
+            
+            if(last.getEst2() == "") {
+                etiqueta = getEtiqueta("IF-E");
+                
+                last.setEst1(etiqueta);
+            } else {
+                etiqueta = last.getEst2();
+            }
+            
+            newCuad = new Cuadruplo("", "JMP", "", "",  etiqueta, amb.peekLastAmb());
+            
+            cuadruplos.offer(newCuad);
+            
+            newCuad = new Cuadruplo(newEti + ":", "", "", "", "", amb.peekLastAmb());
+
+            cuadruplos.offer(newCuad);
+        }
+    }
+    
+    public void pushWhileEtiqueta() {
+        if(noErrores()) {
+            String etiqueta, end;
+
+            etiqueta = getEtiqueta("WHI-E");
+            
+            end = getEtiqueta("WHI-E");
+
+            Cuadruplo newCuad = new Cuadruplo(etiqueta + ":", "", "", "", "", amb.peekLastAmb());
+
+            cuadruplos.offer(newCuad);
+
+            // ETIQUETA
+            Etiqueta newEtiqueta = new Etiqueta("WHI", etiqueta, end, "");
+
+            etiquetas.offer(newEtiqueta);
+        }
+            
+    }
+    
+    public void pushWhileJF() {
+        if(noErrores()) {
+            Operando oper;
+            
+            if(!sem1.operStack.isEmpty())
+                oper = sem1.peekLastOper(null);
+            else
+                oper = opers.peekLast();
+            
+            String arg1;
+            
+            if(oper.isTempCuad())
+                arg1 = oper.getTipoTempCuad();
+            else
+                arg1 = oper.getLex();
+            
+            Etiqueta last =  etiquetas.peekLast();
+            
+            Cuadruplo newCuad = new Cuadruplo("", "JF", arg1, "", last.getEst1(), amb.peekLastAmb());
+
+            cuadruplos.offer(newCuad);
+        }
+        
+    }
+    
+    public void pushEndWhile() {
+        if(noErrores() && !etiquetas.isEmpty()) {
+            Etiqueta lastEtiqueta = etiquetas.removeLast();
+            
+            Cuadruplo newCuad;
+            
+            newCuad = new Cuadruplo("", "JMP", "", "", lastEtiqueta.getSalida(), amb.peekLastAmb());
+            
+            cuadruplos.offer(newCuad);
+            
+            newCuad = new Cuadruplo(lastEtiqueta.getEst1()+ ":", "", "", "", "", amb.peekLastAmb());
+            
+            cuadruplos.offer(newCuad);
+        }
+        
+    }
+    
     public void pushEndFor() {
         if(noErrores() && !etiquetas.isEmpty()) {
             Etiqueta lastEtiqueta = etiquetas.removeLast();
             
-            Cuadruplo newCuad = new Cuadruplo("", "++", lastEtiqueta.getEst2(), "", lastEtiqueta.getEst2());
+            Cuadruplo newCuad = new Cuadruplo("", "++", lastEtiqueta.getEst2(), "", lastEtiqueta.getEst2(), amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
             
-            newCuad = new Cuadruplo("", "JMP", "", "", lastEtiqueta.getSalida());
+            newCuad = new Cuadruplo("", "JMP", "", "", lastEtiqueta.getSalida(), amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
             
-            newCuad = new Cuadruplo(lastEtiqueta.getEst1()+ ":", "", "", "", "");
+            newCuad = new Cuadruplo(lastEtiqueta.getEst1()+ ":", "", "", "", "", amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
         }
     }
     
-    Operando idFor, forVal;
-    public void setIdFor(Operando oper) {
-        this.idFor = oper;
+    Token idFor;
+    Operando forVal;
+    public void setIdFor(Token idFor) {
+        this.idFor = idFor;
     }
     
     public void setForVal(Operando oper) {
@@ -161,11 +362,15 @@ public class Cuadruplos {
             
             String tipoCuad, resultado, etiqueta, JMP;
             
-            int noTempCuad;
+            
+            newCuad = new Cuadruplo("", "=", idFor.getLexema(), "", "0", amb.peekLastAmb());
+            
+            cuadruplos.offer(newCuad);
+            
             
             JMP = getEtiqueta("FOR-E");
             
-            newCuad = new Cuadruplo(JMP + ":", "", "", "", "");
+            newCuad = new Cuadruplo(JMP + ":", "", "", "", "", amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
             
@@ -175,14 +380,14 @@ public class Cuadruplos {
             
             resultado = getTempTipoCuad("forb");
             
-            newCuad = new Cuadruplo("", "<", tipoCuad, forVal.getLex(), resultado);
+            newCuad = new Cuadruplo("", "<", tipoCuad, forVal.getLex(), resultado, amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
             
             // JF
             etiqueta = getEtiqueta("FOR-E");
             
-            newCuad = new Cuadruplo("", "JF", resultado, "", etiqueta); 
+            newCuad = new Cuadruplo("", "JF", resultado, "", etiqueta, amb.peekLastAmb()); 
             
             cuadruplos.offer(newCuad);
             
@@ -192,7 +397,7 @@ public class Cuadruplos {
             etiquetas.offer(newEtiqueta);
             
             // =
-            newCuad = new Cuadruplo("", "=", idFor.getLex(), "", tipoCuad);
+            newCuad = new Cuadruplo("", "=", idFor.getLexema(), "", tipoCuad, amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
             
@@ -203,13 +408,13 @@ public class Cuadruplos {
     
     public void pushReturnCall(Token fun, Operando dato) {
         if(noErrores()) {
-            Cuadruplo newCuad = new Cuadruplo("", "call", "return", "", "");
+            Cuadruplo newCuad = new Cuadruplo("", "call", "return", "", "", amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
             
             String resultado = "T"+"def"+fun.getLexema();
             
-            newCuad = new Cuadruplo("", "", dato.getLex(), "", resultado);
+            newCuad = new Cuadruplo("", "", dato.getLex(), "", resultado, amb.peekLastAmb());
                 
             cuadruplos.offer(newCuad);
         }
@@ -217,7 +422,12 @@ public class Cuadruplos {
     
     public void pushCall(Funcion fun, String resultado) {
         if(noErrores()) {
-            Cuadruplo newCuad = new Cuadruplo("", "call", fun.getFunLex(), "", "");
+            Cuadruplo newCuad;
+            
+            if(fun.isFunlist)
+                newCuad = new Cuadruplo("", "call", fun.getFunLex(), fun.getIdFunlist().getLex(), "", amb.peekLastAmb());
+            else
+                newCuad = new Cuadruplo("", "call", fun.getFunLex(), "", "", amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
             
@@ -233,7 +443,7 @@ public class Cuadruplos {
                     par2 = fun.getParStack().get(i);
                     
                     if(notNull(par1) && notNull(par2)) {
-                        newCuad = new Cuadruplo("", "", par1.getLex(), par2.getLex(), "");
+                        newCuad = new Cuadruplo("", "", par1.getLex(), par2.getLex(), "", amb.peekLastAmb());
                     
                         cuadruplos.offer(newCuad);
                     }
@@ -251,7 +461,7 @@ public class Cuadruplos {
             resultado = getTempTipoCuad(resultado);
             
             if(noPar % 2 != 0) { // si es impar
-                newCuad = new Cuadruplo("", "", par1.getLex(), "", resultado);
+                newCuad = new Cuadruplo("", "", par1.getLex(), "", resultado, amb.peekLastAmb());
                 
                 cuadruplos.offer(newCuad);
             } else
@@ -261,9 +471,19 @@ public class Cuadruplos {
     
     public void pushEnd() {
         if(noErrores() && !etiquetas.isEmpty()) {
-            Etiqueta lastEtiqueta = etiquetas.removeLast();
+            Etiqueta last = etiquetas.removeLast();
             
-            Cuadruplo newCuad = new Cuadruplo(lastEtiqueta.getSalida() + ":", "", "", "", "");
+            String e;
+            
+            if(last.getSalida().equals(""))
+                if(last.getEst1().equals(""))
+                    e = last.getEst2();
+                else
+                    e = last.getEst1();
+            else
+                e = last.getSalida();
+            
+            Cuadruplo newCuad = new Cuadruplo(e + ":", "", "", "", "", amb.peekLastAmb());
             
             cuadruplos.offer(newCuad);
         }
@@ -288,7 +508,7 @@ public class Cuadruplos {
                     noTempCuad = getNoTemp("B");
                     
                     newCuad = new Cuadruplo("", "==", 
-                        tipoCuad, "true", "TB"+noTempCuad); // == TL-B0
+                        tipoCuad, "true", "TB"+noTempCuad, amb.peekLastAmb()); // == TL-B0
                     
                     tipoCuad = "TB"+noTempCuad;
                     
@@ -296,20 +516,20 @@ public class Cuadruplos {
                 }
                     
                 newCuad = new Cuadruplo("", "JF", 
-                        tipoCuad, "", resultado); // [TEMP]
+                        tipoCuad, "", resultado, amb.peekLastAmb()); // [TEMP]
             } else { // if true: if x:
                 
                 noTempCuad = getNoTemp("B");
                     
                 newCuad = new Cuadruplo("", "==", 
-                    exp.getLex(), "true", "TB"+noTempCuad); // == x true TB0
+                    exp.getLex(), "true", "TB"+noTempCuad, amb.peekLastAmb()); // == x true TB0
 
                 tipoCuad = "TB"+noTempCuad;
 
                 cuadruplos.offer(newCuad);
                 
                 newCuad = new Cuadruplo("", "JF", 
-                        tipoCuad, "", resultado); // [1], [x]
+                        tipoCuad, "", resultado, amb.peekLastAmb()); // [1], [x]
             }
             
             cuadruplos.offer(newCuad);
@@ -331,7 +551,7 @@ public class Cuadruplos {
                 tipoStruct = lista.getSimbolos()[1];
             
             // lista
-            newCuad = new Cuadruplo("", tipoStruct, lista.getLex(), "", "");
+            newCuad = new Cuadruplo("", tipoStruct, lista.getLex(), "", "", amb.peekLastAmb());
             
             this.cuadruplos.offer(newCuad);  // Agregamos cuadruplo
             
@@ -344,10 +564,10 @@ public class Cuadruplos {
             
             if(pos.isTempCuad())
                 newCuad = new Cuadruplo("", "", 
-                        pos.getTipoTempCuad(), "", tipoTempCuad); // [TEMP]
+                        pos.getTipoTempCuad(), "", tipoTempCuad, amb.peekLastAmb()); // [TEMP]
             else
                 newCuad = new Cuadruplo("", "", 
-                        pos.getLex(), "", tipoTempCuad); // [1], [x]
+                        pos.getLex(), "", tipoTempCuad, amb.peekLastAmb()); // [1], [x]
             
             this.cuadruplos.offer(newCuad); // Agregamos cuadruplo
             
@@ -365,7 +585,7 @@ public class Cuadruplos {
             tipoTempCuad = "T" + tipoCuad + noTempCuad;
             
             newCuad = new Cuadruplo("", "valor", 
-                        lista.getLex(), pos.getTipoTempCuad(), tipoTempCuad); // [1], [x]
+                        lista.getLex(), pos.getTipoTempCuad(), tipoTempCuad, amb.peekLastAmb()); // [1], [x]
             
             this.cuadruplos.offer(newCuad); // Agregamos cuadruplo
             
@@ -393,10 +613,10 @@ public class Cuadruplos {
             
             if(oper1.isTempCuad())
                 newCuad = new Cuadruplo("", op.getLexema(), oper1.getTipoTempCuad(), 
-                            oper2.getLex(), tempOper.getTipoTempCuad());
+                            oper2.getLex(), tempOper.getTipoTempCuad(), amb.peekLastAmb());
             else
                 newCuad = new Cuadruplo("", op.getLexema(), oper1.getLex(), 
-                        oper2.getLex(), tempOper.getTipoTempCuad());
+                        oper2.getLex(), tempOper.getTipoTempCuad(), amb.peekLastAmb());
 
             this.cuadruplos.offer(newCuad);
             
@@ -406,10 +626,39 @@ public class Cuadruplos {
         }
     }
     
+    public void pushAsignacion(Token op, Operando oper1, Operando oper2, String tempTipo) {
+        
+        if(noErrores()) {
+            Cuadruplo newCuad;
+            
+            String accion, arg1, res;
+            
+           
+            accion = op.getLexema();
+            
+            if(oper1.isTempCuad())
+                arg1 = oper1.getTipoTempCuad();
+            else
+                arg1 = oper1.getLex();
+            
+            if(oper2.isTempCuad())
+                res = oper2.getTipoTempCuad();
+            else
+                res = oper2.getLex();
+                
+            newCuad = new Cuadruplo("", accion, arg1, 
+                        "", res, amb.peekLastAmb());
+
+            this.cuadruplos.offer(newCuad);
+            
+            printCuadruplos();
+        }
+    }
+    
     public void pushFuncion(Token token) {
         if(noErrores()) {
-            this.cuadruplos.offer(new Cuadruplo("def", token.getLexema(), "", "", ""));
-
+            this.cuadruplos.offer(new Cuadruplo("def", token.getLexema(), "", "", "", amb.peekLastAmb()));
+            
             printCuadruplos();
 
             funciones.add(token);
@@ -423,7 +672,7 @@ public class Cuadruplos {
             if(!funciones.isEmpty()) {
             Token token = funciones.removeLast();
 
-            this.cuadruplos.offer(new Cuadruplo("enddef", token.getLexema(), "", "", ""));
+            this.cuadruplos.offer(new Cuadruplo("enddef", token.getLexema(), "", "", "", amb.peekLastAmb()));
             }
             printCuadruplos();
 
@@ -434,7 +683,7 @@ public class Cuadruplos {
     
     public void pushMain() {
         if(noErrores()) {
-            this.cuadruplos.offer(new Cuadruplo("PPAL", "Main:", "", "", ""));
+            this.cuadruplos.offer(new Cuadruplo("PPAL", "Main:", "", "", "", amb.peekLastAmb()));
 
             printCuadruplos();
 
@@ -443,7 +692,7 @@ public class Cuadruplos {
     
     public void popMain() {
         if(noErrores()) {
-            this.cuadruplos.offer(new Cuadruplo("ENDMAIN",  "", "", "", ""));
+            this.cuadruplos.offer(new Cuadruplo("ENDMAIN",  "", "", "", "", amb.peekLastAmb()));
             
             printCuadruplos();
         }
@@ -457,13 +706,16 @@ public class Cuadruplos {
     
     public void printCuadruplos() {
         System.out.println("\n//////////////////////// CUADRUPLOS /////////////////////////");
-        System.out.println("ETIQ\tACCION\tARG1\tARG2\tRESULTADO");
+        System.out.println("ETIQ\tACCION\tARG1\tARG2\tRESULTADO\tamb");
         
         for (Cuadruplo c : cuadruplos) {
             System.out.println(c.getEtiqueta() + "\t" + c.getAccion() + "\t" + c.getArg1() + "\t" + c.getArg2() +
-                    "\t" + c.getRes());
+                    "\t" + c.getRes()+
+                    "\t" + c.amb);
         }
         System.out.println("");
+        
+        printEtiquetas();
     }
     
     public void printFunciones() {
@@ -472,6 +724,18 @@ public class Cuadruplos {
         
         for(Token o : funciones) {
             System.out.println(o.getLexema());
+        }
+        
+        
+        System.out.println("\n------------------------*\n");
+    }
+    
+    public void printEtiquetas() {
+        System.out.println("\n*------------- CUAD -----------\n");
+        System.out.println(" ETIQUETAS:");
+        
+        for(Etiqueta o : etiquetas) {
+            System.out.println(o.getComp() + " " + o.getSalida() + " " + o.getEst1()  + " " + o.getEst2() );
         }
         
         
@@ -577,6 +841,16 @@ public class Cuadruplos {
     
     public String getEtiqueta(String tipo) {
         return tipo+getNoEtiqueta(tipo);
+    }
+    
+    public void setContador() {
+        cont.cuadruplos = this.cuadruplos;
+        
+        cont.setContador(amb.contAmb);
+    }
+    
+    public ContCuadruplos getContador() {
+        return cont;
     }
     
 }

@@ -148,6 +148,7 @@ public class Sintaxis {
         ambito.setContador();
         semantica2.setContador(ambito.contAmb);
         semantica3.setContador(ambito.contAmb);
+        cuadruplos.setContador();
     }
     
     // PRODUCCION
@@ -314,13 +315,13 @@ public class Sintaxis {
         {36, -82, -44, 35, -45}, // EST -> println ( J5 )
         {36, -83, 1009, 20, 1010, -50, 36, 5, 37}, // EST -> if @ OR @ : EST A3 K0
         {36, -88, 802, 801, 820, 20, 821, 800, -89, 863, 20, 864, -50, 36, 5, -86, 10103, 803}, // EST -> for @ @ @ OR @ to @ OR @ : EST A3 End @ @
-        {36, -90, 1009, 20, 1011, -50, 36, 5, -87, 10101}, // EST -> while @ OR @ : EST A3 wend @
+        {36, -90, 10091, 1009, 20, 1011, -50, 36, 5, -87, 10104}, // EST -> while @ OR @ : EST A3 wend @
         {36, -91}, // EST -> Break
         {36, -92}, // EST -> Continue
         {36, -93, 20, 1140}, // EST -> Return OR @
         {36, 20}, // EST -> OR
         {37, -85, 10102, 36, 5, -86, 10101}, // K0 -> else @ EST A3 End @
-        {37, -84, 1009, 20, 1012, -50, 36, 5, 37}, // K0 -> elif @ OR @ : EST A3 K0
+        {37, -84, 10092, 1009, 20, 1012, -50, 36, 5, 37}, // K0 -> elif @ @ OR @ : EST A3 K0
         {37, -86, 10101}, // K0 -> End @
         {38, 44, 39}, // EXP-PAS -> ORLOG L0
         {39, -27, 44, 850, 39}, // L0 -> < ORLOG @ L0

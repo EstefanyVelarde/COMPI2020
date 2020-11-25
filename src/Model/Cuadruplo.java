@@ -3,6 +3,8 @@ package Model;
 public class Cuadruplo {
     String etiqueta, accion, arg1, arg2, res;
 
+    public int amb;
+    
     public Cuadruplo(String etiqueta, String accion, String arg1, String arg2, String res) {
         this.etiqueta = etiqueta;
         this.accion = accion;
@@ -10,6 +12,17 @@ public class Cuadruplo {
         this.arg2 = arg2;
         this.res = res;
     }
+
+    public Cuadruplo(String etiqueta, String accion, String arg1, String arg2, String res, int amb) {
+        this.etiqueta = etiqueta;
+        this.accion = accion;
+        this.arg1 = arg1;
+        this.arg2 = arg2;
+        this.res = res;
+        this.amb = amb;
+    }
+    
+    
 
     public String getEtiqueta() {
         return etiqueta;

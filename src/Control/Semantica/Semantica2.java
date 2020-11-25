@@ -223,8 +223,12 @@ public class Semantica2 {
     }
     
     public void regla1080(Token token) {
-        if(token != null) 
+        if(token != null)  {
             setRegla(1080, "id", token.getLexema(), token.getLinea(), "Acepta");
+            
+            
+            sem1.cuad.setIdFor(token);
+        }
     }
     
     public void regla1081(Token token) {

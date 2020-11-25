@@ -197,6 +197,8 @@ public class Semantica1 {
 
                             if (tempTipo.equals("error")) 
                                 setError(lexemaAsign);
+                            
+                            cuad.pushAsignacion(op, oper1, oper2, tempTipo);
 
                             sem2.regla1020(oper1, oper2, lexOp, tempTipo); // ASIGNACION
 
@@ -271,9 +273,10 @@ public class Semantica1 {
                     
                     Operando forVal = operStack.removeLast();
                     
+                    cuad.setForVal(forVal);
+                    
                     sem2.regla1082(forVal);
                     
-                    cuad.setForVal(forVal);
                     
                     isFor = false;
                 break;

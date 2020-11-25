@@ -57,6 +57,9 @@ public class Semantica3 {
                     saveTemp(token, "N"); // se agrega a sem1 operandos
                     
                     sem1.isFunNoExplicada = true;
+                    
+                    
+                    sem1.cuad.pushCall(new Funcion(token), "none");
                 }
             }
         }

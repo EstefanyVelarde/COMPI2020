@@ -1,6 +1,7 @@
 package Control;
 
 import Control.Ambito.ContAmbito;
+import Control.Cuadruplos.ContCuadruplos;
 import Control.Lexico.ContLexico;
 import Control.Semantica.ContSemantica1;
 import Control.Semantica.ContSemantica2;
@@ -35,6 +36,7 @@ public class XLS {
     ContSemantica1 contSemantica1;
     ContSemantica2 contSemantica2;
     ContSemantica3 contSemantica3;
+    ContCuadruplos contCuad; 
 
     LinkedList<Token> tokens;
     LinkedList<Model.Error> errores;
@@ -42,7 +44,7 @@ public class XLS {
     public XLS(LinkedList<Token> tokens, LinkedList<Error> errores, 
             ContLexico contLexico, ContAmbito contAmbito, 
             ContSemantica1 contSemantica1, ContSemantica2 contSemantica2, 
-            ContSemantica3 contSemantica3) {
+            ContSemantica3 contSemantica3, ContCuadruplos contCuadruplos) {
         
         this.tokens = tokens;
         this.errores = errores;
@@ -51,6 +53,7 @@ public class XLS {
         this.contSemantica1 = contSemantica1;
         this.contSemantica2 = contSemantica2;
         this.contSemantica3 = contSemantica3;
+        this.contCuad = contCuadruplos;
     }
 
     public void crearExcel() {
@@ -72,6 +75,9 @@ public class XLS {
         String nombreHoja9="Semántica 2 Amb";
         String nombreHoja10="Semántica 3 Tabla";
         String nombreHoja11="Semántica 3 Cont";
+        
+        String nombreHoja12="Cuadruplos Tabla";
+        String nombreHoja13="Cuadruplos Cont";
 
         Workbook libro= new HSSFWorkbook();
         Sheet hoja1 = libro.createSheet(nombreHoja1);
@@ -85,6 +91,8 @@ public class XLS {
         Sheet hoja9 = libro.createSheet(nombreHoja9);
         Sheet hoja10 = libro.createSheet(nombreHoja10);
         Sheet hoja11 = libro.createSheet(nombreHoja11);
+        Sheet hoja12 = libro.createSheet(nombreHoja12);
+        Sheet hoja13 = libro.createSheet(nombreHoja13);
 
         //cabecera de la hoja de excel
         String [] Cabecera1= new String[]{"Linea", "Token","Lexema"};
@@ -103,6 +111,49 @@ public class XLS {
         String [] Cabecera9= new String[]{"Regla", "Totales"};
         String [] Cabecera10= new String[]{"Regla", "Funcion", "Tope pila", "Valor real", "Linea", "Estado", "Ambito"};
         String [] Cabecera11= new String[]{"Funcion", "Entradas", "Salidas", "Uso", "Aceptados", "Errores"};
+        String [] Cabecera12= new String[]{"Etiqueta", "Accion", "Arg1", "Arg2", "Resultado"};
+        String [] Cabecera13= new String[]{"Ambitos", "TD",
+        "TDO",
+        "TDB",
+        "TDH",
+        "TF",
+        "TC",
+        "TCH",
+        "TCM",
+        "TB",
+        "TT",
+        "TL",
+        "TL-D",
+        "TL-DO",
+        "TL-DB",
+        "TL-DH",
+        "TL-F",
+        "TL-C",
+        "TL-CH",
+        "TL-CM",
+        "TL-B",
+        "TL-DIC",
+        "TV",
+        "Tfor",
+        "Tforb",
+        "lista",
+        "dicc",
+        "tupla",
+        "call",
+        "=",
+        "op-rel",
+        "op-log",
+        "op-arit",
+        "JF",
+        "JMP",
+        "valor",
+        "IF-E",
+        "FOR-E",
+        "WHI-E",
+        "def",
+        "PPAL"};
+        
+        
         
         //poner negrita a la cabecera
         CellStyle style = libro.createCellStyle();
@@ -498,6 +549,66 @@ public class XLS {
                         
             cell = row.createCell(5); // Error
             cell.setCellValue(contSemantica3.salida[i][4]);
+        }
+        
+        // CUAD tabla
+        row = hoja12.createRow(0);
+        
+        
+        for (int j = 0; j <Cabecera12.length; j++) {
+            cell2= row.createCell(j);
+            cell2.setCellStyle(style); 
+            cell2.setCellValue(Cabecera12[j]);
+        }
+        
+        for (int i = 0; i < contCuad.cuadruplos.size(); i++) {
+            row = hoja12.createRow(i + 1);
+            
+            Cell cell = row.createCell(0); //Etiqueta
+            cell.setCellValue(contCuad.cuadruplos.get(i).getEtiqueta());
+            
+            cell = row.createCell(1); //Accion
+            cell.setCellValue(contCuad.cuadruplos.get(i).getAccion());
+            
+            cell = row.createCell(2); //arg1
+            cell.setCellValue(contCuad.cuadruplos.get(i).getArg1());
+            
+            
+            cell = row.createCell(3); //arg2
+            cell.setCellValue(contCuad.cuadruplos.get(i).getArg2());
+            
+            cell = row.createCell(4); //res
+            cell.setCellValue(contCuad.cuadruplos.get(i).getRes());
+            
+        }
+        
+        // CUAD tabla
+        row = hoja13.createRow(0);
+        
+        
+        for (int j = 0; j <Cabecera13.length; j++) {
+            cell2= row.createCell(j);
+            cell2.setCellStyle(style); 
+            cell2.setCellValue(Cabecera13[j]);
+        }
+        
+        for (int i = 0; i < contCuad.cont.length; i++) {
+            row = hoja13.createRow(i + 1);
+            
+            Cell cell = row.createCell(0); //AMB
+            if(i == contCuad.cont.length-1)  {
+            cell.setCellValue("Totales");
+            } else {
+                    
+            
+            cell.setCellValue(i);
+                    }
+            
+            for (int j = 0; j < contCuad.header.length; j++) {
+                cell = row.createCell(j+1); //AMB
+                cell.setCellValue(contCuad.cont[i][j]);
+            }
+            
         }
         
         ///////////////////////////////////////////////////////////
