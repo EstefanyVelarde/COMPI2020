@@ -54,7 +54,6 @@ public class Semantica2 {
                 
                 regla1140();
                 
-                
                 printReglas();
             break;
             
@@ -72,11 +71,11 @@ public class Semantica2 {
         
     }
       
-    Operando oper; 
+    public Operando oper; 
 
-    String topePila, valorReal, lexOper;
+    public String topePila, valorReal, lexOper;
     
-    int line, amb, tipoToken;
+    public int line, amb, tipoToken;
     
     public void saveLast() {
         
@@ -151,13 +150,14 @@ public class Semantica2 {
 
             setRegla(PS, topePila, valorReal, line, edo);
         }
+        
         sem1.emptyStacks();
     }
     
     public void regla1020(Operando oper1, Operando oper2, String lexOp, String tempTipo) { // ASIGNACION
         int regla = 1020;
         
-        if(oper1 != null && oper2 != null) {
+        if(notNull(oper1) && notNull(oper2)) {
             if (tempTipo.equals("error")) {
                 if(!lexOp.equals("="))
                     regla = 1021;
@@ -334,9 +334,13 @@ public class Semantica2 {
         Operando dato = sem1.getLastOper(null);
                 
         if(dato != null) {
+            
+            sem1.cuad.pushReturnCall(ambito.lastFuncionToken, dato);
+            
             ambito.cambioReturn(ambito.lastFuncionId, getTipo(dato.getTipo()));
 
             setRegla(1140, dato);
+            
         }
     }
     
@@ -363,10 +367,13 @@ public class Semantica2 {
         if(dato != null) {
             if(dato.getSimbolos() != null) {
                 int id = dato.getIdsimbolos();
+                
                 String clase = dato.getSimbolos()[1];
+                
                 String tipo = dato.getTipo();
 
                 if(clase.equals("par")) {
+                    System.out.println("\n\n\n\n\nENTRO EN CAMBIO DE VALOOOOR ");
                     dato.setTipo(temp);
 
                     setRegla(1170, dato);
@@ -543,5 +550,26 @@ public class Semantica2 {
         contador.setAparicion();
         
         contador.setAmb(contAmb);
+    }
+    
+    
+    public boolean isInteger(String numero){
+        try{
+            Integer.parseInt(numero);
+            return true;
+        }catch(NumberFormatException e){
+            return false;
+        }
+    }
+    
+    public int getInteger(String num) {
+        if(isInteger(num))
+            return Integer.parseInt(num);
+        else
+            return -1;
+    }
+    
+    public boolean notNull(Object dato) {
+        return dato != null;
     }
  }

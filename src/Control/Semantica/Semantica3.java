@@ -303,6 +303,9 @@ public class Semantica3 {
                     regla2009(lastFun, temp, funLex); // Marcamos regla de salida
                     
                     verificarReglasUso(lastFun, temp, funLex);
+                    
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 case "replace": // 2010
@@ -316,9 +319,43 @@ public class Semantica3 {
                     regla2010(lastFun, temp, funLex);
                     
                     verificarReglasUso(lastFun, temp, funLex);
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
-                case "len": case "randrange": case "count": case "index": // 2011
+                case "len": case "randrange": // 2011
+                    if(lastFun.isError()) {
+                        tipo = "V";  // se marca Variant
+                        
+                        saveTemp(funToken, tipo); // se agrega a sem1 operandos
+
+                        temp = createTemp(funToken, tipo);
+                    } else {
+                        tipo = "D";
+                        
+                        saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                        
+                        temp = createTemp(funToken, tipo); 
+                    }
+                    
+                    
+                    regla2011(lastFun, temp, funLex);
+                    
+                    switch(funLex) {
+                        case "count": case "index": 
+                            if(isIdentificador(lastFun.getIdFunlist())) 
+                                temp = lastFun.getIdFunlist(); break;
+                    }
+                    
+                    
+                    verificarReglasUso(lastFun, temp, funLex);
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
+                break;
+                
+                case "count": case "index": // 2011
+                    sem1.operStack.removeLast(); // borramos identificador
+                    
                     if(lastFun.isError()) {
                         tipo = "V";  // se marca Variant
                         
@@ -331,7 +368,7 @@ public class Semantica3 {
                         saveTemp(funToken, tipo); // se agrega a sem1 operandos
                         
                         switch(funLex) {
-                            case "len": case "randrange": case "index":
+                            case "index":
                                 temp = createTemp(funToken, tipo); break;
                             case "count": 
                                 if(isIdentificador(lastFun.getIdFunlist())) 
@@ -356,9 +393,12 @@ public class Semantica3 {
                     
                     verificarReglasUso(lastFun, temp, funLex);
                     
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 case "pop": // 2012
+                    sem1.operStack.removeLast(); // sacamos el id list
+                    
                     if(lastFun.isError()) {
                         tipo = "V";  // se marca Variant
                         
@@ -417,13 +457,32 @@ public class Semantica3 {
                                     }
                                     
                                 } else {
-                                    //devolver el ultimo
-                                    
-                                    tipo = "V";  // se marca Variant
+                                    if(id.getSimbolos()[1].equals("arreglo")) { // obtener tipo de tipoLista
+                                        tipo = getTipo(id.getSimbolos()[5], id.getSimbolos());
 
-                                    saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                                        saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                                        
+                                        temp = createTemp(funToken, tipo);
+                                    } else {
+                                        if(id.getSimbolos()[0].equals("struct")) {
+                                            //devolver el ultimo
 
-                                    temp = createTemp(funToken, tipo);
+                                            tipo = ambito.getTipoDatoLista(1, id.getLex());
+
+                                            tipo = getTipo(tipo, id.getSimbolos());
+
+                                            temp = createTemp(funToken, tipo);
+                                            
+                                        } else {
+                                            //devolver el ultimo
+
+                                            tipo = "V";  // se marca Variant
+
+                                            saveTemp(funToken, tipo); // se agrega a sem1 operandos
+
+                                            temp = createTemp(funToken, tipo);
+                                        }
+                                    }
                                 }
                             } else {
                                 tipo = "V";  // se marca Variant
@@ -447,6 +506,8 @@ public class Semantica3 {
                     }
                     
                     verificarReglasUso(lastFun, temp, funLex);
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 case "choice":
@@ -502,6 +563,7 @@ public class Semantica3 {
                     
                     regla2012(lastFun, temp, funLex);
                     
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 
@@ -524,6 +586,8 @@ public class Semantica3 {
                     
                     
                     verificarReglasUso(lastFun, temp, funLex);
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 case "sum": // 2014
@@ -555,13 +619,15 @@ public class Semantica3 {
                     regla2014(lastFun, temp, funLex);
                     
                     verificarReglasUso(lastFun, temp, funLex);
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 case "append": // 2015
                     if(lastFun.isError()) {
                         tipo = "V";  // se marca Variant
                         
-                        saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                        //saveTemp(funToken, tipo); // se agrega a sem1 operandos
                         
                         temp = createTemp(funToken, tipo);
                     } else {
@@ -571,13 +637,13 @@ public class Semantica3 {
                         
                             tipo = getTipo(idsimbolos[0], idsimbolos);
                             
-                            saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                            //saveTemp(funToken, tipo); // se agrega a sem1 operandos
                             
                             temp = lastFun.getIdFunlist();
                         } else {
                             tipo = "V";  // se marca Variant
                         
-                            saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                            //saveTemp(funToken, tipo); // se agrega a sem1 operandos
                             
                             temp = createTemp(funToken, tipo);
                         }
@@ -586,19 +652,21 @@ public class Semantica3 {
                     regla2015(lastFun, temp, funLex);
                     
                     verificarReglasUso(lastFun, temp, funLex);
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 case "sort": case "reverse": // 2016
                     if(lastFun.isError()) {
                         tipo = "V";  // se marca Variant
                         
-                        saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                        //saveTemp(funToken, tipo); // se agrega a sem1 operandos
                         
                         temp = createTemp(funToken, tipo);
                     } else {
                         tipo = "L";
                         
-                        saveTemp(funToken, tipo); // se agrega a sem1 operandos
+                        //saveTemp(funToken, tipo); // se agrega a sem1 operandos
                         
                         if(isIdentificador(lastFun.getIdFunlist()))
                             temp = lastFun.getIdFunlist();
@@ -610,11 +678,14 @@ public class Semantica3 {
                     
                     
                     verificarReglasUso(lastFun, temp, funLex);
+                    
+                    sem1.cuad.pushCall(lastFun, tipo);
                 break;
                 
                 case "extend": 
                 case "remove":
                 case "insert":
+                case "print":
                     if(!isFunlist(lastFun.getToken().getToken())) {
                         saveTemp(funToken, "N"); // se agrega a sem1 operandos
                     }
@@ -625,6 +696,7 @@ public class Semantica3 {
                             temp = createTemp(funToken, "V");
                     
                     
+                    sem1.cuad.pushCall(lastFun, "none");
                     
                     verificarReglasUso(lastFun, temp, funLex);
                 break;
@@ -780,20 +852,14 @@ public class Semantica3 {
         String funLex_par = fun.getFunLex() + "_par" + noPar;
         
         
+        if(isIdentificador(par)) { // para idfunciones
+            if(par.isFun() && par.getTipo().equals("N")) {
+                setError(fun, idRegla, funLex_par, par);
+            }
+        }
         setRegla(idRegla, funLex_par, par, "Acepta");
         
-//        if(fun.isErrorParFaltante()) {
-//            setError(fun, idRegla, funLex_par, createTemp(fun.getToken(), fun.getFunLex()));
-//        } else {
-//             if(isVariant(par))
-//                setRegla(idRegla, funLex_par, par, "Acepta");
-//             else
-//                 if(isConstanteEntero(par) || isCadena(par) || isChar(par) ||
-//                         isIdentificador(par))
-//                    setRegla(idRegla, funLex_par, par, "Acepta");
-//                 else
-//                    setError(fun, idRegla, funLex_par, par);
-//        }
+        sem1.cuad.pushCall(fun, "none");
     }
     
     public void regla2008(Funcion fun, Operando par, int noPar) {

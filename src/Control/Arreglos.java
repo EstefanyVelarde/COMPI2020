@@ -70,10 +70,6 @@ public class Arreglos {
                 if(sem1.operStack.size() > 0) 
                     lastId = sem1.operStack.peekLast();
                 
-                if(lastId.getSimbolos() != null)
-                    if(lastId.getSimbolos()[1].equals("arreglo"))
-                        lastId.setTipo(sem1.getTipo(lastId.getSimbolos()[5]));
-                
                 emptyStacks();
                  
                 System.out.println("\n ++ ARR / LASTID: " + this.lastId.getLex() + "\n");
@@ -85,6 +81,8 @@ public class Arreglos {
                 printStacks();
                 
                 checarArrStack();
+                
+                sem1.printStacks();
             break;
         }
     }
@@ -117,7 +115,7 @@ public class Arreglos {
         
         printTArr();
         
-        Operando dato = new Operando(new Token("V", 1), "V", true, 
+        Operando dato = new Operando(new Token(-56, 1, "none"), "V", true, 
                 sem2.getNoTemp("V"));
         
         if(operStack.size() == 1) { // CASO arr[x] =
@@ -125,7 +123,9 @@ public class Arreglos {
             
             if(regla1030(dato, dim)) {
                 if(regla1040(dato)) {
-                    regla1050(dato, tArr, dim);
+                    if(regla1050(dato, tArr, dim)) {
+                        
+                    }
 
                     dim++;
                 }
@@ -146,12 +146,17 @@ public class Arreglos {
                 dim++;
             }
             
-            
             regla1030(dato, dim, dimArr);
         }
         
         
-       sem1.cuad.pushLista(lastId, dato);
+        // Guardamos dato
+        if(isIdArreglo(lastId)) {
+            System.out.println("GUARDANDO DATO " + lastId.getLex());
+            lastId.setTipo(sem1.getTipo(lastId.getSimbolos()[5]));
+        }
+        
+        sem1.cuad.pushLista(lastId, dato);
         
     }
     public void lista() {
@@ -159,7 +164,7 @@ public class Arreglos {
         
         printTArr();
         
-        Operando dato = new Operando(new Token(-18, 18, "!"), "V", true, 
+        Operando dato = new Operando(new Token(-56, 1, "none"), "V", true, 
                 sem2.getNoTemp("V"));
         
         if(operStack.size() == 1) { // CASO arr[x] =
@@ -205,13 +210,18 @@ public class Arreglos {
         
         dimArr = 1;
         
+        Operando dato = new Operando(new Token(-56, 1, "none"), "V", true, 
+                sem2.getNoTemp("V"));
+        
         while(!operStack.isEmpty()) {
-            Operando dato = this.getFirstOper();
+            dato = this.getFirstOper();
             
             if(regla1030(dato, dim)) { // DIM
                 if(regla1040(dato)) { // ENT
                     if(regla1050(dato, tArr, dim)) { // LIM
+                        
                         regla1070(dato);
+                        
                         regla1071(dato, dim);
                     }
                 }
@@ -219,6 +229,8 @@ public class Arreglos {
             
             dim++;
         }
+        
+        sem1.cuad.pushLista(lastId, dato);
     }
     
     public void setTipoTupla(Operando dato) {
@@ -233,8 +245,11 @@ public class Arreglos {
                     if(isInteger(dato.getLex())) { // caso tupla[1]
                         int noPar =  Integer.parseInt(dato.getLex()) + 1;
                         
-                        tipo = sem1.getTipo(sem1.amb.getTipoDatoTupla(noPar, tupla.getLex()));
-
+                        if(noPar == 0)
+                            tipo = sem1.getTipo(sem1.amb.getTipoDatoTupla(1, tupla.getLex()));
+                        else
+                            tipo = sem1.getTipo(sem1.amb.getTipoDatoTupla(noPar, tupla.getLex()));
+                        
                     } else { // caso tupla[x]
                         tipo = sem1.getTipo(sem1.amb.getTipoDatoTupla(1, tupla.getLex())); // SE PONE EL PRIMER TIPO
                     }
@@ -320,6 +335,7 @@ public class Arreglos {
     public boolean regla1050(Operando dato, int[][] tArr, int dim) {
         if(dato != null) {
             this.printZone(1050);
+            
             this.printTArr();
 
             if(tArr != null) {
@@ -335,6 +351,7 @@ public class Arreglos {
                                 setRegla(1050, dato);
                                 
                                 // Obtener tipo dato
+                                
                                 
                                 return true;
                             } else {
@@ -352,15 +369,14 @@ public class Arreglos {
                     if(isIdentificador(dato)) { // CASO arr[x]
                         setRegla(1050, dato);
 
-                        
                         // Obtener tipo dato T?
                         
-                        return false;
+                        return true;
                     } else {
                         if(dato.isTemp()) { // arr[1+1...]
                             setRegla(1050, dato);
                             
-                            return false;
+                            return true;
                         }
                     }
                     
@@ -788,6 +804,36 @@ public class Arreglos {
         System.out.println("\n------------------------*\n");
     }
     
-   
     
+    public boolean isIdLista(Operando oper) {
+        if(isIdentificador(oper))
+            if(oper.getTipo().equals("L")) 
+                return true;
+        
+        return false;
+    }
+    
+    public boolean isIdArreglo(Operando oper) {
+        if(isIdentificador(oper))
+            if(oper.getTipo().equals("A")) 
+                return true;
+        
+        return false;
+    }
+    
+    public boolean isIdDicc(Operando oper) {
+        if(isIdentificador(oper))
+            if(oper.getTipo().equals("DIC")) 
+                return true;
+        
+        return false;
+    }
+    
+    public boolean isIdTupla(Operando oper) {
+        if(isIdentificador(oper))
+            if(oper.getTipo().equals("T")) 
+                return true;
+        
+        return false;
+    }
 }

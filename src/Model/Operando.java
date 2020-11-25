@@ -5,9 +5,9 @@ public class Operando {
     
     String tipo, lex, tipoCuad;
     
-    int idsimbolos = -1, noTemp;
+    int idsimbolos = -1, noTemp, noTempCuad;
     
-    boolean temp, fun, arr, range;
+    boolean temp, fun, arr, range, tempCuad;
     
     String[] simbolos; // [0] tipo [1] clase [2] idsimbolos [3] tArr [4] dimArr [5] tipoLista
 
@@ -118,6 +118,34 @@ public class Operando {
         this.noTemp = noTemp;
     }
 
+    public String getTipoCuad() {
+        return tipoCuad;
+    }
+
+    public void setTipoCuad(String tipoCuad) {
+        this.tipoCuad = tipoCuad;
+    }
+
+    public int getNoTempCuad() {
+        return noTempCuad;
+    }
+
+    public void setNoTempCuad(int noTempCuad) {
+        this.noTempCuad = noTempCuad;
+    }
+
+    public boolean isTempCuad() {
+        return tempCuad;
+    }
+
+    public void setTempCuad(boolean tempCuad) {
+        this.tempCuad = tempCuad;
+    }
     
+    
+
+    public String getTipoTempCuad() {
+        return "T"+tipoCuad+noTempCuad;
+    }
     
 }

@@ -161,12 +161,11 @@ public class Semantica1 {
                     if(notNull(oper1) && notNull(oper1) && notNull(op)) {
                         tempTipo = matriz.getType(tipoOper1, tipoOper2, opToken);
 
-                        saveTemp();
+                        Operando tempOper = saveTemp();
                         
-                        cuad.pushOperacion(op, oper1, oper2, tempTipo);
+                        cuad.pushOperacion(op, oper1, oper2, tempTipo, tempOper);
 
                         System.out.println("\n++ SE CREO TEMP\n"); printStacks();
-
 
                         contador.addTemp(tempTipo);
 
@@ -255,6 +254,7 @@ public class Semantica1 {
                     
                     sem2.printReglas();
                     
+                    asignacion = false;
                     this.emptyStacks();
                 break;
                 
@@ -269,7 +269,11 @@ public class Semantica1 {
                 case 864: 
                     printZone(PS);
                     
-                    sem2.regla1082(operStack.removeLast());
+                    Operando forVal = operStack.removeLast();
+                    
+                    sem2.regla1082(forVal);
+                    
+                    cuad.setForVal(forVal);
                     
                     isFor = false;
                 break;
@@ -352,26 +356,32 @@ public class Semantica1 {
     
     
     
-    public void saveTemp() {
+    public Operando saveTemp() {
+        Operando tempOper;
+        
         if (tempTipo.equals("error")) {
             setError(lexemaOper);
 
             tempTipo = "V"; // Marcamos Variant
         }
+        
+        
+        tempOper = new Operando(new Token(lexemaOper, line), 
+                    tempTipo, true, sem2.getNoTemp(tempTipo));
 
         if(isArr) {
-            arr.operStack.offer(new Operando(new Token(lexemaOper, line), 
-                    tempTipo, true, sem2.getNoTemp(tempTipo))); // Guardamos temp
+            
+            arr.operStack.offer(tempOper); // Guardamos temp
 
         } else {
             if(isFun) {
-                fun.operStack.offer(new Operando(new Token(lexemaOper, line), 
-                        tempTipo, true, sem2.getNoTemp(tempTipo))); // Guardamos temp
+                fun.operStack.offer(tempOper); // Guardamos temp
             } else {
-                operStack.offer(new Operando(new Token(lexemaOper, line), 
-                        tempTipo, true, sem2.getNoTemp(tempTipo))); // Guardamos temp
+                operStack.offer(tempOper); // Guardamos temp
             }
         }
+        
+        return tempOper;
     }
     
     public Operando saveTemp(String lexemaOper, int line, String tempTipo) {
@@ -573,7 +583,8 @@ public class Semantica1 {
             case "binario":     tipo = "DB"; break;
             case "hexadecimal": tipo = "DH"; break;
             case "octal":       tipo = "DO"; break;
-            case "none":        tipo = "V"; contador.addTemp(tipo); break; // None
+            case "none":        tipo = "N"; contador.addTemp("V"); break; // None
+            //case "none":        tipo = "V"; contador.addTemp(tipo); break; // None
             case "struct": 
                 switch(idsimbolos[1]) {
                     case "tupla":       tipo = "T";   break;

@@ -168,7 +168,7 @@ public class Ambito {
                 
                 
                 case 820: tipo = "decimal"; clase = "var"; keys.offer(PS); break; // para FOR id 
-                case 821: sem2.regla1080(token); sem2.regla1081(token);  break; // Fin FOR id
+                case 821: sem2.regla1080(token); sem2.regla1081(token); keys.removeLast(); break; // Fin FOR id
                 
                 
                 case 853: negativo = true; break; // - Decimal
