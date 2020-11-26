@@ -15,7 +15,7 @@ public class Semantica3 {
      
     LinkedList<Regla> listaReglas;
     
-    LinkedList<Funcion> funStack;
+    public LinkedList<Funcion> funStack;
     
     public Semantica3(Ambito ambito, Semantica1 sem1) {
         this.ambito = ambito;

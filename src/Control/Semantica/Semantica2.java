@@ -13,6 +13,9 @@ import javax.swing.JOptionPane;
 public class Semantica2 {
     Semantica1 sem1;
     
+    
+    Semantica3 sem3;
+    
     ContSemantica2 contador;
     
     Ambito ambito; // Para acceder a conexion, tokens y errores
@@ -280,19 +283,24 @@ public class Semantica2 {
         
     }
     
-    public void regla1110(Operando dato) {
+    public void regla1110(Operando dato) { // procedimiento
         
         if(dato != null) {
-            if(dato.getSimbolos() != null) {
+            if(dato.getSimbolos() != null) { 
                 String tipo = dato.getSimbolos()[0];
 
                 if(dato.isFun()) {
-                    if(tipo.equals("none")) // TIPO == NONE
+                    if(tipo.equals("none"))  // TIPO == NONE
                         setRegla(1110, tipo, dato.getLex(), 
                                 dato.getToken().getLinea(), "Acepta");
-                    else
-                        setError(1110, 775,  tipo, dato.getLex(), 
-                                dato.getToken().getLinea());
+                    else {
+                        if(sem1.isFun || !sem3.funStack.isEmpty()) {
+                            setRegla(1110, tipo, dato.getLex(), 
+                                dato.getToken().getLinea(), "Acepta");
+                        } else
+                            setError(1110, 775,  tipo, dato.getLex(), 
+                                    dato.getToken().getLinea());
+                    }
                 }
             } else 
                 if(dato.isFun()) // SI NO ESTA DECLARADA
@@ -303,7 +311,7 @@ public class Semantica2 {
         printReglas();
     }
     
-    public void regla1120(Operando dato) {
+    public void regla1120(Operando dato) { // funcion
         if(dato != null) {
             if(dato.getSimbolos() != null) {
                 String tipo = dato.getSimbolos()[0];
