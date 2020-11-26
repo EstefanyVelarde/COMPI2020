@@ -89,7 +89,9 @@ public class ContCuadruplos {
 
                 if(isOperador(acc)) {
                     acc = getTipoOp(acc);
-                } 
+                } else
+                    if(acc.equals("arreglo"))
+                        acc = "lista";
                 
                 if(acc.contains(header[j])) {
                     //System.out.println(acc +  " " + actual.amb);
